@@ -1,0 +1,789 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:cardblaze/providers/theme_provider.dart';
+import 'package:cardblaze/providers/locale_provider.dart';
+import 'package:cardblaze/providers/premium_providers.dart';
+import 'package:cardblaze/providers/deck_providers.dart';
+import 'package:cardblaze/theme/app_theme.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+class SettingsScreen extends ConsumerStatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tab;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final border = AppColors.border(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Postavke'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: border)),
+            ),
+            child: TabBar(
+              controller: _tab,
+              tabs: const [
+                Tab(text: 'Općenito'),
+                Tab(text: 'Pretplata'),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: TabBarView(
+        controller: _tab,
+        children: const [
+          _GeneralTab(),
+          _SubscriptionTab(),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────── TAB 1: Općenito ─────────────────
+
+class _GeneralTab extends ConsumerWidget {
+  const _GeneralTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      children: [
+        const _SectionHeader('Izgled'),
+        _SettingsTile(
+          icon: Icons.palette_outlined,
+          title: 'Tema',
+          trailing: _ThemeSegmentedButton(themeMode: themeMode, ref: ref),
+        ),
+        const SizedBox(height: 8),
+        const _SectionHeader('Jezik'),
+        _SettingsTile(
+          icon: Icons.language_outlined,
+          title: 'Jezik sučelja',
+          trailing: _LocaleDropdown(locale: locale, ref: ref),
+        ),
+        const SizedBox(height: 8),
+        const _SectionHeader('Ostalo'),
+        _TappableTile(
+          icon: Icons.notifications_outlined,
+          title: 'Obavijesti',
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Notifications — coming soon')),
+          ),
+        ),
+        _TappableTile(
+          icon: Icons.privacy_tip_outlined,
+          title: 'Privatnost',
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Privacy policy — coming soon')),
+          ),
+        ),
+        const _AboutTile(),
+      ],
+    );
+  }
+}
+
+// ─── Theme segmented button ───────────────────────────────────────────────────
+
+class _ThemeSegmentedButton extends StatelessWidget {
+  const _ThemeSegmentedButton({required this.themeMode, required this.ref});
+  final ThemeMode themeMode;
+  final WidgetRef ref;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<ThemeMode>(
+      style: SegmentedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        textStyle: const TextStyle(fontSize: 13, fontFamily: 'Roboto'),
+        visualDensity: VisualDensity.compact,
+      ),
+      segments: const [
+        ButtonSegment(
+          value: ThemeMode.light,
+          label: Text('Svijetla'),
+          icon: Icon(Icons.light_mode_outlined, size: 16),
+        ),
+        ButtonSegment(
+          value: ThemeMode.dark,
+          label: Text('Tamna'),
+          icon: Icon(Icons.dark_mode_outlined, size: 16),
+        ),
+      ],
+      selected: {themeMode == ThemeMode.system ? ThemeMode.dark : themeMode},
+      onSelectionChanged: (set) {
+        ref.read(themeModeProvider.notifier).setMode(set.first);
+      },
+    );
+  }
+}
+
+// ─── Locale dropdown ──────────────────────────────────────────────────────────
+
+const _kLocales = [
+  (locale: Locale('hr'), label: '\u{1F1ED}\u{1F1F7} Hrvatski'),
+  (locale: Locale('en'), label: '\u{1F1EC}\u{1F1E7} English'),
+  (locale: Locale('de'), label: '\u{1F1E9}\u{1F1EA} Deutsch'),
+  (locale: Locale('fr'), label: '\u{1F1EB}\u{1F1F7} Français'),
+  (locale: Locale('it'), label: '\u{1F1EE}\u{1F1F9} Italiano'),
+];
+
+class _LocaleDropdown extends StatelessWidget {
+  const _LocaleDropdown({required this.locale, required this.ref});
+  final Locale locale;
+  final WidgetRef ref;
+
+  String get _currentLabel {
+    for (final e in _kLocales) {
+      if (e.locale.languageCode == locale.languageCode) return e.label;
+    }
+    return '\u{1F1EC}\u{1F1E7} English';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final border = AppColors.border(context);
+
+    return PopupMenuButton<Locale>(
+      onSelected: (l) => ref.read(localeProvider.notifier).setLocale(l),
+      itemBuilder: (_) => _kLocales
+          .map((e) => PopupMenuItem(
+                value: e.locale,
+                child: Text(e.label),
+              ))
+          .toList(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: border),
+          borderRadius: BorderRadius.circular(8),
+          color: cs.surfaceContainerHighest,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _currentLabel,
+              style: const TextStyle(fontSize: 13, fontFamily: 'Roboto'),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.arrow_drop_down,
+                size: 18, color: AppColors.textMuted(context)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── About tile ───────────────────────────────────────────────────────────────
+
+class _AboutTile extends StatefulWidget {
+  const _AboutTile();
+
+  @override
+  State<_AboutTile> createState() => _AboutTileState();
+}
+
+class _AboutTileState extends State<_AboutTile> {
+  String _version = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (mounted) {
+        setState(() => _version = '${info.version} (${info.buildNumber})');
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const _IconBox(icon: Icons.info_outline),
+      title: const Text('O aplikaciji'),
+      subtitle: Text('CardBlaze $_version · DoxITLabs'),
+    );
+  }
+}
+
+// ──────────────────────────────────────────── TAB 2: Pretplata ───────────────
+
+class _SubscriptionTab extends ConsumerWidget {
+  const _SubscriptionTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPremiumAsync = ref.watch(isPremiumProvider);
+    final offeringsAsync = ref.watch(offeringsProvider);
+    final decksAsync = ref.watch(decksStreamProvider);
+
+    final deckCount = decksAsync.valueOrNull?.length ?? 0;
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        offeringsAsync.when(
+          loading: () => const _PremiumCardSkeleton(),
+          error: (_, __) => const _PremiumCardSkeleton(),
+          data: (packages) => _PremiumCard(packages: packages),
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: TextButton(
+            onPressed: () => _restorePurchases(context, ref),
+            child: const Text('Obnovi kupnju'),
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Divider(),
+        const SizedBox(height: 8),
+        const _SectionHeader('Tvoj plan'),
+        isPremiumAsync.when(
+          loading: () => const Center(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          error: (_, __) => _PlanTile(isPremium: false, deckCount: deckCount),
+          data: (isPremium) =>
+              _PlanTile(isPremium: isPremium, deckCount: deckCount),
+        ),
+        _TappableTile(
+          icon: Icons.open_in_new_outlined,
+          title: 'Upravljaj pretplatom',
+          onTap: _openManageSubscription,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _restorePurchases(BuildContext context, WidgetRef ref) async {
+    final svc = ref.read(premiumServiceProvider);
+    final result = await svc.restorePurchases();
+    if (!context.mounted) return;
+    if (result != null) {
+      final active = result.entitlements.active.containsKey('pro');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(active
+              ? 'Kupnja uspješno obnovljena!'
+              : 'Nema aktivne pretplate za obnovu.'),
+        ),
+      );
+      ref.invalidate(isPremiumProvider);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Greška pri obnovi kupnje.')),
+      );
+    }
+  }
+
+  Future<void> _openManageSubscription() async {
+    const url =
+        'https://play.google.com/store/account/subscriptions?package=com.doxitlabs.cardblaze';
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+}
+
+// ─── Premium card ─────────────────────────────────────────────────────────────
+
+class _PremiumCard extends ConsumerWidget {
+  const _PremiumCard({required this.packages});
+  final List<Package> packages;
+
+  static const _features = [
+    'Neograničen broj deckova',
+    'Neograničena AI generacija kartica',
+    'PDF uvoz bez ograničenja',
+    'Napredne statistike učenja',
+    'Prioritetna korisnička podrška',
+  ];
+
+  static const _purpleGrad = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF3D1F6E), Color(0xFF6B4FA0), Color(0xFF9B59B6)],
+  );
+
+  Package? get _monthly => packages
+      .where((p) =>
+          p.packageType == PackageType.monthly ||
+          p.storeProduct.identifier == 'cardblaze_pro_monthly')
+      .firstOrNull;
+
+  Package? get _yearly => packages
+      .where((p) =>
+          p.packageType == PackageType.annual ||
+          p.storeProduct.identifier == 'cardblaze_pro_yearly')
+      .firstOrNull;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: _purpleGrad,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6B4FA0).withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Badge
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.workspace_premium,
+                      color: Colors.amber, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'CardBlaze Pro',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Features
+            ..._features.map(
+              (f) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 13),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      f,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Price buttons
+            Row(
+              children: [
+                if (_monthly != null)
+                  Expanded(
+                    child: _PriceButton(
+                      label: '€4,99/mj',
+                      featured: false,
+                      onTap: () => _purchase(context, ref, _monthly!),
+                    ),
+                  ),
+                if (_monthly != null && _yearly != null)
+                  const SizedBox(width: 10),
+                if (_yearly != null)
+                  Expanded(
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        _PriceButton(
+                          label: '€29,99/god',
+                          featured: true,
+                          onTap: () => _purchase(context, ref, _yearly!),
+                        ),
+                        Positioned(
+                          top: -10,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Uštedi 50%',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Roboto',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (_monthly == null && _yearly == null)
+                  const Expanded(
+                    child: ElevatedButton(
+                      onPressed: null,
+                      child: Text('Nedostupno'),
+                    ),
+                  ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF6B4FA0),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: const TextStyle(
+                    fontFamily: 'Roboto',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                onPressed: _yearly != null
+                    ? () => _purchase(context, ref, _yearly!)
+                    : (_monthly != null
+                        ? () => _purchase(context, ref, _monthly!)
+                        : null),
+                child: const Text('Nadogradi na Pro'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _purchase(
+      BuildContext context, WidgetRef ref, Package package) async {
+    final svc = ref.read(premiumServiceProvider);
+    final result = await svc.purchase(package);
+    if (!context.mounted) return;
+    if (result != null && result.entitlements.active.containsKey('pro')) {
+      ref.invalidate(isPremiumProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Dobrodošao u CardBlaze Pro! 🎉')),
+      );
+    }
+  }
+}
+
+// ─── Price button ─────────────────────────────────────────────────────────────
+
+class _PriceButton extends StatelessWidget {
+  const _PriceButton({
+    required this.label,
+    required this.featured,
+    required this.onTap,
+  });
+  final String label;
+  final bool featured;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: featured
+              ? Colors.white
+              : Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: featured
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: featured ? const Color(0xFF6B4FA0) : Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              fontFamily: 'Roboto',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Premium card skeleton ────────────────────────────────────────────────────
+
+class _PremiumCardSkeleton extends StatelessWidget {
+  const _PremiumCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 320,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF3D1F6E), Color(0xFF6B4FA0), Color(0xFF9B59B6)],
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      ),
+    );
+  }
+}
+
+// ─── Plan tile ────────────────────────────────────────────────────────────────
+
+class _PlanTile extends StatelessWidget {
+  const _PlanTile({required this.isPremium, required this.deckCount});
+  final bool isPremium;
+  final int deckCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final purple = AppColors.purple(context);
+    final purpleBg = AppColors.purpleBg(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isPremium ? purpleBg : AppColors.surface(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isPremium
+                ? purple.withValues(alpha: 0.4)
+                : AppColors.border(context),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isPremium ? Icons.workspace_premium : Icons.person_outline,
+              color: isPremium ? purple : AppColors.textSecondary(context),
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isPremium ? 'CardBlaze Pro' : 'Free plan',
+                    style: TextStyle(
+                      color:
+                          isPremium ? purple : AppColors.textPrimary(context),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontFamily: 'Roboto',
+                    ),
+                  ),
+                  if (!isPremium)
+                    Text(
+                      '$deckCount/3 deckova korišteno',
+                      style: TextStyle(
+                        color: AppColors.textSecondary(context),
+                        fontSize: 13,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                  if (isPremium)
+                    Text(
+                      'Svi Pro benefiti aktivni',
+                      style: TextStyle(
+                        color: AppColors.textSecondary(context),
+                        fontSize: 13,
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (isPremium)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: purple.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Aktivan',
+                  style: TextStyle(
+                    color: purple,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────── Shared widgets ──────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 6),
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context)
+            .textTheme
+            .labelSmall
+            ?.copyWith(letterSpacing: 1.2),
+      ),
+    );
+  }
+}
+
+class _IconBox extends StatelessWidget {
+  const _IconBox({required this.icon});
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, color: cs.primary, size: 20),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    this.trailing,
+  });
+  final IconData icon;
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: _IconBox(icon: icon),
+      title: Text(title),
+      trailing: trailing,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
+  }
+}
+
+class _TappableTile extends StatelessWidget {
+  const _TappableTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: _IconBox(icon: icon),
+      title: Text(title),
+      trailing: Icon(Icons.chevron_right, color: AppColors.textMuted(context)),
+      onTap: onTap,
+    );
+  }
+}
