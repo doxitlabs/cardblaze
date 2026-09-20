@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -9,12 +10,15 @@ import 'package:cardblaze/providers/theme_provider.dart';
 import 'package:cardblaze/providers/locale_provider.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
+import 'package:cardblaze/services/notification_service.dart';
+import 'package:cardblaze/services/premium_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.initialTab = 0});
+  final int initialTab;
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -27,7 +31,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   @override
   void initState() {
     super.initState();
-    _tab = TabController(length: 2, vsync: this);
+    _tab = TabController(length: 2, vsync: this, initialIndex: widget.initialTab);
   }
 
   @override
@@ -99,19 +103,11 @@ class _GeneralTab extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         _SectionHeader(l.other_section),
-        _TappableTile(
-          icon: Icons.notifications_outlined,
-          title: l.notifications,
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notifications — coming soon')),
-          ),
-        ),
+        const _NotificationTile(),
         _TappableTile(
           icon: Icons.privacy_tip_outlined,
           title: l.privacy,
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Privacy policy — coming soon')),
-          ),
+          onTap: () => context.push('/privacy'),
         ),
         const _AboutTile(),
       ],
@@ -208,6 +204,56 @@ class _LocaleDropdown extends StatelessWidget {
                 size: 18, color: AppColors.textMuted(context)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Notification tile ───────────────────────────────────────────────────────
+
+class _NotificationTile extends StatefulWidget {
+  const _NotificationTile();
+
+  @override
+  State<_NotificationTile> createState() => _NotificationTileState();
+}
+
+class _NotificationTileState extends State<_NotificationTile> {
+  bool _enabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    notificationService.isEnabled().then((v) {
+      if (mounted) setState(() => _enabled = v);
+    });
+  }
+
+  Future<void> _toggle(bool value) async {
+    if (value) {
+      final granted = await notificationService.requestPermission();
+      if (!granted) return;
+    }
+    await notificationService.setEnabled(value);
+    if (mounted) setState(() => _enabled = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return ListTile(
+      leading: const _IconBox(icon: Icons.notifications_outlined),
+      title: Text(l.notifications),
+      subtitle: Text(
+        _enabled ? l.notifications_on : l.notifications_off,
+        style: TextStyle(
+          fontSize: 12,
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
+      ),
+      trailing: Switch(
+        value: _enabled,
+        onChanged: _toggle,
       ),
     );
   }
@@ -334,12 +380,12 @@ class _PremiumCard extends ConsumerWidget {
   const _PremiumCard({required this.packages});
   final List<Package> packages;
 
-  static const _features = [
-    'Neograničen broj deckova',
-    'Neograničena AI generacija kartica',
-    'PDF uvoz bez ograničenja',
-    'Napredne statistike učenja',
-    'Prioritetna korisnička podrška',
+  List<String> _featureList(AppLocalizations l) => [
+    l.benefit_unlimited_decks,
+    l.benefit_cards_per_deck,
+    l.benefit_ai_generation,
+    l.benefit_pdf_import,
+    l.benefit_advanced_stats,
   ];
 
   static const _purpleGrad = LinearGradient(
@@ -412,7 +458,7 @@ class _PremiumCard extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Features
-            ..._features.map(
+            ..._featureList(AppLocalizations.of(context)).map(
               (f) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
@@ -449,7 +495,7 @@ class _PremiumCard extends ConsumerWidget {
                 if (_monthly != null)
                   Expanded(
                     child: _PriceButton(
-                      label: '€4,99/mj',
+                      label: _monthly!.storeProduct.priceString,
                       featured: false,
                       onTap: () => _purchase(context, ref, _monthly!),
                     ),
@@ -458,36 +504,10 @@ class _PremiumCard extends ConsumerWidget {
                   const SizedBox(width: 10),
                 if (_yearly != null)
                   Expanded(
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        _PriceButton(
-                          label: '€29,99/god',
-                          featured: true,
-                          onTap: () => _purchase(context, ref, _yearly!),
-                        ),
-                        Positioned(
-                          top: -10,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.amber,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Text(
-                              'Uštedi 50%',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'Roboto',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: _PriceButton(
+                      label: _yearly!.storeProduct.priceString,
+                      featured: true,
+                      onTap: () => _purchase(context, ref, _yearly!),
                     ),
                   ),
                 if (_monthly == null && _yearly == null)
@@ -540,7 +560,7 @@ class _PremiumCard extends ConsumerWidget {
     if (result != null && result.entitlements.active.containsKey('pro')) {
       ref.invalidate(isPremiumProvider);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dobrodošao u CardBlaze Pro! 🎉')),
+        SnackBar(content: Text(AppLocalizations.of(context).pro_welcome)),
       );
     }
   }
@@ -666,7 +686,7 @@ class _PlanTile extends StatelessWidget {
                   ),
                   if (!isPremium)
                     Text(
-                      '$deckCount/3',
+                      '$deckCount/${PremiumLimits.maxDecks}',
                       style: TextStyle(
                         color: AppColors.textSecondary(context),
                         fontSize: 13,

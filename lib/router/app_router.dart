@@ -5,6 +5,7 @@ import 'package:cardblaze/screens/study/study_screen.dart';
 import 'package:cardblaze/screens/ai_generate/ai_generate_screen.dart';
 import 'package:cardblaze/screens/stats/stats_screen.dart';
 import 'package:cardblaze/screens/settings/settings_screen.dart';
+import 'package:cardblaze/screens/privacy/privacy_policy_screen.dart';
 import 'package:cardblaze/widgets/scaffold_with_nav.dart';
 
 final appRouter = GoRouter(
@@ -31,8 +32,10 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/settings',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: SettingsScreen()),
+          pageBuilder: (context, state) {
+            final tab = int.tryParse(state.uri.queryParameters['tab'] ?? '') ?? 0;
+            return NoTransitionPage(child: SettingsScreen(initialTab: tab));
+          },
         ),
       ],
     ),
@@ -47,6 +50,10 @@ final appRouter = GoRouter(
       path: '/study/:deckId',
       builder: (context, state) =>
           StudyScreen(deckId: state.pathParameters['deckId']!),
+    ),
+    GoRoute(
+      path: '/privacy',
+      builder: (context, state) => const PrivacyPolicyScreen(),
     ),
   ],
 );

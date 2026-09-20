@@ -139,7 +139,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get topic_mode => 'Thema';
 
   @override
-  String get pdf_mode => 'PDF';
+  String get pdf_mode => 'Dokument';
 
   @override
   String get select_deck => 'Deck auswählen';
@@ -291,8 +291,162 @@ class AppLocalizationsDe extends AppLocalizations {
   String get nav_settings => 'Einstellungen';
 
   @override
+  String get deck_not_found => 'Deck nicht gefunden';
+
+  @override
+  String get edit_deck_tooltip => 'Deck bearbeiten';
+
+  @override
+  String get delete_deck_tooltip => 'Deck löschen';
+
+  @override
+  String get cards_section => 'Karten';
+
+  @override
+  String get stat_total => 'Gesamt';
+
+  @override
+  String get stat_pending => 'Ausstehend';
+
+  @override
+  String get stat_learned => 'Gelernt';
+
+  @override
+  String study_now_due(int count) {
+    return 'Jetzt lernen ($count fällig)';
+  }
+
+  @override
+  String get add_card_manual => 'Karte manuell hinzufügen';
+
+  @override
+  String get no_cards_title => 'Keine Karten';
+
+  @override
+  String get no_cards_body =>
+      'Füge Karten manuell hinzu oder nutze AI Generate.';
+
+  @override
+  String get no_cards_body_ai =>
+      'Nutze AI Generate, um Karten aus Text, Thema oder Dokument zu erstellen.';
+
+  @override
+  String get edit_card_title => 'Karte bearbeiten';
+
+  @override
+  String get new_card_title => 'Neue Karte';
+
+  @override
+  String get front_label => 'Frage (Vorderseite)';
+
+  @override
+  String get front_hint => 'Frage eingeben...';
+
+  @override
+  String get back_label => 'Antwort (Rückseite)';
+
+  @override
+  String get back_hint => 'Antwort eingeben...';
+
+  @override
+  String get save_changes_btn => 'Änderungen speichern';
+
+  @override
+  String get save_card_btn => 'Karte speichern';
+
+  @override
+  String get name_label => 'Name';
+
+  @override
+  String get streak_motivation_0 =>
+      'Fang heute an und bau eine Gewohnheit auf!';
+
+  @override
+  String get streak_motivation_low => 'Guter Start — weiter so!';
+
+  @override
+  String get streak_motivation_mid => 'Ausgezeichnet! Jeder Tag zählt.';
+
+  @override
+  String get streak_motivation_high =>
+      'Erstaunlich! Du bist auf dem richtigen Weg.';
+
+  @override
+  String streak_motivation_legend(int days) {
+    return 'Legende! $days Tage am Stück!';
+  }
+
+  @override
+  String get upgrade_ai_recap => 'Für KI-Recap upgraden';
+
+  @override
+  String get view_pro_btn => 'Pro ansehen';
+
+  @override
+  String get pro_welcome => 'Willkommen bei CardBlaze Pro! 🎉';
+
+  @override
+  String get topic_hint => 'z.B. Fotosynthese, Römisches Recht...';
+
+  @override
+  String get text_paste_hint => 'Text hier einfügen...';
+
+  @override
   String get upgrade_btn => 'Auf Pro upgraden';
 
   @override
+  String get upgrade_dialog_subtitle =>
+      'Schalte alle CardBlaze Pro-Funktionen frei.';
+
+  @override
+  String get benefit_unlimited_decks => 'Unbegrenzte Decks (kostenlos: 1)';
+
+  @override
+  String get benefit_cards_per_deck =>
+      'Bis zu 100 Karten pro Deck (kostenlos: 20)';
+
+  @override
+  String get benefit_ai_generation => 'Unbegrenzte KI-Kartengenerierung';
+
+  @override
+  String get benefit_pdf_import => 'PDF & DOCX Import';
+
+  @override
+  String get benefit_advanced_stats => 'Erweiterte Lernstatistiken';
+
+  @override
   String get version => 'Version';
+
+  @override
+  String get question_label => 'FRAGE';
+
+  @override
+  String get no_cards_today => 'Keine Karten für heute!';
+
+  @override
+  String get all_cards_current => 'Alle Karten sind aktuell.';
+
+  @override
+  String get back_btn => 'Zurück';
+
+  @override
+  String get session_complete => 'Einheit abgeschlossen!';
+
+  @override
+  String get session_correct => 'Richtig';
+
+  @override
+  String get session_incorrect => 'Falsch';
+
+  @override
+  String get session_accuracy => 'Genauigkeit';
+
+  @override
+  String get finish_btn => 'Fertig';
+
+  @override
+  String get notifications_on => 'Tägliche Erinnerung um 9:00 Uhr';
+
+  @override
+  String get notifications_off => 'Tippen um tägliche Erinnerung zu aktivieren';
 }

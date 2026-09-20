@@ -78,7 +78,10 @@ class HomeScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _DeckFormSheet(
-        onSaved: () => ref.invalidate(decksStreamProvider),
+        onSaved: () {
+          ref.invalidate(decksStreamProvider);
+          ref.invalidate(allDecksProvider);
+        },
       ),
     );
   }

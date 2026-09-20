@@ -140,7 +140,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get topic_mode => 'Sujet';
 
   @override
-  String get pdf_mode => 'PDF';
+  String get pdf_mode => 'Document';
 
   @override
   String get select_deck => 'Choisir un paquet';
@@ -291,8 +291,162 @@ class AppLocalizationsFr extends AppLocalizations {
   String get nav_settings => 'Paramètres';
 
   @override
+  String get deck_not_found => 'Deck introuvable';
+
+  @override
+  String get edit_deck_tooltip => 'Modifier le paquet';
+
+  @override
+  String get delete_deck_tooltip => 'Supprimer le paquet';
+
+  @override
+  String get cards_section => 'Cartes';
+
+  @override
+  String get stat_total => 'Total';
+
+  @override
+  String get stat_pending => 'En attente';
+
+  @override
+  String get stat_learned => 'Appris';
+
+  @override
+  String study_now_due(int count) {
+    return 'Étudier maintenant ($count en attente)';
+  }
+
+  @override
+  String get add_card_manual => 'Ajouter une carte manuellement';
+
+  @override
+  String get no_cards_title => 'Aucune carte';
+
+  @override
+  String get no_cards_body =>
+      'Ajoutez des cartes manuellement ou utilisez AI Generate.';
+
+  @override
+  String get no_cards_body_ai =>
+      'Utilisez AI Generate pour créer des cartes à partir de texte, sujet ou document.';
+
+  @override
+  String get edit_card_title => 'Modifier la carte';
+
+  @override
+  String get new_card_title => 'Nouvelle carte';
+
+  @override
+  String get front_label => 'Question (recto)';
+
+  @override
+  String get front_hint => 'Saisir la question...';
+
+  @override
+  String get back_label => 'Réponse (verso)';
+
+  @override
+  String get back_hint => 'Saisir la réponse...';
+
+  @override
+  String get save_changes_btn => 'Enregistrer les modifications';
+
+  @override
+  String get save_card_btn => 'Enregistrer la carte';
+
+  @override
+  String get name_label => 'Nom';
+
+  @override
+  String get streak_motivation_0 =>
+      'Commencez aujourd\'hui et créez une habitude !';
+
+  @override
+  String get streak_motivation_low => 'Bon début — continuez !';
+
+  @override
+  String get streak_motivation_mid => 'Excellent ! Chaque jour compte.';
+
+  @override
+  String get streak_motivation_high =>
+      'Incroyable ! Vous êtes sur la bonne voie.';
+
+  @override
+  String streak_motivation_legend(int days) {
+    return 'Légende ! $days jours d\'affilée !';
+  }
+
+  @override
+  String get upgrade_ai_recap => 'Passer à Pro pour le récap IA';
+
+  @override
+  String get view_pro_btn => 'Voir Pro';
+
+  @override
+  String get pro_welcome => 'Bienvenue sur CardBlaze Pro ! 🎉';
+
+  @override
+  String get topic_hint => 'ex. Photosynthèse, Droit romain...';
+
+  @override
+  String get text_paste_hint => 'Collez le texte ici...';
+
+  @override
   String get upgrade_btn => 'Passer à Pro';
 
   @override
+  String get upgrade_dialog_subtitle =>
+      'Débloquez toutes les fonctionnalités CardBlaze Pro.';
+
+  @override
+  String get benefit_unlimited_decks => 'Paquets illimités (gratuit : 1)';
+
+  @override
+  String get benefit_cards_per_deck =>
+      'Jusqu\'à 100 cartes par paquet (gratuit : 20)';
+
+  @override
+  String get benefit_ai_generation => 'Génération IA illimitée';
+
+  @override
+  String get benefit_pdf_import => 'Import PDF & DOCX';
+
+  @override
+  String get benefit_advanced_stats => 'Statistiques d\'apprentissage avancées';
+
+  @override
   String get version => 'Version';
+
+  @override
+  String get question_label => 'QUESTION';
+
+  @override
+  String get no_cards_today => 'Aucune carte pour aujourd\'hui !';
+
+  @override
+  String get all_cards_current => 'Toutes les cartes sont à jour.';
+
+  @override
+  String get back_btn => 'Retour';
+
+  @override
+  String get session_complete => 'Séance terminée !';
+
+  @override
+  String get session_correct => 'Correct';
+
+  @override
+  String get session_incorrect => 'Incorrect';
+
+  @override
+  String get session_accuracy => 'Précision';
+
+  @override
+  String get finish_btn => 'Terminer';
+
+  @override
+  String get notifications_on => 'Rappel quotidien à 9h00';
+
+  @override
+  String get notifications_off => 'Appuyer pour activer le rappel quotidien';
 }

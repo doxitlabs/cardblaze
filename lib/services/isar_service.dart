@@ -75,6 +75,13 @@ class IsarService {
         .findAll();
   }
 
+  Future<int> getMasteredCount() {
+    return _isar.flashCards
+        .filter()
+        .repetitionsGreaterThan(2)
+        .count();
+  }
+
   Future<int> getTotalDueCount() {
     final now = DateTime.now();
     return _isar.flashCards

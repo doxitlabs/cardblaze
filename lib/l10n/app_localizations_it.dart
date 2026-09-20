@@ -139,7 +139,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get topic_mode => 'Argomento';
 
   @override
-  String get pdf_mode => 'PDF';
+  String get pdf_mode => 'Documento';
 
   @override
   String get select_deck => 'Seleziona mazzo';
@@ -290,8 +290,160 @@ class AppLocalizationsIt extends AppLocalizations {
   String get nav_settings => 'Impostazioni';
 
   @override
+  String get deck_not_found => 'Mazzo non trovato';
+
+  @override
+  String get edit_deck_tooltip => 'Modifica mazzo';
+
+  @override
+  String get delete_deck_tooltip => 'Elimina mazzo';
+
+  @override
+  String get cards_section => 'Carte';
+
+  @override
+  String get stat_total => 'Totale';
+
+  @override
+  String get stat_pending => 'In attesa';
+
+  @override
+  String get stat_learned => 'Appreso';
+
+  @override
+  String study_now_due(int count) {
+    return 'Studia ora ($count in attesa)';
+  }
+
+  @override
+  String get add_card_manual => 'Aggiungi carta manualmente';
+
+  @override
+  String get no_cards_title => 'Nessuna carta';
+
+  @override
+  String get no_cards_body => 'Aggiungi carte manualmente o usa AI Generate.';
+
+  @override
+  String get no_cards_body_ai =>
+      'Usa AI Generate per creare carte da testo, argomento o documento.';
+
+  @override
+  String get edit_card_title => 'Modifica carta';
+
+  @override
+  String get new_card_title => 'Nuova carta';
+
+  @override
+  String get front_label => 'Domanda (fronte)';
+
+  @override
+  String get front_hint => 'Inserisci domanda...';
+
+  @override
+  String get back_label => 'Risposta (retro)';
+
+  @override
+  String get back_hint => 'Inserisci risposta...';
+
+  @override
+  String get save_changes_btn => 'Salva modifiche';
+
+  @override
+  String get save_card_btn => 'Salva carta';
+
+  @override
+  String get name_label => 'Nome';
+
+  @override
+  String get streak_motivation_0 => 'Inizia oggi e costruisci un\'abitudine!';
+
+  @override
+  String get streak_motivation_low => 'Ottimo inizio — continua così!';
+
+  @override
+  String get streak_motivation_mid => 'Eccellente! Ogni giorno conta.';
+
+  @override
+  String get streak_motivation_high => 'Incredibile! Sei sulla strada giusta.';
+
+  @override
+  String streak_motivation_legend(int days) {
+    return 'Leggenda! $days giorni consecutivi!';
+  }
+
+  @override
+  String get upgrade_ai_recap => 'Passa a Pro per il riepilogo IA';
+
+  @override
+  String get view_pro_btn => 'Vedi Pro';
+
+  @override
+  String get pro_welcome => 'Benvenuto in CardBlaze Pro! 🎉';
+
+  @override
+  String get topic_hint => 'es. Fotosintesi, Diritto romano...';
+
+  @override
+  String get text_paste_hint => 'Incolla il testo qui...';
+
+  @override
   String get upgrade_btn => 'Passa a Pro';
 
   @override
+  String get upgrade_dialog_subtitle =>
+      'Sblocca tutte le funzionalità di CardBlaze Pro.';
+
+  @override
+  String get benefit_unlimited_decks => 'Mazzi illimitati (gratuito: 1)';
+
+  @override
+  String get benefit_cards_per_deck =>
+      'Fino a 100 carte per mazzo (gratuito: 20)';
+
+  @override
+  String get benefit_ai_generation => 'Generazione IA illimitata';
+
+  @override
+  String get benefit_pdf_import => 'Importazione PDF e DOCX';
+
+  @override
+  String get benefit_advanced_stats => 'Statistiche di apprendimento avanzate';
+
+  @override
   String get version => 'Versione';
+
+  @override
+  String get question_label => 'DOMANDA';
+
+  @override
+  String get no_cards_today => 'Nessuna carta per oggi!';
+
+  @override
+  String get all_cards_current => 'Tutte le carte sono aggiornate.';
+
+  @override
+  String get back_btn => 'Indietro';
+
+  @override
+  String get session_complete => 'Sessione completata!';
+
+  @override
+  String get session_correct => 'Corretto';
+
+  @override
+  String get session_incorrect => 'Errato';
+
+  @override
+  String get session_accuracy => 'Precisione';
+
+  @override
+  String get finish_btn => 'Fine';
+
+  @override
+  String get notifications_on => 'Promemoria giornaliero alle 9:00';
+
+  @override
+  String get notifications_off =>
+      'Tocca per attivare il promemoria giornaliero';
 }

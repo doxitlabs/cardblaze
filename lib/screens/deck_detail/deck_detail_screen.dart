@@ -9,6 +9,7 @@ import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/premium_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
+import 'package:cardblaze/l10n/app_localizations.dart';
 
 // ── DeckDetailScreen ──────────────────────────────────────────────────────────
 
@@ -25,10 +26,10 @@ class DeckDetailScreen extends ConsumerWidget {
 
     return deckAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Greška: $e'))),
+      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
       data: (deck) {
         if (deck == null) {
-          return const Scaffold(body: Center(child: Text('Deck nije pronađen')));
+          return Scaffold(body: Center(child: Text(AppLocalizations.of(context).deck_not_found)));
         }
         return _DeckScreen(deck: deck, cardsAsync: cardsAsync, deckId: _id);
       },
@@ -67,12 +68,12 @@ class _DeckScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Uredi deck',
+            tooltip: AppLocalizations.of(context).edit_deck_tooltip,
             onPressed: () => _showEditDeck(context, ref),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Obriši deck',
+            tooltip: AppLocalizations.of(context).delete_deck_tooltip,
             onPressed: () => _confirmDeleteDeck(context, ref),
           ),
         ],
@@ -94,21 +95,12 @@ class _DeckScreen extends ConsumerWidget {
               child: _StudyNowButton(deckId: deckId, cards: cards),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: _AddCardButton(
-                onTap: () => _onAddCardTap(context, ref, cards),
-              ),
-            ),
-          ),
-
           // ── Cards section header ──────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
               child: Text(
-                'Kartice',
+                AppLocalizations.of(context).cards_section,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -123,10 +115,10 @@ class _DeckScreen extends ConsumerWidget {
               ),
             ),
             error: (e, _) => SliverToBoxAdapter(
-              child: Center(child: Text('Greška: $e')),
+              child: Center(child: Text('Error: $e')),
             ),
             data: (cards) => cards.isEmpty
-                ? SliverToBoxAdapter(child: _EmptyCards(onAddTap: () => _onAddCardTap(context, ref, cards)))
+                ? const SliverToBoxAdapter(child: _EmptyCards())
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, i) => _CardTile(
@@ -166,46 +158,31 @@ class _DeckScreen extends ConsumerWidget {
   Future<void> _confirmDeleteDeck(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Obriši deck?'),
-        content: Text(
-          'Ovo će trajno obrisati "${deck.name}" i sve kartice.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Otkaži'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              'Obriši',
-              style: TextStyle(color: AppColors.badgeRed(context)),
+      builder: (ctx) {
+        final l = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(l.delete_confirm_title),
+          content: Text(l.delete_confirm_body(deck.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel),
             ),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.delete_btn, style: TextStyle(color: AppColors.badgeRed(ctx))),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed == true && context.mounted) {
-      await ref.read(isarServiceProvider).deleteDeck(deckId);
+      final isar = ref.read(isarServiceProvider);
+      context.pop();
+      await isar.deleteDeck(deckId);
       ref.invalidate(decksStreamProvider);
       ref.invalidate(allDecksProvider);
-      if (context.mounted) context.pop();
     }
-  }
-
-  Future<void> _onAddCardTap(
-    BuildContext context,
-    WidgetRef ref,
-    List<FlashCard> cards,
-  ) async {
-    final isPremium = await ref.read(premiumStatusProvider.future);
-    if (!context.mounted) return;
-    if (!isPremium && cards.length >= PremiumLimits.maxCardsPerDeck) {
-      await showUpgradeDialog(context);
-      return;
-    }
-    if (context.mounted) _showCardSheet(context, ref, existingCard: null);
   }
 
   void _showCardSheet(
@@ -254,6 +231,7 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final now = DateTime.now();
     final dueCount = cards.where((c) => !c.dueDate.isAfter(now)).length;
     final learnedCount = cards.where((c) => c.repetitions >= 1 && c.dueDate.isAfter(now)).length;
@@ -264,7 +242,7 @@ class _StatsRow extends StatelessWidget {
       children: [
         Expanded(
           child: _StatTile(
-            label: 'Ukupno',
+            label: l.stat_total,
             value: '${deck.cardCount}',
             icon: Icons.style_outlined,
             color: AppColors.accent(context),
@@ -275,7 +253,7 @@ class _StatsRow extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _StatTile(
-            label: 'Na čekanju',
+            label: l.stat_pending,
             value: '$dueCount',
             icon: Icons.schedule_outlined,
             color: dueCount > 0
@@ -288,7 +266,7 @@ class _StatsRow extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _StatTile(
-            label: 'Naučeno',
+            label: l.stat_learned,
             value: '$learnedCount',
             icon: Icons.check_circle_outline,
             color: AppColors.badgeGreen(context),
@@ -376,32 +354,12 @@ class _StudyNowButton extends StatelessWidget {
         onPressed: cards.isEmpty ? null : () => context.push('/study/$deckId'),
         icon: const Icon(Icons.play_arrow),
         label: Text(
-          dueCount > 0 ? 'Učiti sada ($dueCount na redu)' : 'Učiti sada',
+          dueCount > 0
+              ? AppLocalizations.of(context).study_now_due(dueCount)
+              : AppLocalizations.of(context).study_now,
         ),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Add card button ───────────────────────────────────────────────────────────
-
-class _AddCardButton extends StatelessWidget {
-  const _AddCardButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: onTap,
-        icon: const Icon(Icons.add, size: 18),
-        label: const Text('Dodaj karticu ručno'),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
@@ -483,16 +441,6 @@ class _CardTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      card.back,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: textMuted),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ],
                 ),
               ),
@@ -509,11 +457,11 @@ class _CardTile extends StatelessWidget {
 // ── Empty state ───────────────────────────────────────────────────────────────
 
 class _EmptyCards extends StatelessWidget {
-  const _EmptyCards({required this.onAddTap});
-  final VoidCallback onAddTap;
+  const _EmptyCards();
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
       child: Column(
@@ -525,22 +473,22 @@ class _EmptyCards extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            'Nema kartica',
+            l.no_cards_title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: AppColors.textSecondary(context),
                 ),
           ),
           const SizedBox(height: 6),
           Text(
-            'Dodaj kartice ručno ili koristi AI Generate.',
+            l.no_cards_body_ai,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
-          OutlinedButton.icon(
-            onPressed: onAddTap,
-            icon: const Icon(Icons.add, size: 18),
-            label: const Text('Dodaj karticu'),
+          ElevatedButton.icon(
+            onPressed: () => context.go('/generate'),
+            icon: const Icon(Icons.auto_awesome, size: 18),
+            label: Text(l.generate_title),
           ),
         ],
       ),
@@ -617,16 +565,18 @@ class _CardFormSheetState extends ConsumerState<_CardFormSheet> {
             ),
           ),
           Text(
-            _isEditing ? 'Uredi karticu' : 'Nova kartica',
+            _isEditing
+                ? AppLocalizations.of(context).edit_card_title
+                : AppLocalizations.of(context).new_card_title,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 20),
           TextField(
             controller: _frontCtrl,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Pitanje (front)',
-              hintText: 'Unesi pitanje...',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).front_label,
+              hintText: AppLocalizations.of(context).front_hint,
               alignLabelWithHint: true,
             ),
             maxLines: 4,
@@ -636,9 +586,9 @@ class _CardFormSheetState extends ConsumerState<_CardFormSheet> {
           const SizedBox(height: 14),
           TextField(
             controller: _backCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Odgovor (back)',
-              hintText: 'Unesi odgovor...',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).back_label,
+              hintText: AppLocalizations.of(context).back_hint,
               alignLabelWithHint: true,
             ),
             maxLines: 4,
@@ -653,7 +603,11 @@ class _CardFormSheetState extends ConsumerState<_CardFormSheet> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: Text(_isEditing ? 'Spremi izmjene' : 'Spremi karticu'),
+              child: Text(
+                _isEditing
+                    ? AppLocalizations.of(context).save_changes_btn
+                    : AppLocalizations.of(context).save_card_btn,
+              ),
             ),
           ),
         ],
@@ -765,20 +719,20 @@ class _DeckEditSheetState extends ConsumerState<_DeckEditSheet> {
               ),
             ),
           ),
-          Text('Uredi deck', style: Theme.of(context).textTheme.titleLarge),
+          Text(AppLocalizations.of(context).edit_deck, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 20),
           TextField(
             controller: _nameCtrl,
             autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Naziv',
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context).name_label,
               counterText: '',
             ),
             maxLength: 60,
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 20),
-          Text('Boja', style: Theme.of(context).textTheme.titleSmall),
+          Text(AppLocalizations.of(context).color_label, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -822,7 +776,7 @@ class _DeckEditSheetState extends ConsumerState<_DeckEditSheet> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Spremi'),
+              child: Text(AppLocalizations.of(context).save),
             ),
           ),
         ],

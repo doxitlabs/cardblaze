@@ -130,7 +130,8 @@ class AppLocalizationsHr extends AppLocalizations {
   String get generate_title => 'AI Generiranje';
 
   @override
-  String get generate_subtitle => 'Generiraj kartice iz teksta, teme ili PDF-a';
+  String get generate_subtitle =>
+      'Generiraj kartice iz teksta, teme, PDF-a ili DOCX-a';
 
   @override
   String get text_mode => 'Tekst';
@@ -139,7 +140,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get topic_mode => 'Tema';
 
   @override
-  String get pdf_mode => 'PDF';
+  String get pdf_mode => 'Dokument';
 
   @override
   String get select_deck => 'Odaberi deck';
@@ -290,8 +291,160 @@ class AppLocalizationsHr extends AppLocalizations {
   String get nav_settings => 'Postavke';
 
   @override
+  String get deck_not_found => 'Deck nije pronađen';
+
+  @override
+  String get edit_deck_tooltip => 'Uredi deck';
+
+  @override
+  String get delete_deck_tooltip => 'Obriši deck';
+
+  @override
+  String get cards_section => 'Kartice';
+
+  @override
+  String get stat_total => 'Ukupno';
+
+  @override
+  String get stat_pending => 'Na čekanju';
+
+  @override
+  String get stat_learned => 'Naučeno';
+
+  @override
+  String study_now_due(int count) {
+    return 'Učiti sada ($count na redu)';
+  }
+
+  @override
+  String get add_card_manual => 'Dodaj karticu ručno';
+
+  @override
+  String get no_cards_title => 'Nema kartica';
+
+  @override
+  String get no_cards_body => 'Dodaj kartice ručno ili koristi AI Generate.';
+
+  @override
+  String get no_cards_body_ai =>
+      'Koristi AI Generate za kreiranje kartica iz teksta, teme ili dokumenta.';
+
+  @override
+  String get edit_card_title => 'Uredi karticu';
+
+  @override
+  String get new_card_title => 'Nova kartica';
+
+  @override
+  String get front_label => 'Pitanje (front)';
+
+  @override
+  String get front_hint => 'Unesi pitanje...';
+
+  @override
+  String get back_label => 'Odgovor (back)';
+
+  @override
+  String get back_hint => 'Unesi odgovor...';
+
+  @override
+  String get save_changes_btn => 'Spremi izmjene';
+
+  @override
+  String get save_card_btn => 'Spremi karticu';
+
+  @override
+  String get name_label => 'Naziv';
+
+  @override
+  String get streak_motivation_0 => 'Počni danas i izgradi naviku!';
+
+  @override
+  String get streak_motivation_low => 'Dobar početak — nastavi!';
+
+  @override
+  String get streak_motivation_mid => 'Odlično! Svaki dan se isplati.';
+
+  @override
+  String get streak_motivation_high => 'Nevjerojatno! Ti si na pravom putu.';
+
+  @override
+  String streak_motivation_legend(int days) {
+    return 'Legenda! $days dana bez prestanka!';
+  }
+
+  @override
+  String get upgrade_ai_recap => 'Nadogradi za AI recap';
+
+  @override
+  String get view_pro_btn => 'Pogledaj Pro';
+
+  @override
+  String get pro_welcome => 'Dobrodošao u CardBlaze Pro! 🎉';
+
+  @override
+  String get topic_hint => 'npr. Fotosinteza, Rimsko pravo...';
+
+  @override
+  String get text_paste_hint => 'Zalijepite tekst ovdje...';
+
+  @override
   String get upgrade_btn => 'Nadogradi na Pro';
 
   @override
+  String get upgrade_dialog_subtitle =>
+      'Otključaj sve značajke CardBlaze Pro plana.';
+
+  @override
+  String get benefit_unlimited_decks =>
+      'Neograničen broj deckova (besplatno: 1)';
+
+  @override
+  String get benefit_cards_per_deck =>
+      'Do 100 kartica po decku (besplatno: 20)';
+
+  @override
+  String get benefit_ai_generation => 'Neograničena AI generacija kartica';
+
+  @override
+  String get benefit_pdf_import => 'Uvoz PDF i DOCX dokumenata';
+
+  @override
+  String get benefit_advanced_stats => 'Napredne statistike učenja';
+
+  @override
   String get version => 'Verzija';
+
+  @override
+  String get question_label => 'PITANJE';
+
+  @override
+  String get no_cards_today => 'Nema kartica za danas!';
+
+  @override
+  String get all_cards_current => 'Sve kartice su ažurne.';
+
+  @override
+  String get back_btn => 'Natrag';
+
+  @override
+  String get session_complete => 'Sesija završena!';
+
+  @override
+  String get session_correct => 'Točno';
+
+  @override
+  String get session_incorrect => 'Netočno';
+
+  @override
+  String get session_accuracy => 'Točnost';
+
+  @override
+  String get finish_btn => 'Završi';
+
+  @override
+  String get notifications_on => 'Dnevni podsjetnik u 9:00';
+
+  @override
+  String get notifications_off => 'Dodirnite za uključivanje podsjetnika';
 }

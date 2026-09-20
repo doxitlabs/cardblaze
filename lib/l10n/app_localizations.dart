@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @generate_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Generate flashcards from text, topic, or PDF'**
+  /// **'Generate flashcards from text, topic, PDF or DOCX'**
   String get generate_subtitle;
 
   /// No description provided for @text_mode.
@@ -323,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @pdf_mode.
   ///
   /// In en, this message translates to:
-  /// **'PDF'**
+  /// **'Document'**
   String get pdf_mode;
 
   /// No description provided for @select_deck.
@@ -584,17 +584,305 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get nav_settings;
 
+  /// No description provided for @deck_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Deck not found'**
+  String get deck_not_found;
+
+  /// No description provided for @edit_deck_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit deck'**
+  String get edit_deck_tooltip;
+
+  /// No description provided for @delete_deck_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete deck'**
+  String get delete_deck_tooltip;
+
+  /// No description provided for @cards_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards'**
+  String get cards_section;
+
+  /// No description provided for @stat_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get stat_total;
+
+  /// No description provided for @stat_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get stat_pending;
+
+  /// No description provided for @stat_learned.
+  ///
+  /// In en, this message translates to:
+  /// **'Learned'**
+  String get stat_learned;
+
+  /// No description provided for @study_now_due.
+  ///
+  /// In en, this message translates to:
+  /// **'Study Now ({count} due)'**
+  String study_now_due(int count);
+
+  /// No description provided for @add_card_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Add card manually'**
+  String get add_card_manual;
+
+  /// No description provided for @no_cards_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No Cards'**
+  String get no_cards_title;
+
+  /// No description provided for @no_cards_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Add cards manually or use AI Generate.'**
+  String get no_cards_body;
+
+  /// No description provided for @no_cards_body_ai.
+  ///
+  /// In en, this message translates to:
+  /// **'Use AI Generate to create cards from text, topic or document.'**
+  String get no_cards_body_ai;
+
+  /// No description provided for @edit_card_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit card'**
+  String get edit_card_title;
+
+  /// No description provided for @new_card_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New card'**
+  String get new_card_title;
+
+  /// No description provided for @front_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Question (front)'**
+  String get front_label;
+
+  /// No description provided for @front_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter question...'**
+  String get front_hint;
+
+  /// No description provided for @back_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer (back)'**
+  String get back_label;
+
+  /// No description provided for @back_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter answer...'**
+  String get back_hint;
+
+  /// No description provided for @save_changes_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get save_changes_btn;
+
+  /// No description provided for @save_card_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save card'**
+  String get save_card_btn;
+
+  /// No description provided for @name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name_label;
+
+  /// No description provided for @streak_motivation_0.
+  ///
+  /// In en, this message translates to:
+  /// **'Start today and build a habit!'**
+  String get streak_motivation_0;
+
+  /// No description provided for @streak_motivation_low.
+  ///
+  /// In en, this message translates to:
+  /// **'Great start — keep going!'**
+  String get streak_motivation_low;
+
+  /// No description provided for @streak_motivation_mid.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! Every day counts.'**
+  String get streak_motivation_mid;
+
+  /// No description provided for @streak_motivation_high.
+  ///
+  /// In en, this message translates to:
+  /// **'Amazing! You\'re on the right track.'**
+  String get streak_motivation_high;
+
+  /// No description provided for @streak_motivation_legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Legend! {days} days straight!'**
+  String streak_motivation_legend(int days);
+
+  /// No description provided for @upgrade_ai_recap.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade for AI recap'**
+  String get upgrade_ai_recap;
+
+  /// No description provided for @view_pro_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'View Pro'**
+  String get view_pro_btn;
+
+  /// No description provided for @pro_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to CardBlaze Pro! 🎉'**
+  String get pro_welcome;
+
+  /// No description provided for @topic_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Photosynthesis, Roman law...'**
+  String get topic_hint;
+
+  /// No description provided for @text_paste_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste text here...'**
+  String get text_paste_hint;
+
   /// No description provided for @upgrade_btn.
   ///
   /// In en, this message translates to:
   /// **'Upgrade to Pro'**
   String get upgrade_btn;
 
+  /// No description provided for @upgrade_dialog_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock all CardBlaze Pro features.'**
+  String get upgrade_dialog_subtitle;
+
+  /// No description provided for @benefit_unlimited_decks.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited decks (free: 1)'**
+  String get benefit_unlimited_decks;
+
+  /// No description provided for @benefit_cards_per_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 100 cards per deck (free: 20)'**
+  String get benefit_cards_per_deck;
+
+  /// No description provided for @benefit_ai_generation.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited AI card generation'**
+  String get benefit_ai_generation;
+
+  /// No description provided for @benefit_pdf_import.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF & DOCX import'**
+  String get benefit_pdf_import;
+
+  /// No description provided for @benefit_advanced_stats.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced learning statistics'**
+  String get benefit_advanced_stats;
+
   /// No description provided for @version.
   ///
   /// In en, this message translates to:
   /// **'Version'**
   String get version;
+
+  /// No description provided for @question_label.
+  ///
+  /// In en, this message translates to:
+  /// **'QUESTION'**
+  String get question_label;
+
+  /// No description provided for @no_cards_today.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards for today!'**
+  String get no_cards_today;
+
+  /// No description provided for @all_cards_current.
+  ///
+  /// In en, this message translates to:
+  /// **'All cards are up to date.'**
+  String get all_cards_current;
+
+  /// No description provided for @back_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back_btn;
+
+  /// No description provided for @session_complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Session complete!'**
+  String get session_complete;
+
+  /// No description provided for @session_correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get session_correct;
+
+  /// No description provided for @session_incorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect'**
+  String get session_incorrect;
+
+  /// No description provided for @session_accuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get session_accuracy;
+
+  /// No description provided for @finish_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get finish_btn;
+
+  /// No description provided for @notifications_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder at 9:00 AM'**
+  String get notifications_on;
+
+  /// No description provided for @notifications_off.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to enable daily reminder'**
+  String get notifications_off;
 }
 
 class _AppLocalizationsDelegate

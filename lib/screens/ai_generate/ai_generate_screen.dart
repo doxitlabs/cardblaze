@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
-import 'package:cardblaze/models/deck.dart';
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
@@ -34,35 +33,20 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
   _InputMode _mode = _InputMode.topic;
 
   final _inputCtrl = TextEditingController();
-  final _newDeckNameCtrl = TextEditingController();
 
   int _cardCount = 15;
   bool _isLoading = false;
 
-  // deck selection: null = none yet, -1 = "Novi deck"
   int? _selectedDeckId;
-  String _newDeckColor = '#4A9EFF';
 
   List<FlashCard> _preview = [];
   // parallel controllers for editable preview cards
   List<TextEditingController> _frontCtrl = [];
   List<TextEditingController> _backCtrl = [];
 
-  static const _colorOptions = [
-    '#4A9EFF',
-    '#6B4FA0',
-    '#2E7D32',
-    '#E65100',
-    '#C62828',
-    '#1565C0',
-    '#FF8F00',
-    '#00838F',
-  ];
-
   @override
   void dispose() {
     _inputCtrl.dispose();
-    _newDeckNameCtrl.dispose();
     for (final c in _frontCtrl) {
       c.dispose();
     }
@@ -110,11 +94,6 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       _showError(l.error_select_deck);
       return;
     }
-    if (_selectedDeckId == -1 && _newDeckNameCtrl.text.trim().isEmpty) {
-      _showError(l.error_deck_name);
-      return;
-    }
-
     final isPremium = await ref.read(premiumStatusProvider.future);
 
     setState(() {
@@ -130,6 +109,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         _cardCount,
         mode,
         isPremium: isPremium,
+        language: Localizations.localeOf(context).languageCode,
       );
       setState(() => _setPreview(cards));
     } on PremiumRequiredException catch (_) {
@@ -151,16 +131,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     final isar = ref.read(isarServiceProvider);
     int deckId;
 
-    if (_selectedDeckId == -1) {
-      final deck = Deck()
-        ..name = _newDeckNameCtrl.text.trim()
-        ..colorHex = _newDeckColor
-        ..createdAt = DateTime.now();
-      await isar.saveDeck(deck);
-      deckId = deck.id;
-    } else {
-      deckId = _selectedDeckId!;
-    }
+    deckId = _selectedDeckId!;
 
     final now = DateTime.now();
     for (int i = 0; i < _preview.length; i++) {
@@ -321,8 +292,8 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       minLines: isText ? 5 : 1,
       decoration: InputDecoration(
         hintText: isText
-            ? 'Paste tekst odavde...'
-            : 'npr. Fotosinteza, Rimsko pravo...',
+            ? AppLocalizations.of(context).text_paste_hint
+            : AppLocalizations.of(context).topic_hint,
         alignLabelWithHint: isText,
       ),
     );
@@ -345,37 +316,25 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
           loading: () => const LinearProgressIndicator(),
           error: (_, __) => const Text('Greška pri učitavanju deckova'),
           data: (decks) {
-            final items = [
-              ...decks.map(
-                (d) => DropdownMenuItem<int>(
-                  value: d.id,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          color: _hexColor(d.colorHex),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Text(d.name),
-                    ],
-                  ),
-                ),
-              ),
-              DropdownMenuItem<int>(
-                value: -1,
+            final items = decks.map(
+              (d) => DropdownMenuItem<int>(
+                value: d.id,
                 child: Row(
                   children: [
-                    const Icon(Icons.add, size: 16),
-                    const SizedBox(width: 8),
-                    Text(AppLocalizations.of(context).new_deck),
+                    Container(
+                      width: 12,
+                      height: 12,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: _hexColor(d.colorHex),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Text(d.name),
                   ],
                 ),
               ),
-            ];
+            ).toList();
 
             return InputDecorator(
               decoration: const InputDecoration(
@@ -394,54 +353,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
             );
           },
         ),
-        if (_selectedDeckId == -1) ...[
-          const SizedBox(height: 12),
-          TextField(
-            controller: _newDeckNameCtrl,
-            decoration: InputDecoration(
-              hintText: AppLocalizations.of(context).deck_name_hint,
-              prefixIcon: const Icon(Icons.drive_file_rename_outline),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            AppLocalizations.of(context).color_label,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 8),
-          _buildColorPicker(),
-        ],
       ],
-    );
-  }
-
-  Widget _buildColorPicker() {
-    return Wrap(
-      spacing: 10,
-      children: _colorOptions.map((hex) {
-        final selected = _newDeckColor == hex;
-        return GestureDetector(
-          onTap: () => setState(() => _newDeckColor = hex),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: _hexColor(hex),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: selected
-                    ? AppColors.textPrimary(context)
-                    : Colors.transparent,
-                width: 2.5,
-              ),
-              boxShadow: selected
-                  ? [BoxShadow(color: _hexColor(hex).withValues(alpha: 0.5), blurRadius: 6)]
-                  : null,
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 

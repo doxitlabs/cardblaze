@@ -68,12 +68,11 @@ final statsProvider = FutureProvider<StatsData>((ref) async {
 
   final cardsThisWeek =
       weekSessions.fold<int>(0, (sum, s) => sum + s.cardsStudied);
-  final totalStudied =
-      weekSessions.fold<int>(0, (sum, s) => sum + s.cardsStudied);
-  final totalCorrect =
-      weekSessions.fold<int>(0, (sum, s) => sum + s.correctCount);
-  final accuracy =
-      totalStudied == 0 ? 0.0 : (totalCorrect / totalStudied) * 100;
+
+  final totalCorrect = weekSessions.fold<int>(0, (sum, s) => sum + s.correctCount);
+  final accuracyPercent = cardsThisWeek > 0
+      ? (totalCorrect / cardsThisWeek * 100)
+      : 0.0;
 
   // Cards per day for last 7 days
   final cardsPerDay = List<double>.generate(7, (i) {
@@ -93,7 +92,7 @@ final statsProvider = FutureProvider<StatsData>((ref) async {
   return StatsData(
     streakDays: streak,
     cardsThisWeek: cardsThisWeek,
-    accuracyPercent: accuracy,
+    accuracyPercent: accuracyPercent,
     totalCards: totalCards,
     activeDecks: decks.length,
     cardsPerDay: cardsPerDay,
@@ -122,7 +121,7 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
 
   const apiKey = GroqService.apiKey;
   const url = 'https://api.groq.com/openai/v1/chat/completions';
-  const model = 'llama-3.3-70b-versatile';
+  const model = 'openai/gpt-oss-20b';
 
   final prompt =
       'Analiziraj ove tjedne statistike učenja i daj kratki personalizirani recap '
@@ -212,16 +211,17 @@ class _StreakCard extends StatelessWidget {
   const _StreakCard({required this.streakDays});
   final int streakDays;
 
-  String get _motivation {
-    if (streakDays == 0) return 'Počni danas i izgradi naviku!';
-    if (streakDays < 3) return 'Dobar početak — nastavi!';
-    if (streakDays < 7) return 'Odlično! Svaki dan se isplati.';
-    if (streakDays < 30) return 'Nevjerojatno! Ti si na pravom putu.';
-    return 'Legenda! $streakDays dana bez prestanka!';
+  String _motivation(AppLocalizations l) {
+    if (streakDays == 0) return l.streak_motivation_0;
+    if (streakDays < 3) return l.streak_motivation_low;
+    if (streakDays < 7) return l.streak_motivation_mid;
+    if (streakDays < 30) return l.streak_motivation_high;
+    return l.streak_motivation_legend(streakDays);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
@@ -241,7 +241,7 @@ class _StreakCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$streakDays ${streakDays == 1 ? 'dan' : 'dana'}',
+                  l.streak_days(streakDays),
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
@@ -249,7 +249,7 @@ class _StreakCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  _motivation,
+                  _motivation(l),
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.white70,
@@ -606,9 +606,9 @@ class _FreeRecapBlur extends StatelessWidget {
             children: [
               const Icon(Icons.lock_outline, color: Colors.white, size: 22),
               const SizedBox(height: 6),
-              const Text(
-                'Nadogradi za AI recap',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).upgrade_ai_recap,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
@@ -625,7 +625,7 @@ class _FreeRecapBlur extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
                 ),
-                child: const Text('Pogledaj Pro'),
+                child: Text(AppLocalizations.of(context).view_pro_btn),
               ),
             ],
           ),
