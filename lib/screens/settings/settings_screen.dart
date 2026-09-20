@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/providers/theme_provider.dart';
 import 'package:cardblaze/providers/locale_provider.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
@@ -41,7 +42,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Postavke'),
+        title: Text(AppLocalizations.of(context).settings_title),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
@@ -50,9 +51,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
             child: TabBar(
               controller: _tab,
-              tabs: const [
-                Tab(text: 'Općenito'),
-                Tab(text: 'Pretplata'),
+              tabs: [
+                Tab(text: AppLocalizations.of(context).general_tab),
+                Tab(text: AppLocalizations.of(context).subscription_tab),
               ],
             ),
           ),
@@ -79,34 +80,35 @@ class _GeneralTab extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
 
+    final l = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        const _SectionHeader('Izgled'),
+        _SectionHeader(l.appearance_section),
         _SettingsTile(
           icon: Icons.palette_outlined,
-          title: 'Tema',
+          title: l.theme_label,
           trailing: _ThemeSegmentedButton(themeMode: themeMode, ref: ref),
         ),
         const SizedBox(height: 8),
-        const _SectionHeader('Jezik'),
+        _SectionHeader(l.language_section),
         _SettingsTile(
           icon: Icons.language_outlined,
-          title: 'Jezik sučelja',
+          title: l.language_ui_label,
           trailing: _LocaleDropdown(locale: locale, ref: ref),
         ),
         const SizedBox(height: 8),
-        const _SectionHeader('Ostalo'),
+        _SectionHeader(l.other_section),
         _TappableTile(
           icon: Icons.notifications_outlined,
-          title: 'Obavijesti',
+          title: l.notifications,
           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Notifications — coming soon')),
           ),
         ),
         _TappableTile(
           icon: Icons.privacy_tip_outlined,
-          title: 'Privatnost',
+          title: l.privacy,
           onTap: () => ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Privacy policy — coming soon')),
           ),
@@ -132,16 +134,16 @@ class _ThemeSegmentedButton extends StatelessWidget {
         textStyle: const TextStyle(fontSize: 13, fontFamily: 'Roboto'),
         visualDensity: VisualDensity.compact,
       ),
-      segments: const [
+      segments: [
         ButtonSegment(
           value: ThemeMode.light,
-          label: Text('Svijetla'),
-          icon: Icon(Icons.light_mode_outlined, size: 16),
+          label: Text(AppLocalizations.of(context).light_theme),
+          icon: const Icon(Icons.light_mode_outlined, size: 16),
         ),
         ButtonSegment(
           value: ThemeMode.dark,
-          label: Text('Tamna'),
-          icon: Icon(Icons.dark_mode_outlined, size: 16),
+          label: Text(AppLocalizations.of(context).dark_theme),
+          icon: const Icon(Icons.dark_mode_outlined, size: 16),
         ),
       ],
       selected: {themeMode == ThemeMode.system ? ThemeMode.dark : themeMode},
@@ -235,9 +237,10 @@ class _AboutTileState extends State<_AboutTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return ListTile(
       leading: const _IconBox(icon: Icons.info_outline),
-      title: const Text('O aplikaciji'),
+      title: Text(l.about),
       subtitle: Text('CardBlaze $_version · DoxITLabs'),
     );
   }
@@ -268,13 +271,13 @@ class _SubscriptionTab extends ConsumerWidget {
         Center(
           child: TextButton(
             onPressed: () => _restorePurchases(context, ref),
-            child: const Text('Obnovi kupnju'),
+            child: Text(AppLocalizations.of(context).restore_purchase),
           ),
         ),
         const SizedBox(height: 8),
         const Divider(),
         const SizedBox(height: 8),
-        const _SectionHeader('Tvoj plan'),
+        _SectionHeader(AppLocalizations.of(context).current_plan),
         isPremiumAsync.when(
           loading: () => const Center(
             child: Padding(
@@ -288,7 +291,7 @@ class _SubscriptionTab extends ConsumerWidget {
         ),
         _TappableTile(
           icon: Icons.open_in_new_outlined,
-          title: 'Upravljaj pretplatom',
+          title: AppLocalizations.of(context).manage_subscription,
           onTap: _openManageSubscription,
         ),
       ],
@@ -299,19 +302,18 @@ class _SubscriptionTab extends ConsumerWidget {
     final svc = ref.read(premiumServiceProvider);
     final result = await svc.restorePurchases();
     if (!context.mounted) return;
+    final l = AppLocalizations.of(context);
     if (result != null) {
       final active = result.entitlements.active.containsKey('pro');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(active
-              ? 'Kupnja uspješno obnovljena!'
-              : 'Nema aktivne pretplate za obnovu.'),
+          content: Text(active ? l.restore_snack_success : l.restore_snack_none),
         ),
       );
       ref.invalidate(isPremiumProvider);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Greška pri obnovi kupnje.')),
+        SnackBar(content: Text(l.restore_snack_error)),
       );
     }
   }
@@ -492,7 +494,7 @@ class _PremiumCard extends ConsumerWidget {
                   const Expanded(
                     child: ElevatedButton(
                       onPressed: null,
-                      child: Text('Nedostupno'),
+                      child: Text('—'),
                     ),
                   ),
               ],
@@ -521,7 +523,7 @@ class _PremiumCard extends ConsumerWidget {
                     : (_monthly != null
                         ? () => _purchase(context, ref, _monthly!)
                         : null),
-                child: const Text('Nadogradi na Pro'),
+                child: Text(AppLocalizations.of(context).upgrade_btn),
               ),
             ),
           ],
@@ -651,7 +653,9 @@ class _PlanTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    isPremium ? 'CardBlaze Pro' : 'Free plan',
+                    isPremium
+                        ? AppLocalizations.of(context).pro_plan
+                        : AppLocalizations.of(context).free_plan,
                     style: TextStyle(
                       color:
                           isPremium ? purple : AppColors.textPrimary(context),
@@ -662,7 +666,7 @@ class _PlanTile extends StatelessWidget {
                   ),
                   if (!isPremium)
                     Text(
-                      '$deckCount/3 deckova korišteno',
+                      '$deckCount/3',
                       style: TextStyle(
                         color: AppColors.textSecondary(context),
                         fontSize: 13,
@@ -671,7 +675,7 @@ class _PlanTile extends StatelessWidget {
                     ),
                   if (isPremium)
                     Text(
-                      'Svi Pro benefiti aktivni',
+                      AppLocalizations.of(context).pro_plan,
                       style: TextStyle(
                         color: AppColors.textSecondary(context),
                         fontSize: 13,
@@ -690,7 +694,7 @@ class _PlanTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Aktivan',
+                  AppLocalizations.of(context).pro_plan,
                   style: TextStyle(
                     color: purple,
                     fontSize: 12,

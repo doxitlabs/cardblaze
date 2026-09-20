@@ -56,15 +56,14 @@ class PdfService {
   }
 
   Future<String?> pickAndExtractPdf() async {
-    final result = await FilePicker.platform.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      allowMultiple: false,
     );
 
-    if (result == null || result.files.isEmpty) return null;
+    if (files.isEmpty) return null;
 
-    final path = result.files.single.path;
+    final path = files.single.path;
     if (path == null) return null;
 
     return extractText(path);

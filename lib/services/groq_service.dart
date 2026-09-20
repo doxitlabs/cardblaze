@@ -18,7 +18,8 @@ class PremiumRequiredException implements Exception {
 }
 
 class GroqService {
-  static const _apiKey = 'gsk_ТВOJ_KLJUČ_OVDJE';
+  static const apiKey = 'gsk_ТВOJ_KLJUČ_ОВДЕ';
+  static const _apiKey = apiKey;
   static const _url = 'https://api.groq.com/openai/v1/chat/completions';
   static const _model = 'llama-3.3-70b-versatile';
 

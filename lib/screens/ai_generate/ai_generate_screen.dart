@@ -5,6 +5,7 @@ import 'package:cardblaze/models/deck.dart';
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
+import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/services/isar_service.dart';
@@ -85,14 +86,14 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     _preview = cards;
   }
 
-  String _modeLabel(_InputMode m) {
+  String _modeLabel(_InputMode m, AppLocalizations l) {
     switch (m) {
       case _InputMode.text:
-        return 'Tekst';
+        return l.text_mode;
       case _InputMode.topic:
-        return 'Tema';
+        return l.topic_mode;
       case _InputMode.pdf:
-        return 'PDF';
+        return l.pdf_mode;
     }
   }
 
@@ -100,16 +101,17 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
 
   Future<void> _generate() async {
     final input = _inputCtrl.text.trim();
+    final l = AppLocalizations.of(context);
     if (input.isEmpty) {
-      _showError('Unesi tekst ili temu.');
+      _showError(l.error_enter_text);
       return;
     }
     if (_selectedDeckId == null) {
-      _showError('Odaberi deck ili kreiraj novi.');
+      _showError(l.error_select_deck);
       return;
     }
     if (_selectedDeckId == -1 && _newDeckNameCtrl.text.trim().isEmpty) {
-      _showError('Unesi naziv novog decka.');
+      _showError(l.error_deck_name);
       return;
     }
 
@@ -178,7 +180,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_preview.length} kartica spremljeno!'),
+          content: Text(AppLocalizations.of(context).cards_saved(_preview.length)),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -209,7 +211,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('AI generiranje')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).generate_title)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -248,6 +250,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         children: _InputMode.values.map((m) {
           final selected = _mode == m;
           final isPdf = m == _InputMode.pdf;
+          final l = AppLocalizations.of(context);
           return Expanded(
             child: GestureDetector(
               onTap: () async {
@@ -272,7 +275,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      _modeLabel(m),
+                      _modeLabel(m, l),
                       style: TextStyle(
                         color: selected ? Colors.white : AppColors.textSecondary(context),
                         fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
@@ -304,7 +307,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       return OutlinedButton.icon(
         onPressed: () {},
         icon: const Icon(Icons.upload_file),
-        label: const Text('Odaberi PDF s uređaja'),
+        label: Text(AppLocalizations.of(context).pdf_mode),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 52),
         ),
@@ -334,7 +337,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Deck',
+          AppLocalizations.of(context).select_deck,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const SizedBox(height: 8),
@@ -362,13 +365,13 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
                   ),
                 ),
               ),
-              const DropdownMenuItem<int>(
+              DropdownMenuItem<int>(
                 value: -1,
                 child: Row(
                   children: [
-                    Icon(Icons.add, size: 16),
-                    SizedBox(width: 8),
-                    Text('Novi deck'),
+                    const Icon(Icons.add, size: 16),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).new_deck),
                   ],
                 ),
               ),
@@ -381,7 +384,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
               ),
               child: DropdownButton<int>(
                 value: _selectedDeckId,
-                hint: const Text('Odaberi deck...'),
+                hint: Text(AppLocalizations.of(context).select_deck),
                 items: items,
                 onChanged: (v) => setState(() => _selectedDeckId = v),
                 isExpanded: true,
@@ -395,14 +398,14 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
           const SizedBox(height: 12),
           TextField(
             controller: _newDeckNameCtrl,
-            decoration: const InputDecoration(
-              hintText: 'Naziv novog decka...',
-              prefixIcon: Icon(Icons.drive_file_rename_outline),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context).deck_name_hint,
+              prefixIcon: const Icon(Icons.drive_file_rename_outline),
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'Boja decka',
+            AppLocalizations.of(context).color_label,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -448,7 +451,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     return Row(
       children: [
         Text(
-          'Broj kartica',
+          AppLocalizations.of(context).card_count,
           style: Theme.of(context).textTheme.titleSmall,
         ),
         const Spacer(),
@@ -487,7 +490,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       child: ElevatedButton.icon(
         onPressed: _isLoading ? null : _generate,
         icon: const Icon(Icons.auto_awesome),
-        label: const Text('Generiraj kartice'),
+        label: Text(AppLocalizations.of(context).generate_btn),
       ),
     );
   }
@@ -524,7 +527,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
             TextButton.icon(
               onPressed: _saveAll,
               icon: const Icon(Icons.save_alt),
-              label: const Text('Spremi sve u deck'),
+              label: Text(AppLocalizations.of(context).save),
             ),
           ],
         ),
@@ -536,7 +539,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
           child: ElevatedButton.icon(
             onPressed: _saveAll,
             icon: const Icon(Icons.save_alt),
-            label: Text('Spremi sve (${_preview.length})'),
+            label: Text(AppLocalizations.of(context).cards_saved(_preview.length)),
           ),
         ),
       ],
@@ -581,13 +584,13 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         children: [
           const Divider(height: 16),
           _EditableField(
-            label: 'Pitanje',
+            label: AppLocalizations.of(context).front,
             controller: _frontCtrl[i],
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 10),
           _EditableField(
-            label: 'Odgovor',
+            label: AppLocalizations.of(context).back,
             controller: _backCtrl[i],
             maxLines: 3,
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/models/deck.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
@@ -35,20 +36,21 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final decksAsync = ref.watch(decksStreamProvider);
 
+    final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tvoji deckovi'),
+        title: Text(l.my_decks),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Novi deck',
+            tooltip: l.new_deck_label,
             onPressed: () => _onAddTap(context, ref, decksAsync.valueOrNull),
           ),
         ],
       ),
       body: decksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Greška: $e')),
+        error: (e, _) => Center(child: Text('Error: $e')),
         data: (decks) => decks.isEmpty
             ? _EmptyState(onAddTap: () => _onAddTap(context, ref, decks))
             : _HomeBody(decks: decks),
@@ -102,7 +104,7 @@ class _HomeBody extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text(
-              'Svi deckovi',
+              AppLocalizations.of(context).all_decks,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -176,14 +178,16 @@ class _DueTodayCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      allDone ? 'Sve naučeno za danas!' : 'Na redu danas',
+                      allDone
+                          ? AppLocalizations.of(context).all_done_today
+                          : AppLocalizations.of(context).due_today,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 2),
                     Text(
                       allDone
-                          ? 'Nema kartica na čekanju. Odlično!'
-                          : '$due ${_cardWord(due)} čeka na ponavljanje',
+                          ? AppLocalizations.of(context).all_done_subtitle
+                          : AppLocalizations.of(context).cards_waiting(due),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -222,11 +226,6 @@ class _DueTodayCard extends ConsumerWidget {
     );
   }
 
-  String _cardWord(int n) {
-    if (n == 1) return 'kartica';
-    if (n >= 2 && n <= 4) return 'kartice';
-    return 'kartica';
-  }
 }
 
 // ── Deck list tile ────────────────────────────────────────────────────────────
@@ -285,7 +284,7 @@ class _DeckListTile extends ConsumerWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '${deck.cardCount} kartica · $dueCount na čekanju',
+                    AppLocalizations.of(context).deck_subtitle(deck.cardCount, dueCount),
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -374,14 +373,14 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Nema deckova',
+              AppLocalizations.of(context).no_decks_title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: AppColors.textSecondary(context),
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Dodaj prvi deck i počni učiti\ns pametnim ponavljanjem.',
+              AppLocalizations.of(context).no_decks_body,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -389,7 +388,7 @@ class _EmptyState extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onAddTap,
               icon: const Icon(Icons.add),
-              label: const Text('Dodaj prvi deck'),
+              label: Text(AppLocalizations.of(context).add_first_deck),
             ),
           ],
         ),
@@ -466,15 +465,17 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
             ),
           ),
           Text(
-            _isEditing ? 'Uredi deck' : 'Novi deck',
+            _isEditing
+                ? AppLocalizations.of(context).edit_deck
+                : AppLocalizations.of(context).new_deck_label,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 20),
           TextField(
             controller: _nameController,
             autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Naziv decka',
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context).deck_name_hint,
               counterText: '',
             ),
             maxLength: 60,
@@ -482,7 +483,7 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Boja',
+            AppLocalizations.of(context).color_label,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 12),
@@ -525,7 +526,7 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _saving ? null : _save,
-              child: Text(_isEditing ? 'Spremi' : 'Spremi'),
+              child: Text(AppLocalizations.of(context).save),
             ),
           ),
         ],
@@ -597,7 +598,7 @@ class _DeckOptionsSheet extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.edit_outlined),
-            title: const Text('Uredi deck'),
+            title: Text(AppLocalizations.of(context).edit_deck),
             onTap: () {
               Navigator.pop(context);
               showModalBottomSheet<void>(
@@ -614,7 +615,7 @@ class _DeckOptionsSheet extends ConsumerWidget {
           ListTile(
             leading: Icon(Icons.delete_outline, color: AppColors.badgeRed(context)),
             title: Text(
-              'Obriši deck',
+              AppLocalizations.of(context).delete_deck,
               style: TextStyle(color: AppColors.badgeRed(context)),
             ),
             onTap: () {
@@ -632,19 +633,17 @@ class _DeckOptionsSheet extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Obriši deck?'),
-        content: Text(
-          'Ovo će trajno obrisati "${deck.name}" i sve njegove kartice.',
-        ),
+        title: Text(AppLocalizations.of(ctx).delete_confirm_title),
+        content: Text(AppLocalizations.of(ctx).delete_confirm_body(deck.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Otkaži'),
+            child: Text(AppLocalizations.of(ctx).cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
-              'Obriši',
+              AppLocalizations.of(ctx).delete_btn,
               style: TextStyle(color: AppColors.badgeRed(context)),
             ),
           ),

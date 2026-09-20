@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cardblaze/models/study_session.dart';
-import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
+import 'package:cardblaze/l10n/app_localizations.dart';
+import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/services/isar_service.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
@@ -119,7 +120,7 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
     'active_decks': stats.activeDecks,
   };
 
-  const apiKey = 'gsk_ТВOJ_KLJUČ_OVDJE';
+  const apiKey = GroqService.apiKey;
   const url = 'https://api.groq.com/openai/v1/chat/completions';
   const model = 'llama-3.3-70b-versatile';
 
@@ -178,7 +179,7 @@ class StatsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Statistike'),
+        title: Text(AppLocalizations.of(context).stats_title),
         centerTitle: false,
       ),
       body: statsAsync.when(
@@ -271,24 +272,25 @@ class _MetricsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final items = [
       _MetricItem(
-        label: 'Kartice ovaj tjedan',
+        label: l.cards_this_week,
         value: '${stats.cardsThisWeek}',
         icon: Icons.style,
       ),
       _MetricItem(
-        label: 'Točnost',
+        label: l.accuracy,
         value: '${stats.accuracyPercent.toStringAsFixed(1)}%',
         icon: Icons.check_circle_outline,
       ),
       _MetricItem(
-        label: 'Ukupno kartica',
+        label: l.total_cards,
         value: '${stats.totalCards}',
         icon: Icons.layers,
       ),
       _MetricItem(
-        label: 'Aktivnih deckova',
+        label: l.active_decks,
         value: '${stats.activeDecks}',
         icon: Icons.folder_copy_outlined,
       ),
@@ -387,11 +389,11 @@ class _WeeklyBarChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 12),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
-              'Kartice po danu',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              AppLocalizations.of(context).cards_this_week,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
           ),
           SizedBox(
@@ -474,9 +476,6 @@ class _AiRecapCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const purple = Color(0xFF7C3AED);
-    const purpleLight = Color(0xFFEDE9FE);
-
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(

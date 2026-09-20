@@ -42,13 +42,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deck_name => 'Nom du paquet';
 
   @override
+  String get deck_name_hint => 'Nom du paquet';
+
+  @override
   String get select_color => 'Choisir une couleur';
+
+  @override
+  String get color_label => 'Couleur';
 
   @override
   String get save => 'Enregistrer';
 
   @override
   String get cancel => 'Annuler';
+
+  @override
+  String get delete_btn => 'Supprimer';
 
   @override
   String get study_now => 'Étudier maintenant';
@@ -61,6 +70,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get back => 'Verso';
+
+  @override
+  String get my_decks => 'Vos paquets';
+
+  @override
+  String get due_today => 'À réviser aujourd\'hui';
+
+  @override
+  String get all_done_today => 'Tout terminé aujourd\'hui !';
+
+  @override
+  String get all_done_subtitle => 'Aucune carte en attente. Excellent !';
+
+  @override
+  String cards_waiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cartes à réviser',
+      one: '1 carte à réviser',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get no_decks_title => 'Aucun paquet';
+
+  @override
+  String get no_decks_body =>
+      'Ajoutez votre premier paquet et commencez à apprendre avec la répétition espacée.';
+
+  @override
+  String get add_first_deck => 'Ajouter le premier paquet';
+
+  @override
+  String get new_deck_label => 'Nouveau paquet';
+
+  @override
+  String get edit_deck => 'Modifier le paquet';
+
+  @override
+  String get delete_deck => 'Supprimer le paquet';
+
+  @override
+  String get delete_confirm_title => 'Supprimer le paquet ?';
+
+  @override
+  String delete_confirm_body(String name) {
+    return 'Cela supprimera définitivement \"$name\" et toutes ses cartes.';
+  }
+
+  @override
+  String deck_subtitle(int cards, int due) {
+    return '$cards cartes · $due à réviser';
+  }
 
   @override
   String get generate_title => 'Générer par IA';
@@ -89,6 +153,26 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get generate_btn => 'Générer';
+
+  @override
+  String cards_saved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cartes enregistrées !',
+      one: '1 carte enregistrée !',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get error_enter_text => 'Saisir un texte ou un sujet.';
+
+  @override
+  String get error_select_deck => 'Choisir un paquet ou en créer un nouveau.';
+
+  @override
+  String get error_deck_name => 'Saisir un nom pour le nouveau paquet.';
 
   @override
   String get stats_title => 'Statistiques';
@@ -127,6 +211,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscription_tab => 'Abonnement';
 
   @override
+  String get appearance_section => 'Apparence';
+
+  @override
   String get theme_label => 'Thème';
 
   @override
@@ -136,7 +223,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dark_theme => 'Sombre';
 
   @override
-  String get language_label => 'Langue';
+  String get language_section => 'Langue';
+
+  @override
+  String get language_ui_label => 'Langue de l\'interface';
+
+  @override
+  String get other_section => 'Autre';
 
   @override
   String get notifications => 'Notifications';
@@ -146,6 +239,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get about => 'À propos';
+
+  @override
+  String get manage_subscription => 'Gérer l\'abonnement';
+
+  @override
+  String get restore_purchase => 'Restaurer les achats';
+
+  @override
+  String get restore_snack_success => 'Achat restauré avec succès !';
+
+  @override
+  String get restore_snack_none => 'Aucun abonnement actif à restaurer.';
+
+  @override
+  String get restore_snack_error => 'Erreur lors de la restauration.';
+
+  @override
+  String get current_plan => 'Votre plan';
+
+  @override
+  String get free_plan => 'Gratuit';
+
+  @override
+  String get pro_plan => 'Pro';
 
   @override
   String get upgrade_title => 'Débloquer CardBlaze Pro';
@@ -162,17 +279,20 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get restore_purchase => 'Restaurer les achats';
+  String get nav_decks => 'Paquets';
 
   @override
-  String get current_plan => 'Plan actuel';
+  String get nav_generate => 'Générer';
 
   @override
-  String get free_plan => 'Gratuit';
+  String get nav_stats => 'Stats';
 
   @override
-  String get pro_plan => 'Pro';
+  String get nav_settings => 'Paramètres';
 
   @override
   String get upgrade_btn => 'Passer à Pro';
+
+  @override
+  String get version => 'Version';
 }

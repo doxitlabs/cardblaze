@@ -1,36 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cardblaze/l10n/app_localizations.dart';
 
 class ScaffoldWithNav extends StatelessWidget {
   const ScaffoldWithNav({super.key, required this.child});
   final Widget child;
 
-  static const _tabs = [
-    _TabItem(label: 'Decks',    icon: Icons.grid_view_outlined,    activeIcon: Icons.grid_view,       path: '/'),
-    _TabItem(label: 'Generate', icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome,    path: '/generate'),
-    _TabItem(label: 'Stats',    icon: Icons.bar_chart_outlined,    activeIcon: Icons.bar_chart,       path: '/stats'),
-    _TabItem(label: 'Settings', icon: Icons.settings_outlined,     activeIcon: Icons.settings,        path: '/settings'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final location = GoRouterState.of(context).uri.path;
     final selectedIndex = _indexForPath(location);
+
+    final tabs = [
+      _TabItem(label: l.nav_decks,    icon: Icons.grid_view_outlined,    activeIcon: Icons.grid_view,       path: '/'),
+      _TabItem(label: l.nav_generate, icon: Icons.auto_awesome_outlined, activeIcon: Icons.auto_awesome,    path: '/generate'),
+      _TabItem(label: l.nav_stats,    icon: Icons.bar_chart_outlined,    activeIcon: Icons.bar_chart,       path: '/stats'),
+      _TabItem(label: l.nav_settings, icon: Icons.settings_outlined,     activeIcon: Icons.settings,        path: '/settings'),
+    ];
 
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
-        onDestinationSelected: (index) =>
-            context.go(_tabs[index].path),
-        destinations: _tabs
-            .map(
-              (t) => NavigationDestination(
-                icon: Icon(t.icon),
-                selectedIcon: Icon(t.activeIcon),
-                label: t.label,
-              ),
-            )
+        onDestinationSelected: (index) => context.go(tabs[index].path),
+        destinations: tabs
+            .map((t) => NavigationDestination(
+                  icon: Icon(t.icon),
+                  selectedIcon: Icon(t.activeIcon),
+                  label: t.label,
+                ))
             .toList(),
       ),
     );
@@ -45,12 +44,7 @@ class ScaffoldWithNav extends StatelessWidget {
 }
 
 class _TabItem {
-  const _TabItem({
-    required this.label,
-    required this.icon,
-    required this.activeIcon,
-    required this.path,
-  });
+  const _TabItem({required this.label, required this.icon, required this.activeIcon, required this.path});
   final String label;
   final IconData icon;
   final IconData activeIcon;

@@ -33,22 +33,31 @@ class AppLocalizationsHr extends AppLocalizations {
   String get no_cards_due => 'Sve naučeno danas!';
 
   @override
-  String get all_decks => 'Svi špilovi';
+  String get all_decks => 'Svi deckovi';
 
   @override
-  String get add_deck => 'Dodaj špil';
+  String get add_deck => 'Dodaj deck';
 
   @override
-  String get deck_name => 'Naziv špila';
+  String get deck_name => 'Naziv decka';
+
+  @override
+  String get deck_name_hint => 'Naziv decka';
 
   @override
   String get select_color => 'Odaberi boju';
+
+  @override
+  String get color_label => 'Boja';
 
   @override
   String get save => 'Spremi';
 
   @override
   String get cancel => 'Odustani';
+
+  @override
+  String get delete_btn => 'Obriši';
 
   @override
   String get study_now => 'Uči sada';
@@ -61,6 +70,61 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get back => 'Stražnja strana';
+
+  @override
+  String get my_decks => 'Tvoji deckovi';
+
+  @override
+  String get due_today => 'Na redu danas';
+
+  @override
+  String get all_done_today => 'Sve naučeno za danas!';
+
+  @override
+  String get all_done_subtitle => 'Nema kartica na čekanju. Odlično!';
+
+  @override
+  String cards_waiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kartice čekaju',
+      one: '1 kartica čeka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get no_decks_title => 'Nema deckova';
+
+  @override
+  String get no_decks_body =>
+      'Dodaj prvi deck i počni učiti s pametnim ponavljanjem.';
+
+  @override
+  String get add_first_deck => 'Dodaj prvi deck';
+
+  @override
+  String get new_deck_label => 'Novi deck';
+
+  @override
+  String get edit_deck => 'Uredi deck';
+
+  @override
+  String get delete_deck => 'Obriši deck';
+
+  @override
+  String get delete_confirm_title => 'Obriši deck?';
+
+  @override
+  String delete_confirm_body(String name) {
+    return 'Ovo će trajno obrisati \"$name\" i sve njegove kartice.';
+  }
+
+  @override
+  String deck_subtitle(int cards, int due) {
+    return '$cards kartica · $due na čekanju';
+  }
 
   @override
   String get generate_title => 'AI Generiranje';
@@ -78,16 +142,36 @@ class AppLocalizationsHr extends AppLocalizations {
   String get pdf_mode => 'PDF';
 
   @override
-  String get select_deck => 'Odaberi špil';
+  String get select_deck => 'Odaberi deck';
 
   @override
-  String get new_deck => 'Novi špil';
+  String get new_deck => 'Novi deck';
 
   @override
   String get card_count => 'Broj kartica';
 
   @override
   String get generate_btn => 'Generiraj';
+
+  @override
+  String cards_saved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kartica spremljeno!',
+      one: '1 kartica spremljena!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get error_enter_text => 'Unesi tekst ili temu.';
+
+  @override
+  String get error_select_deck => 'Odaberi deck ili kreiraj novi.';
+
+  @override
+  String get error_deck_name => 'Unesi naziv novog decka.';
 
   @override
   String get stats_title => 'Statistika';
@@ -114,7 +198,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get total_cards => 'Ukupno kartica';
 
   @override
-  String get active_decks => 'Aktivni špilovi';
+  String get active_decks => 'Aktivni deckovi';
 
   @override
   String get settings_title => 'Postavke';
@@ -126,6 +210,9 @@ class AppLocalizationsHr extends AppLocalizations {
   String get subscription_tab => 'Pretplata';
 
   @override
+  String get appearance_section => 'Izgled';
+
+  @override
   String get theme_label => 'Tema';
 
   @override
@@ -135,7 +222,13 @@ class AppLocalizationsHr extends AppLocalizations {
   String get dark_theme => 'Tamna';
 
   @override
-  String get language_label => 'Jezik';
+  String get language_section => 'Jezik';
+
+  @override
+  String get language_ui_label => 'Jezik sučelja';
+
+  @override
+  String get other_section => 'Ostalo';
 
   @override
   String get notifications => 'Obavijesti';
@@ -145,6 +238,30 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get about => 'O aplikaciji';
+
+  @override
+  String get manage_subscription => 'Upravljaj pretplatom';
+
+  @override
+  String get restore_purchase => 'Obnovi kupnju';
+
+  @override
+  String get restore_snack_success => 'Kupnja uspješno obnovljena!';
+
+  @override
+  String get restore_snack_none => 'Nema aktivne pretplate za obnovu.';
+
+  @override
+  String get restore_snack_error => 'Greška pri obnovi kupnje.';
+
+  @override
+  String get current_plan => 'Tvoj plan';
+
+  @override
+  String get free_plan => 'Besplatan';
+
+  @override
+  String get pro_plan => 'Pro';
 
   @override
   String get upgrade_title => 'Otključaj CardBlaze Pro';
@@ -161,17 +278,20 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
-  String get restore_purchase => 'Obnovi kupnje';
+  String get nav_decks => 'Deckovi';
 
   @override
-  String get current_plan => 'Trenutni plan';
+  String get nav_generate => 'Generiraj';
 
   @override
-  String get free_plan => 'Besplatan';
+  String get nav_stats => 'Statistika';
 
   @override
-  String get pro_plan => 'Pro';
+  String get nav_settings => 'Postavke';
 
   @override
   String get upgrade_btn => 'Nadogradi na Pro';
+
+  @override
+  String get version => 'Verzija';
 }

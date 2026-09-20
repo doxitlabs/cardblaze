@@ -2,154 +2,104 @@
   "@@locale": "en",
 
   "appName": "CardBlaze",
-  "@appName": { "description": "App name" },
-
   "home_title": "Today",
-  "@home_title": {},
-
   "today_card_title": "Cards due today",
-  "@today_card_title": {},
-
   "today_card_count": "{count, plural, =0{All done!} =1{1 card} other{{count} cards}}",
-  "@today_card_count": {
-    "placeholders": { "count": { "type": "int" } }
-  },
-
+  "@today_card_count": { "placeholders": { "count": { "type": "int" } } },
   "no_cards_due": "All learned today!",
-  "@no_cards_due": {},
-
   "all_decks": "All Decks",
-  "@all_decks": {},
-
   "add_deck": "Add Deck",
-  "@add_deck": {},
-
   "deck_name": "Deck name",
-  "@deck_name": {},
-
+  "deck_name_hint": "Deck name",
   "select_color": "Select color",
-  "@select_color": {},
-
+  "color_label": "Color",
   "save": "Save",
-  "@save": {},
-
   "cancel": "Cancel",
-  "@cancel": {},
-
+  "delete_btn": "Delete",
   "study_now": "Study Now",
-  "@study_now": {},
-
   "add_card": "Add Card",
-  "@add_card": {},
-
   "front": "Front",
-  "@front": {},
-
   "back": "Back",
-  "@back": {},
+
+  "my_decks": "Your Decks",
+  "due_today": "Due Today",
+  "all_done_today": "All done today!",
+  "all_done_subtitle": "No cards pending. Excellent!",
+  "cards_waiting": "{count, plural, =1{1 card due} other{{count} cards due}}",
+  "@cards_waiting": { "placeholders": { "count": { "type": "int" } } },
+  "no_decks_title": "No Decks",
+  "no_decks_body": "Add your first deck and start learning with spaced repetition.",
+  "add_first_deck": "Add First Deck",
+  "new_deck_label": "New Deck",
+  "edit_deck": "Edit Deck",
+  "delete_deck": "Delete Deck",
+  "delete_confirm_title": "Delete deck?",
+  "delete_confirm_body": "This will permanently delete \"{name}\" and all its cards.",
+  "@delete_confirm_body": { "placeholders": { "name": { "type": "String" } } },
+  "deck_subtitle": "{cards} cards · {due} due",
+  "@deck_subtitle": {
+    "placeholders": {
+      "cards": { "type": "int" },
+      "due": { "type": "int" }
+    }
+  },
 
   "generate_title": "AI Generate",
-  "@generate_title": {},
-
   "generate_subtitle": "Generate flashcards from text, topic, or PDF",
-  "@generate_subtitle": {},
-
   "text_mode": "Text",
-  "@text_mode": {},
-
   "topic_mode": "Topic",
-  "@topic_mode": {},
-
   "pdf_mode": "PDF",
-  "@pdf_mode": {},
-
   "select_deck": "Select deck",
-  "@select_deck": {},
-
   "new_deck": "New deck",
-  "@new_deck": {},
-
   "card_count": "Number of cards",
-  "@card_count": {},
-
   "generate_btn": "Generate",
-  "@generate_btn": {},
+  "cards_saved": "{count, plural, =1{1 card saved!} other{{count} cards saved!}}",
+  "@cards_saved": { "placeholders": { "count": { "type": "int" } } },
+  "error_enter_text": "Enter text or a topic.",
+  "error_select_deck": "Select a deck or create a new one.",
+  "error_deck_name": "Enter a name for the new deck.",
 
   "stats_title": "Statistics",
-  "@stats_title": {},
-
   "streak_days": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
-  "@streak_days": {
-    "placeholders": { "count": { "type": "int" } }
-  },
-
+  "@streak_days": { "placeholders": { "count": { "type": "int" } } },
   "cards_this_week": "Cards this week",
-  "@cards_this_week": {},
-
   "accuracy": "Accuracy",
-  "@accuracy": {},
-
   "total_cards": "Total cards",
-  "@total_cards": {},
-
   "active_decks": "Active decks",
-  "@active_decks": {},
 
   "settings_title": "Settings",
-  "@settings_title": {},
-
   "general_tab": "General",
-  "@general_tab": {},
-
   "subscription_tab": "Subscription",
-  "@subscription_tab": {},
-
+  "appearance_section": "Appearance",
   "theme_label": "Theme",
-  "@theme_label": {},
-
   "light_theme": "Light",
-  "@light_theme": {},
-
   "dark_theme": "Dark",
-  "@dark_theme": {},
-
-  "language_label": "Language",
-  "@language_label": {},
-
+  "language_section": "Language",
+  "language_ui_label": "UI Language",
+  "other_section": "Other",
   "notifications": "Notifications",
-  "@notifications": {},
-
   "privacy": "Privacy Policy",
-  "@privacy": {},
-
   "about": "About",
-  "@about": {},
+  "manage_subscription": "Manage subscription",
+  "restore_purchase": "Restore Purchases",
+  "restore_snack_success": "Purchase restored successfully!",
+  "restore_snack_none": "No active subscription to restore.",
+  "restore_snack_error": "Error restoring purchase.",
+  "current_plan": "Your plan",
+  "free_plan": "Free",
+  "pro_plan": "Pro",
 
   "upgrade_title": "Unlock CardBlaze Pro",
-  "@upgrade_title": {},
-
   "monthly_price": "Monthly",
-  "@monthly_price": {},
-
   "yearly_price": "Yearly",
-  "@yearly_price": {},
-
   "save_percent": "Save {percent}%",
-  "@save_percent": {
-    "placeholders": { "percent": { "type": "int" } }
-  },
+  "@save_percent": { "placeholders": { "percent": { "type": "int" } } },
 
-  "restore_purchase": "Restore Purchases",
-  "@restore_purchase": {},
+  "nav_decks": "Decks",
+  "nav_generate": "Generate",
+  "nav_stats": "Stats",
+  "nav_settings": "Settings",
 
-  "current_plan": "Current plan",
-  "@current_plan": {},
-
-  "free_plan": "Free",
-  "@free_plan": {},
-
-  "pro_plan": "Pro",
-  "@pro_plan": {},
-
-  "upgrade_btn": "Upgrade to Pro"
+  "upgrade_btn": "Upgrade to Pro",
+  "version": "Version"
 }

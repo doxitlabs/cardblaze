@@ -104,7 +104,7 @@ abstract class AppLocalizations {
     Locale('it')
   ];
 
-  /// App name
+  /// No description provided for @appName.
   ///
   /// In en, this message translates to:
   /// **'CardBlaze'**
@@ -152,11 +152,23 @@ abstract class AppLocalizations {
   /// **'Deck name'**
   String get deck_name;
 
+  /// No description provided for @deck_name_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Deck name'**
+  String get deck_name_hint;
+
   /// No description provided for @select_color.
   ///
   /// In en, this message translates to:
   /// **'Select color'**
   String get select_color;
+
+  /// No description provided for @color_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get color_label;
 
   /// No description provided for @save.
   ///
@@ -169,6 +181,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @delete_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete_btn;
 
   /// No description provided for @study_now.
   ///
@@ -193,6 +211,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
+
+  /// No description provided for @my_decks.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Decks'**
+  String get my_decks;
+
+  /// No description provided for @due_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Today'**
+  String get due_today;
+
+  /// No description provided for @all_done_today.
+  ///
+  /// In en, this message translates to:
+  /// **'All done today!'**
+  String get all_done_today;
+
+  /// No description provided for @all_done_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards pending. Excellent!'**
+  String get all_done_subtitle;
+
+  /// No description provided for @cards_waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 card due} other{{count} cards due}}'**
+  String cards_waiting(int count);
+
+  /// No description provided for @no_decks_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No Decks'**
+  String get no_decks_title;
+
+  /// No description provided for @no_decks_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first deck and start learning with spaced repetition.'**
+  String get no_decks_body;
+
+  /// No description provided for @add_first_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Add First Deck'**
+  String get add_first_deck;
+
+  /// No description provided for @new_deck_label.
+  ///
+  /// In en, this message translates to:
+  /// **'New Deck'**
+  String get new_deck_label;
+
+  /// No description provided for @edit_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Deck'**
+  String get edit_deck;
+
+  /// No description provided for @delete_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Deck'**
+  String get delete_deck;
+
+  /// No description provided for @delete_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete deck?'**
+  String get delete_confirm_title;
+
+  /// No description provided for @delete_confirm_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete \"{name}\" and all its cards.'**
+  String delete_confirm_body(String name);
+
+  /// No description provided for @deck_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{cards} cards · {due} due'**
+  String deck_subtitle(int cards, int due);
 
   /// No description provided for @generate_title.
   ///
@@ -248,6 +350,30 @@ abstract class AppLocalizations {
   /// **'Generate'**
   String get generate_btn;
 
+  /// No description provided for @cards_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 card saved!} other{{count} cards saved!}}'**
+  String cards_saved(int count);
+
+  /// No description provided for @error_enter_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text or a topic.'**
+  String get error_enter_text;
+
+  /// No description provided for @error_select_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a deck or create a new one.'**
+  String get error_select_deck;
+
+  /// No description provided for @error_deck_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name for the new deck.'**
+  String get error_deck_name;
+
   /// No description provided for @stats_title.
   ///
   /// In en, this message translates to:
@@ -302,6 +428,12 @@ abstract class AppLocalizations {
   /// **'Subscription'**
   String get subscription_tab;
 
+  /// No description provided for @appearance_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance_section;
+
   /// No description provided for @theme_label.
   ///
   /// In en, this message translates to:
@@ -320,11 +452,23 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get dark_theme;
 
-  /// No description provided for @language_label.
+  /// No description provided for @language_section.
   ///
   /// In en, this message translates to:
   /// **'Language'**
-  String get language_label;
+  String get language_section;
+
+  /// No description provided for @language_ui_label.
+  ///
+  /// In en, this message translates to:
+  /// **'UI Language'**
+  String get language_ui_label;
+
+  /// No description provided for @other_section.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other_section;
 
   /// No description provided for @notifications.
   ///
@@ -343,6 +487,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get about;
+
+  /// No description provided for @manage_subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get manage_subscription;
+
+  /// No description provided for @restore_purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Purchases'**
+  String get restore_purchase;
+
+  /// No description provided for @restore_snack_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase restored successfully!'**
+  String get restore_snack_success;
+
+  /// No description provided for @restore_snack_none.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription to restore.'**
+  String get restore_snack_none;
+
+  /// No description provided for @restore_snack_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error restoring purchase.'**
+  String get restore_snack_error;
+
+  /// No description provided for @current_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get current_plan;
+
+  /// No description provided for @free_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free_plan;
+
+  /// No description provided for @pro_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get pro_plan;
 
   /// No description provided for @upgrade_title.
   ///
@@ -368,35 +560,41 @@ abstract class AppLocalizations {
   /// **'Save {percent}%'**
   String save_percent(int percent);
 
-  /// No description provided for @restore_purchase.
+  /// No description provided for @nav_decks.
   ///
   /// In en, this message translates to:
-  /// **'Restore Purchases'**
-  String get restore_purchase;
+  /// **'Decks'**
+  String get nav_decks;
 
-  /// No description provided for @current_plan.
+  /// No description provided for @nav_generate.
   ///
   /// In en, this message translates to:
-  /// **'Current plan'**
-  String get current_plan;
+  /// **'Generate'**
+  String get nav_generate;
 
-  /// No description provided for @free_plan.
+  /// No description provided for @nav_stats.
   ///
   /// In en, this message translates to:
-  /// **'Free'**
-  String get free_plan;
+  /// **'Stats'**
+  String get nav_stats;
 
-  /// No description provided for @pro_plan.
+  /// No description provided for @nav_settings.
   ///
   /// In en, this message translates to:
-  /// **'Pro'**
-  String get pro_plan;
+  /// **'Settings'**
+  String get nav_settings;
 
   /// No description provided for @upgrade_btn.
   ///
   /// In en, this message translates to:
   /// **'Upgrade to Pro'**
   String get upgrade_btn;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
 }
 
 class _AppLocalizationsDelegate

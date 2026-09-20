@@ -42,13 +42,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deck_name => 'Deck-Name';
 
   @override
+  String get deck_name_hint => 'Deck-Name';
+
+  @override
   String get select_color => 'Farbe wählen';
+
+  @override
+  String get color_label => 'Farbe';
 
   @override
   String get save => 'Speichern';
 
   @override
   String get cancel => 'Abbrechen';
+
+  @override
+  String get delete_btn => 'Löschen';
 
   @override
   String get study_now => 'Jetzt lernen';
@@ -61,6 +70,61 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get back => 'Rückseite';
+
+  @override
+  String get my_decks => 'Deine Decks';
+
+  @override
+  String get due_today => 'Heute fällig';
+
+  @override
+  String get all_done_today => 'Alles für heute erledigt!';
+
+  @override
+  String get all_done_subtitle => 'Keine Karten ausstehend. Ausgezeichnet!';
+
+  @override
+  String cards_waiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten fällig',
+      one: '1 Karte fällig',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get no_decks_title => 'Keine Decks';
+
+  @override
+  String get no_decks_body =>
+      'Füge dein erstes Deck hinzu und beginne mit Spaced Repetition.';
+
+  @override
+  String get add_first_deck => 'Erstes Deck hinzufügen';
+
+  @override
+  String get new_deck_label => 'Neues Deck';
+
+  @override
+  String get edit_deck => 'Deck bearbeiten';
+
+  @override
+  String get delete_deck => 'Deck löschen';
+
+  @override
+  String get delete_confirm_title => 'Deck löschen?';
+
+  @override
+  String delete_confirm_body(String name) {
+    return 'Dies löscht \"$name\" und alle Karten dauerhaft.';
+  }
+
+  @override
+  String deck_subtitle(int cards, int due) {
+    return '$cards Karten · $due fällig';
+  }
 
   @override
   String get generate_title => 'KI-Generierung';
@@ -88,6 +152,26 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get generate_btn => 'Generieren';
+
+  @override
+  String cards_saved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten gespeichert!',
+      one: '1 Karte gespeichert!',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get error_enter_text => 'Text oder Thema eingeben.';
+
+  @override
+  String get error_select_deck => 'Deck auswählen oder neues erstellen.';
+
+  @override
+  String get error_deck_name => 'Namen für neues Deck eingeben.';
 
   @override
   String get stats_title => 'Statistiken';
@@ -126,6 +210,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get subscription_tab => 'Abonnement';
 
   @override
+  String get appearance_section => 'Aussehen';
+
+  @override
   String get theme_label => 'Design';
 
   @override
@@ -135,7 +222,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dark_theme => 'Dunkel';
 
   @override
-  String get language_label => 'Sprache';
+  String get language_section => 'Sprache';
+
+  @override
+  String get language_ui_label => 'Oberflächensprache';
+
+  @override
+  String get other_section => 'Sonstiges';
 
   @override
   String get notifications => 'Benachrichtigungen';
@@ -145,6 +238,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get about => 'Über die App';
+
+  @override
+  String get manage_subscription => 'Abonnement verwalten';
+
+  @override
+  String get restore_purchase => 'Käufe wiederherstellen';
+
+  @override
+  String get restore_snack_success => 'Kauf erfolgreich wiederhergestellt!';
+
+  @override
+  String get restore_snack_none =>
+      'Kein aktives Abonnement zum Wiederherstellen.';
+
+  @override
+  String get restore_snack_error => 'Fehler beim Wiederherstellen.';
+
+  @override
+  String get current_plan => 'Dein Plan';
+
+  @override
+  String get free_plan => 'Kostenlos';
+
+  @override
+  String get pro_plan => 'Pro';
 
   @override
   String get upgrade_title => 'CardBlaze Pro freischalten';
@@ -161,17 +279,20 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get restore_purchase => 'Käufe wiederherstellen';
+  String get nav_decks => 'Decks';
 
   @override
-  String get current_plan => 'Aktueller Plan';
+  String get nav_generate => 'Generieren';
 
   @override
-  String get free_plan => 'Kostenlos';
+  String get nav_stats => 'Statistik';
 
   @override
-  String get pro_plan => 'Pro';
+  String get nav_settings => 'Einstellungen';
 
   @override
   String get upgrade_btn => 'Auf Pro upgraden';
+
+  @override
+  String get version => 'Version';
 }
