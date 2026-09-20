@@ -30,16 +30,9 @@ class PremiumService {
     await Purchases.configure(config);
   }
 
-  // ── Status stream ──────────────────────────────────────────────────────────
-  //
-  // Emits immediately on subscribe (current state), then re-emits whenever
-  // RevenueCat fires a CustomerInfo update (after purchase / restore).
-
   Stream<bool> get premiumStatus async* {
-    // Emit current state on subscribe
     yield await isPremium();
 
-    // Register RC listener; bridge into our broadcast controller
     void listener(CustomerInfo info) {
       if (!_statusController.isClosed) {
         _statusController.add(
@@ -48,14 +41,9 @@ class PremiumService {
       }
     }
     Purchases.addCustomerInfoUpdateListener(listener);
-
     yield* _statusController.stream;
-
-    // Note: removeCustomerInfoUpdateListener is called when provider disposes
     Purchases.removeCustomerInfoUpdateListener(listener);
   }
-
-  // ── One-shot check ─────────────────────────────────────────────────────────
 
   Future<bool> isPremium() async {
     try {
@@ -66,7 +54,21 @@ class PremiumService {
     }
   }
 
-  // ── Purchases ──────────────────────────────────────────────────────────────
+  // purchases_flutter 10.x: purchasePackage returns PurchaseResult
+  Future<CustomerInfo?> purchase(Package package) async {
+    try {
+      final result = await Purchases.purchasePackage(package);
+      final info = result.customerInfo;
+      _statusController.add(
+        info.entitlements.active.containsKey(_entitlementId),
+      );
+      return info;
+    } on PurchasesErrorCode catch (_) {
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<CustomerInfo?> purchaseMonthly() =>
       _purchaseById(PremiumProductIds.monthly);
@@ -85,11 +87,7 @@ class PremiumService {
           return packages.first;
         },
       );
-      final result = await Purchases.purchasePackage(pkg);
-      _statusController.add(
-        result.entitlements.active.containsKey(_entitlementId),
-      );
-      return result;
+      return purchase(pkg);
     } on PurchasesErrorCode catch (_) {
       return null;
     } catch (_) {
@@ -108,8 +106,6 @@ class PremiumService {
       return null;
     }
   }
-
-  // ── Offerings (for paywall) ────────────────────────────────────────────────
 
   Future<List<Package>> getOfferings() async {
     try {
