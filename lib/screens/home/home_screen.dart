@@ -29,50 +29,75 @@ class _ColorOption {
 
 // ── HomeScreen ────────────────────────────────────────────────────────────────
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(cardsRefreshProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final decksAsync = ref.watch(decksStreamProvider);
 
     final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('CardBlaze'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: l.new_deck_label,
-            onPressed: () => _onAddTap(context, ref, decksAsync.valueOrNull),
-          ),
-        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _onAddTap(context, decksAsync.valueOrNull),
+        icon: const Icon(Icons.add),
+        label: Text(l.new_deck_label),
       ),
       body: decksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (decks) => decks.isEmpty
-            ? _EmptyState(onAddTap: () => _onAddTap(context, ref, decks))
-            : _HomeBody(decks: decks),
+        data: (allDecks) {
+          final locale = Localizations.localeOf(context).languageCode;
+          final decks = allDecks
+              .where((d) => d.language == null || d.language == locale)
+              .toList();
+          return decks.isEmpty
+              ? _EmptyState(onAddTap: () => _onAddTap(context, decks))
+              : _HomeBody(decks: decks);
+        },
       ),
     );
   }
 
-  Future<void> _onAddTap(
-    BuildContext context,
-    WidgetRef ref,
-    List<Deck>? currentDecks,
-  ) async {
+  Future<void> _onAddTap(BuildContext context, List<Deck>? currentDecks) async {
     final isPremium = await ref.read(premiumStatusProvider.future);
     if (!context.mounted) return;
     if (!isPremium && (currentDecks?.length ?? 0) >= PremiumLimits.maxDecks) {
       await showUpgradeDialog(context);
       return;
     }
-    if (context.mounted) _showCreateSheet(context, ref);
+    if (context.mounted) _showCreateSheet(context);
   }
 
-  void _showCreateSheet(BuildContext context, WidgetRef ref) {
+  void _showCreateSheet(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -126,32 +151,101 @@ class _PendingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final wrongAsync = ref.watch(totalWrongCountProvider);
-    final count = wrongAsync.valueOrNull ?? 0;
-    if (count == 0) return const SizedBox.shrink();
+    final statsAsync = ref.watch(totalLearnedPendingProvider);
+    final stats = statsAsync.valueOrNull;
+    final learned = stats?.learned ?? 0;
+    final pending = stats?.pending ?? 0;
+    final total = learned + pending;
+    if (total == 0) return const SizedBox.shrink();
 
     final accent = AppColors.accent(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? const Color(0xFF1A2A40) : const Color(0xFFE3F0FF);
+    const learnedColor = Color(0xFF4A9EFF);
+    const pendingColor = Color(0xFFE53935);
+    final learnedFraction = total > 0 ? learned / total : 0.0;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: accent.withValues(alpha: 0.35)),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: accent.withValues(alpha: 0.4), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: accent.withValues(alpha: isDark ? 0.12 : 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            Icon(Icons.schedule_outlined, color: accent, size: 22),
-            const SizedBox(width: 12),
-            Text(
-              AppLocalizations.of(context).cards_waiting(count),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(Icons.local_fire_department_rounded, color: accent, size: 26),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        TextSpan(
+                          text: '${AppLocalizations.of(context).answered_label} ',
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '$learned',
+                          style: TextStyle(
+                            color: learnedColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' / $total',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: '  ·  $pending ${AppLocalizations.of(context).pending_label}',
+                          style: TextStyle(
+                            color: pendingColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Stack(
+                      children: [
+                        Container(height: 6, color: pendingColor.withValues(alpha: 0.3)),
+                        FractionallySizedBox(
+                          widthFactor: learnedFraction,
+                          child: Container(height: 6, color: learnedColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -491,7 +585,10 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
     deck
       ..name = name
       ..colorHex = _selectedHex;
-    if (isNew) deck.createdAt = DateTime.now();
+    if (isNew) {
+      deck.createdAt = DateTime.now();
+      deck.language = Localizations.localeOf(context).languageCode;
+    }
 
     await service.saveDeck(deck);
     if (mounted) {

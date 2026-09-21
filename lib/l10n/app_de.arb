@@ -144,5 +144,7 @@
   "notifications_on": "Aktiviert",
   "notifications_off": "Tippen um tägliche Erinnerung zu aktivieren",
 
-  "deck_all_learned": "Alles gelernt"
+  "deck_all_learned": "Alles gelernt",
+  "answered_label": "Beantwortet:",
+  "pending_label": "ausstehend"
 }

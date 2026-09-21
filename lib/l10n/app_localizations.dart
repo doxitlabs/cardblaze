@@ -895,6 +895,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All learned'**
   String get deck_all_learned;
+
+  /// No description provided for @answered_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered:'**
+  String get answered_label;
+
+  /// No description provided for @pending_label.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get pending_label;
 }
 
 class _AppLocalizationsDelegate

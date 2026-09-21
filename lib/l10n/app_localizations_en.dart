@@ -444,4 +444,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deck_all_learned => 'All learned';
+
+  @override
+  String get answered_label => 'Answered:';
+
+  @override
+  String get pending_label => 'pending';
 }

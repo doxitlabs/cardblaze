@@ -13,6 +13,9 @@ class Deck {
 
   late DateTime createdAt;
 
+  // null = visible in all languages (legacy decks)
+  String? language;
+
   // Computed — not stored; populated manually from card count queries.
   @ignore
   int cardCount = 0;

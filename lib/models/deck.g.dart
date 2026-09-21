@@ -27,8 +27,13 @@ const DeckSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'name': PropertySchema(
+    r'language': PropertySchema(
       id: 2,
+      name: r'language',
+      type: IsarType.string,
+    ),
+    r'name': PropertySchema(
+      id: 3,
       name: r'name',
       type: IsarType.string,
     )
@@ -68,6 +73,12 @@ int _deckEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.colorHex.length * 3;
+  {
+    final value = object.language;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
@@ -80,7 +91,8 @@ void _deckSerialize(
 ) {
   writer.writeString(offsets[0], object.colorHex);
   writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.name);
+  writer.writeString(offsets[2], object.language);
+  writer.writeString(offsets[3], object.name);
 }
 
 Deck _deckDeserialize(
@@ -93,7 +105,8 @@ Deck _deckDeserialize(
   object.colorHex = reader.readString(offsets[0]);
   object.createdAt = reader.readDateTime(offsets[1]);
   object.id = id;
-  object.name = reader.readString(offsets[2]);
+  object.language = reader.readStringOrNull(offsets[2]);
+  object.name = reader.readString(offsets[3]);
   return object;
 }
 
@@ -109,6 +122,8 @@ P _deckDeserializeProp<P>(
     case 1:
       return (reader.readDateTime(offset)) as P;
     case 2:
+      return (reader.readStringOrNull(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -481,6 +496,151 @@ extension DeckQueryFilter on QueryBuilder<Deck, Deck, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'language',
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'language',
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageBetween(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'language',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'language',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'language',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'language',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterFilterCondition> languageIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'language',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Deck, Deck, QAfterFilterCondition> nameEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -639,6 +799,18 @@ extension DeckQuerySortBy on QueryBuilder<Deck, Deck, QSortBy> {
     });
   }
 
+  QueryBuilder<Deck, Deck, QAfterSortBy> sortByLanguage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'language', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterSortBy> sortByLanguageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'language', Sort.desc);
+    });
+  }
+
   QueryBuilder<Deck, Deck, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -689,6 +861,18 @@ extension DeckQuerySortThenBy on QueryBuilder<Deck, Deck, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Deck, Deck, QAfterSortBy> thenByLanguage() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'language', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Deck, Deck, QAfterSortBy> thenByLanguageDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'language', Sort.desc);
+    });
+  }
+
   QueryBuilder<Deck, Deck, QAfterSortBy> thenByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -716,6 +900,13 @@ extension DeckQueryWhereDistinct on QueryBuilder<Deck, Deck, QDistinct> {
     });
   }
 
+  QueryBuilder<Deck, Deck, QDistinct> distinctByLanguage(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'language', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Deck, Deck, QDistinct> distinctByName(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -740,6 +931,12 @@ extension DeckQueryProperty on QueryBuilder<Deck, Deck, QQueryProperty> {
   QueryBuilder<Deck, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
+    });
+  }
+
+  QueryBuilder<Deck, String?, QQueryOperations> languageProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'language');
     });
   }
 

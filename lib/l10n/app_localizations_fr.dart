@@ -449,4 +449,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deck_all_learned => 'Tout appris';
+
+  @override
+  String get answered_label => 'Répondu :';
+
+  @override
+  String get pending_label => 'en attente';
 }

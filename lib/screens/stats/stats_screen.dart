@@ -119,8 +119,8 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
     'active_decks': stats.activeDecks,
   };
 
-  const apiKey = GroqService.apiKey;
-  const url = 'https://api.groq.com/openai/v1/chat/completions';
+  const url = 'https://bjurrwlmnugmmavdyrfo.supabase.co/functions/v1/generate-cards';
+  const anonKey = 'sb_publishable_0ibllJ0g4i7n5cfOM3nnsg_wZIFOfLW';
   const model = 'openai/gpt-oss-120b';
 
   final prompt =
@@ -135,7 +135,8 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
         .post(
           Uri.parse(url),
           headers: {
-            'Authorization': 'Bearer $apiKey',
+            'Authorization': 'Bearer $anonKey',
+            'apikey': anonKey,
             'Content-Type': 'application/json',
           },
           body: jsonEncode({

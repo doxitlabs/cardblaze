@@ -144,5 +144,7 @@
   "notifications_on": "Uključeno",
   "notifications_off": "Dodirnite za uključivanje podsjetnika",
 
-  "deck_all_learned": "Sve naučeno"
+  "deck_all_learned": "Sve naučeno",
+  "answered_label": "Odgovoreno:",
+  "pending_label": "na čekanju"
 }

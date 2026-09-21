@@ -18,9 +18,8 @@ class PremiumRequiredException implements Exception {
 }
 
 class GroqService {
-  static const apiKey = 'REDACTED_GROQ_API_KEY';
-  static const _apiKey = apiKey;
-  static const _url = 'https://api.groq.com/openai/v1/chat/completions';
+  static const _url = 'https://bjurrwlmnugmmavdyrfo.supabase.co/functions/v1/generate-cards';
+  static const _anonKey = 'sb_publishable_0ibllJ0g4i7n5cfOM3nnsg_wZIFOfLW';
   static const _model = 'openai/gpt-oss-120b';
 
   static const _freeMaxChars = 500;
@@ -119,7 +118,8 @@ class GroqService {
             .post(
               Uri.parse(_url),
               headers: {
-                'Authorization': 'Bearer $_apiKey',
+                'Authorization': 'Bearer $_anonKey',
+                'apikey': _anonKey,
                 'Content-Type': 'application/json',
               },
               body: jsonEncode({
@@ -172,7 +172,8 @@ class GroqService {
           .post(
             Uri.parse(_url),
             headers: {
-              'Authorization': 'Bearer $_apiKey',
+              'Authorization': 'Bearer $_anonKey',
+              'apikey': _anonKey,
               'Content-Type': 'application/json',
             },
             body: jsonEncode({

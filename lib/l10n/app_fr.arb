@@ -144,5 +144,7 @@
   "notifications_on": "Activé",
   "notifications_off": "Appuyer pour activer le rappel quotidien",
 
-  "deck_all_learned": "Tout appris"
+  "deck_all_learned": "Tout appris",
+  "answered_label": "Répondu :",
+  "pending_label": "en attente"
 }

@@ -144,5 +144,7 @@
   "notifications_on": "Attivato",
   "notifications_off": "Tocca per attivare il promemoria giornaliero",
 
-  "deck_all_learned": "Tutto imparato"
+  "deck_all_learned": "Tutto imparato",
+  "answered_label": "Risposto:",
+  "pending_label": "in attesa"
 }

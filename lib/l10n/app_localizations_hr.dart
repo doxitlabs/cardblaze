@@ -447,4 +447,10 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get deck_all_learned => 'Sve naučeno';
+
+  @override
+  String get answered_label => 'Odgovoreno:';
+
+  @override
+  String get pending_label => 'na čekanju';
 }

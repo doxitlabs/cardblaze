@@ -156,5 +156,7 @@
   "notifications_on": "Enabled",
   "notifications_off": "Tap to enable daily reminder",
 
-  "deck_all_learned": "All learned"
+  "deck_all_learned": "All learned",
+  "answered_label": "Answered:",
+  "pending_label": "pending"
 }
