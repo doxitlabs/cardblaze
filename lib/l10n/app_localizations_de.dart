@@ -371,6 +371,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get ai_weekly_recap => 'KI Wochenzusammenfassung';
+
+  @override
+  String get refresh => 'Aktualisieren';
+
+  @override
   String get upgrade_ai_recap => 'Für KI-Recap upgraden';
 
   @override

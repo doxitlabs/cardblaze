@@ -193,7 +193,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).generate_title)),
+      appBar: AppBar(title: GradientTitle(AppLocalizations.of(context).generate_title)),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

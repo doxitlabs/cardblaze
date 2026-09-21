@@ -740,6 +740,18 @@ abstract class AppLocalizations {
   /// **'Legend! {days} days straight!'**
   String streak_motivation_legend(int days);
 
+  /// No description provided for @ai_weekly_recap.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Weekly Recap'**
+  String get ai_weekly_recap;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// No description provided for @upgrade_ai_recap.
   ///
   /// In en, this message translates to:

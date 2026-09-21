@@ -368,6 +368,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get ai_weekly_recap => 'AI Weekly Recap';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
   String get upgrade_ai_recap => 'Upgrade for AI recap';
 
   @override

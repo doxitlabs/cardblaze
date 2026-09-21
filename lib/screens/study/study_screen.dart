@@ -209,7 +209,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       return Scaffold(
         backgroundColor: AppColors.pageBg(context),
         appBar: AppBar(
-          title: Text(deckName),
+          title: GradientTitle(deckName),
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => context.pop(),
@@ -241,7 +241,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     return Scaffold(
       backgroundColor: AppColors.pageBg(context),
       appBar: AppBar(
-        title: Text(deckName),
+        title: GradientTitle(deckName),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),

@@ -56,11 +56,7 @@ class _DeckScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          deck.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: GradientTitle(deck.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),

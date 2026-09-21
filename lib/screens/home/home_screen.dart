@@ -7,6 +7,7 @@ import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/premium_service.dart';
+import 'package:cardblaze/services/widget_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 
@@ -60,22 +61,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final decksAsync = ref.watch(decksStreamProvider);
+    final locale = Localizations.localeOf(context).languageCode;
+    final filteredDecks = decksAsync.valueOrNull
+        ?.where((d) => d.language == null || d.language == locale)
+        .toList();
 
     final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CardBlaze'),
+        title: const GradientTitle('CardBlaze', fontSize: 22),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _onAddTap(context, decksAsync.valueOrNull),
-        icon: const Icon(Icons.add),
-        label: Text(l.new_deck_label),
-      ),
+      floatingActionButton: filteredDecks?.isNotEmpty == true
+          ? FloatingActionButton.extended(
+              onPressed: () => _onAddTap(context, filteredDecks),
+              icon: const Icon(Icons.add),
+              label: Text(l.new_deck_label),
+            )
+          : null,
       body: decksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (allDecks) {
-          final locale = Localizations.localeOf(context).languageCode;
           final decks = allDecks
               .where((d) => d.language == null || d.language == locale)
               .toList();
@@ -358,6 +364,7 @@ class _DeckListTile extends ConsumerWidget {
         onDeleted: () {
           ref.invalidate(decksStreamProvider);
           ref.invalidate(allDecksProvider);
+          ref.read(cardsRefreshProvider.notifier).state++;
         },
       ),
     );
@@ -687,7 +694,9 @@ class _DeckOptionsSheet extends ConsumerWidget {
               );
               if (confirmed == true) {
                 if (context.mounted) Navigator.pop(context);
-                await ref.read(isarServiceProvider).deleteDeck(deck.id);
+                final isar = ref.read(isarServiceProvider);
+                await isar.deleteDeck(deck.id);
+                await WidgetService(isar).updateWidget();
                 onDeleted();
               }
             },

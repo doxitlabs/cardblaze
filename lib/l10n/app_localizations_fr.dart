@@ -371,6 +371,12 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get ai_weekly_recap => 'Récap hebdo IA';
+
+  @override
+  String get refresh => 'Actualiser';
+
+  @override
   String get upgrade_ai_recap => 'Passer à Pro pour le récap IA';
 
   @override

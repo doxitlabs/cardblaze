@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "hr",
 
   "appName": "CardBlaze",
@@ -116,6 +116,8 @@
   "streak_motivation_high": "Nevjerojatno! Ti si na pravom putu.",
   "streak_motivation_legend": "Legenda! {days} dana bez prestanka!",
   "@streak_motivation_legend": { "placeholders": { "days": { "type": "int" } } },
+  "ai_weekly_recap": "AI tjedni pregled",
+  "refresh": "Osvježi",
   "upgrade_ai_recap": "Nadogradi za AI recap",
   "view_pro_btn": "Pogledaj Pro",
   "pro_welcome": "Dobrodošao u CardBlaze Pro! 🎉",

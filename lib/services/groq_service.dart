@@ -63,8 +63,8 @@ class GroqService {
           'Answers should be short and precise (1-2 sentences).\n'
           'Text: $input';
     }
-    return '${langInstruction}Generate UP TO $count flashcards STRICTLY about this specific topic: "$input"\n'
-        'Generate as many as the topic allows — do not invent or repeat content just to reach $count.\n'
+    return '${langInstruction}Generate as close to $count flashcards as the topic allows — stop only if the topic genuinely has no more distinct facts to cover.\n'
+        'Topic: "$input"\n'
         'Every question and answer must be directly and specifically about "$input" — do NOT drift to broader or related topics.\n'
         '${jsonRules}'
         '[{"front": "question", "back": "answer"}, ...]\n'

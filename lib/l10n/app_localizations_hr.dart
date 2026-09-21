@@ -368,6 +368,12 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
+  String get ai_weekly_recap => 'AI tjedni pregled';
+
+  @override
+  String get refresh => 'Osvježi';
+
+  @override
   String get upgrade_ai_recap => 'Nadogradi za AI recap';
 
   @override

@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 
+// ── Gradient title widget ────────────────────────────────────────────────────
+
+class GradientTitle extends StatelessWidget {
+  const GradientTitle(this.text, {super.key, this.fontSize = 20});
+  final String text;
+  final double fontSize;
+
+  static const _gradient = LinearGradient(
+    colors: [Color(0xFF4A9EFF), Color(0xFF7B4FA0), Color(0xFFE91E63)],
+    stops: [0.0, 0.55, 1.0],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      shaderCallback: (bounds) => _gradient.createShader(bounds),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+}
+
 // ── Dark tokens ──────────────────────────────────────────────────────────────
 
 class DarkColors {

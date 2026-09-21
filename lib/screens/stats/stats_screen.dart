@@ -8,8 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cardblaze/models/study_session.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
-import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/services/isar_service.dart';
+import 'package:cardblaze/theme/app_theme.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
 
@@ -193,7 +193,7 @@ class StatsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).stats_title),
+        title: GradientTitle(AppLocalizations.of(context).stats_title),
         centerTitle: false,
       ),
       body: statsAsync.when(
@@ -511,9 +511,9 @@ class _AiRecapCard extends ConsumerWidget {
                   children: [
                     const Text('✨', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
-                    const Text(
-                      'AI Weekly Recap',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context).ai_weekly_recap,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -624,12 +624,12 @@ class _RefreshRecapButton extends ConsumerWidget {
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(Icons.refresh, color: Colors.white54, size: 14),
-          SizedBox(width: 4),
+        children: [
+          const Icon(Icons.refresh, color: Colors.white54, size: 14),
+          const SizedBox(width: 4),
           Text(
-            'Osvježi',
-            style: TextStyle(color: Colors.white54, fontSize: 12),
+            AppLocalizations.of(context).refresh,
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ],
       ),

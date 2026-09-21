@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
+import 'package:cardblaze/theme/app_theme.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -21,7 +22,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l.privacy),
+        title: GradientTitle(l.privacy),
         actions: [
           IconButton(
             icon: const Icon(Icons.open_in_browser_outlined),

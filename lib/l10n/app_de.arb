@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "de",
 
   "appName": "CardBlaze",
@@ -116,6 +116,8 @@
   "streak_motivation_high": "Erstaunlich! Du bist auf dem richtigen Weg.",
   "streak_motivation_legend": "Legende! {days} Tage am Stück!",
   "@streak_motivation_legend": { "placeholders": { "days": { "type": "int" } } },
+  "ai_weekly_recap": "KI Wochenzusammenfassung",
+  "refresh": "Aktualisieren",
   "upgrade_ai_recap": "Für KI-Recap upgraden",
   "view_pro_btn": "Pro ansehen",
   "pro_welcome": "Willkommen bei CardBlaze Pro! 🎉",

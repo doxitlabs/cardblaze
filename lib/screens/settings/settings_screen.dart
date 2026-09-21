@@ -46,7 +46,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context).settings_title),
+        title: GradientTitle(AppLocalizations.of(context).settings_title),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Container(
