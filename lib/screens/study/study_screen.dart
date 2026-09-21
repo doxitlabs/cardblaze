@@ -172,7 +172,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       ..correctCount = _correctCount
       ..incorrectCount = _incorrectCount;
     await ref.read(isarServiceProvider).saveSession(session);
-    ref.invalidate(cardsRefreshProvider);
+    ref.read(cardsRefreshProvider.notifier).state++;
     ref.invalidate(statsProvider);
     await ref.read(widgetServiceProvider).updateWidget();
   }

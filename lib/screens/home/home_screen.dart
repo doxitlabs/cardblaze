@@ -53,7 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.invalidate(cardsRefreshProvider);
+      ref.read(cardsRefreshProvider.notifier).state++;
     }
   }
 

@@ -179,6 +179,7 @@ class _DeckScreen extends ConsumerWidget {
       final isar = ref.read(isarServiceProvider);
       context.pop();
       await isar.deleteDeck(deckId);
+      ref.read(cardsRefreshProvider.notifier).state++;
       ref.invalidate(decksStreamProvider);
       ref.invalidate(allDecksProvider);
     }
@@ -197,6 +198,7 @@ class _DeckScreen extends ConsumerWidget {
         deckId: deckId,
         existingCard: existingCard,
         onSaved: () {
+          ref.read(cardsRefreshProvider.notifier).state++;
           ref.invalidate(cardsStreamProvider(deckId));
           ref.invalidate(deckStreamProvider(deckId));
           ref.invalidate(deckDueCountProvider(deckId));
@@ -213,6 +215,7 @@ class _DeckScreen extends ConsumerWidget {
 
   Future<void> _deleteCard(WidgetRef ref, FlashCard card) async {
     await ref.read(isarServiceProvider).deleteCard(card.id);
+    ref.read(cardsRefreshProvider.notifier).state++;
     ref.invalidate(cardsStreamProvider(deckId));
     ref.invalidate(deckStreamProvider(deckId));
     ref.invalidate(deckDueCountProvider(deckId));

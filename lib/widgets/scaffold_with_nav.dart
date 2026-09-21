@@ -26,7 +26,7 @@ class ScaffoldWithNav extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
-          ref.invalidate(cardsRefreshProvider);
+          ref.read(cardsRefreshProvider.notifier).state++;
           context.go(tabs[index].path);
         },
         destinations: tabs

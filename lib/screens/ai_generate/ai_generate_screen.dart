@@ -156,8 +156,8 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       await isar.saveCard(card);
     }
 
-    ref.invalidate(decksRefreshProvider);
-    ref.invalidate(cardsRefreshProvider);
+    ref.read(decksRefreshProvider.notifier).state++;
+    ref.read(cardsRefreshProvider.notifier).state++;
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
