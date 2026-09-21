@@ -61,34 +61,49 @@ class NotificationService {
   }
 
   Future<void> _scheduleDaily(int hour, int minute) async {
-    // Build the next occurrence in local time, then convert to UTC for TZDateTime
     final nowLocal = DateTime.now();
     var scheduledLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day, hour, minute);
     if (!scheduledLocal.isAfter(nowLocal)) {
       scheduledLocal = scheduledLocal.add(const Duration(days: 1));
     }
     final scheduledUtc = scheduledLocal.toUtc();
-    var scheduled = tz.TZDateTime.from(scheduledUtc, tz.UTC);
-    await _plugin.zonedSchedule(
-      _notifId,
-      'CardBlaze',
-      '📚 Time to study! Your cards are waiting.',
-      scheduled,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channelId,
-          'Daily reminder',
-          channelDescription: 'Daily study reminder',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
-          icon: '@mipmap/ic_launcher',
-        ),
+    final scheduled = tz.TZDateTime.from(scheduledUtc, tz.UTC);
+    const details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        _channelId,
+        'Daily reminder',
+        channelDescription: 'Daily study reminder',
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        icon: '@mipmap/ic_launcher',
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
     );
+    try {
+      await _plugin.zonedSchedule(
+        _notifId,
+        'CardBlaze',
+        '📚 Vrijeme za učenje! Kartice čekaju.',
+        scheduled,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (_) {
+      // Exact alarms not permitted — fall back to inexact
+      await _plugin.zonedSchedule(
+        _notifId,
+        'CardBlaze',
+        '📚 Vrijeme za učenje! Kartice čekaju.',
+        scheduled,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    }
   }
 }
 

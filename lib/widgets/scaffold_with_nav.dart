@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
+import 'package:cardblaze/providers/deck_providers.dart';
 
-class ScaffoldWithNav extends StatelessWidget {
+class ScaffoldWithNav extends ConsumerWidget {
   const ScaffoldWithNav({super.key, required this.child});
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final location = GoRouterState.of(context).uri.path;
     final selectedIndex = _indexForPath(location);
@@ -23,7 +25,10 @@ class ScaffoldWithNav extends StatelessWidget {
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
-        onDestinationSelected: (index) => context.go(tabs[index].path),
+        onDestinationSelected: (index) {
+          ref.invalidate(cardsRefreshProvider);
+          context.go(tabs[index].path);
+        },
         destinations: tabs
             .map((t) => NavigationDestination(
                   icon: Icon(t.icon),

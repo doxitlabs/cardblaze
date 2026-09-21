@@ -101,16 +101,17 @@ final statsProvider = FutureProvider<StatsData>((ref) async {
 });
 
 // Cached AI recap — stored in SharedPreferences with week key
-final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) async {
+final aiRecapProvider = FutureProvider.family<String?, (StatsData, String)>((ref, args) async {
+  final stats = args.$1;
+  final locale = args.$2;
   final prefs = await SharedPreferences.getInstance();
   final now = DateTime.now();
-  // Week key: YYYY-Www
-  final weekKey = 'ai_recap_${now.year}_${_isoWeek(now)}';
+  // Week key: YYYY-Www-locale
+  final weekKey = 'ai_recap_${now.year}_${_isoWeek(now)}_$locale';
 
   final cached = prefs.getString(weekKey);
   if (cached != null) return cached;
 
-  // Generate only on Sunday (weekday == 7) or if no cache exists for this week
   final statsJson = {
     'streak_days': stats.streakDays,
     'cards_this_week': stats.cardsThisWeek,
@@ -123,12 +124,13 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
   const anonKey = 'sb_publishable_0ibllJ0g4i7n5cfOM3nnsg_wZIFOfLW';
   const model = 'openai/gpt-oss-120b';
 
+  final langName = _languageName(locale);
   final prompt =
-      'Analiziraj ove tjedne statistike učenja flash kartica i napiši personalizirani tjedni sažetak od 2-3 rečenice. '
-      'Budi konkretan i specifičan prema podacima — ne izmišljaj pohvale koje nisu opravdane. '
-      'Na kraju daj jedan konkretan prijedlog za sljedeći tjedan. '
-      'Piši u drugom licu (Ti...). Jezik: hrvatski. '
-      'Statistike: ${jsonEncode(statsJson)}.';
+      'Analyze these weekly flashcard learning statistics and write a personalized 2-3 sentence weekly summary. '
+      'Be specific and concrete about the data — do not invent praise that is not warranted. '
+      'At the end give one concrete suggestion for next week. '
+      'Write in second person (You...). Write in $langName. '
+      'Statistics: ${jsonEncode(statsJson)}.';
 
   try {
     final response = await http
@@ -162,6 +164,16 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
   }
   return null;
 });
+
+String _languageName(String locale) {
+  switch (locale) {
+    case 'hr': return 'Croatian';
+    case 'de': return 'German';
+    case 'fr': return 'French';
+    case 'it': return 'Italian';
+    default:   return 'English';
+  }
+}
 
 int _isoWeek(DateTime date) {
   final startOfYear = DateTime(date.year, 1, 1);
@@ -547,7 +559,8 @@ class _PremiumRecapContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final recapAsync = ref.watch(aiRecapProvider(stats));
+    final locale = Localizations.localeOf(context).languageCode;
+    final recapAsync = ref.watch(aiRecapProvider((stats, locale)));
 
     return recapAsync.when(
       loading: () => const SizedBox(
@@ -600,13 +613,14 @@ class _RefreshRecapButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = Localizations.localeOf(context).languageCode;
     return GestureDetector(
       onTap: () async {
         final prefs = await SharedPreferences.getInstance();
         final now = DateTime.now();
-        final weekKey = 'ai_recap_${now.year}_${_isoWeek(now)}';
+        final weekKey = 'ai_recap_${now.year}_${_isoWeek(now)}_$locale';
         await prefs.remove(weekKey);
-        ref.invalidate(aiRecapProvider(stats));
+        ref.invalidate(aiRecapProvider((stats, locale)));
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
