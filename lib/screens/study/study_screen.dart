@@ -22,13 +22,12 @@ class StudyScreen extends ConsumerStatefulWidget {
 
 class _StudyScreenState extends ConsumerState<StudyScreen> {
   List<FlashCard> _dueCards = [];
-  List<FlashCard> _allCards = [];
   int _index = 0;
   bool _loading = true;
+  bool _optionsLoading = false;
 
   List<String> _options = [];
   String? _selectedOption;
-  Map<int, List<String>> _distractors = {};
 
   int _correctCount = 0;
   int _incorrectCount = 0;
@@ -48,19 +47,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     all.shuffle(Random());
     setState(() {
       _dueCards = all;
-      _allCards = all;
       _loading = false;
     });
     if (all.isNotEmpty) {
-      _buildOptions();
-      // Generate AI distractors in background
-      final lang = _locale();
-      _groq.generateDistractors(all, lang).then((distractors) {
-        if (!mounted) return;
-        setState(() => _distractors = distractors);
-        // Rebuild options for current card if not yet answered
-        if (_selectedOption == null) _buildOptions();
-      });
+      await _buildOptions();
     }
   }
 
@@ -72,28 +62,21 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     }
   }
 
-  void _buildOptions() {
+  Future<void> _buildOptions() async {
     if (_index >= _dueCards.length) return;
     final card = _dueCards[_index];
-    final correct = card.back;
+    setState(() { _optionsLoading = true; _selectedOption = null; _options = []; });
 
-    // Prefer AI distractors; fall back to other cards' backs
-    List<String> distractors = _distractors[_index] ?? [];
-    if (distractors.isEmpty) {
-      final others = _allCards
-          .where((c) => c.id != card.id && c.back.trim() != correct.trim())
-          .map((c) => c.back)
-          .toList()
-        ..shuffle(Random());
-      distractors = others.take(2).toList();
-    }
+    final lang = _locale();
+    List<String> distractors = [];
+    try {
+      final result = await _groq.generateDistractors([card], lang);
+      distractors = result[0] ?? [];
+    } catch (_) {}
 
-    final opts = [correct, ...distractors.take(2)]..shuffle(Random());
-
-    setState(() {
-      _options = opts;
-      _selectedOption = null;
-    });
+    if (!mounted) return;
+    final opts = [card.back, ...distractors.take(2)]..shuffle(Random());
+    setState(() { _options = opts; _optionsLoading = false; });
   }
 
   Future<void> _onOptionTap(String option) async {
@@ -125,7 +108,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     }
 
     setState(() => _index++);
-    _buildOptions();
+    await _buildOptions();
   }
 
   Future<void> _finishSession() async {
@@ -268,16 +251,18 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
               const SizedBox(height: 28),
               // Answer options
               Expanded(
-                child: ListView(
-                  children: _options
-                      .map((opt) => _OptionTile(
-                            text: opt,
-                            correctAnswer: card.back,
-                            selectedOption: _selectedOption,
-                            onTap: () => _onOptionTap(opt),
-                          ))
-                      .toList(),
-                ),
+                child: _optionsLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView(
+                        children: _options
+                            .map((opt) => _OptionTile(
+                                  text: opt,
+                                  correctAnswer: card.back,
+                                  selectedOption: _selectedOption,
+                                  onTap: () => _onOptionTap(opt),
+                                ))
+                            .toList(),
+                      ),
               ),
               const SizedBox(height: 8),
             ],

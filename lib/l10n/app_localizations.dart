@@ -341,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @card_count.
   ///
   /// In en, this message translates to:
-  /// **'Number of cards'**
+  /// **'Max. number of cards'**
   String get card_count;
 
   /// No description provided for @generate_btn.
@@ -875,7 +875,7 @@ abstract class AppLocalizations {
   /// No description provided for @notifications_on.
   ///
   /// In en, this message translates to:
-  /// **'Daily reminder at 9:00 AM'**
+  /// **'Enabled'**
   String get notifications_on;
 
   /// No description provided for @notifications_off.

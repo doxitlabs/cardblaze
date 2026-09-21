@@ -220,12 +220,17 @@ class _NotificationTile extends StatefulWidget {
 
 class _NotificationTileState extends State<_NotificationTile> {
   bool _enabled = false;
+  int _hour = 9;
+  int _minute = 0;
 
   @override
   void initState() {
     super.initState();
     notificationService.isEnabled().then((v) {
       if (mounted) setState(() => _enabled = v);
+    });
+    notificationService.getTime().then((t) {
+      if (mounted) setState(() { _hour = t.$1; _minute = t.$2; });
     });
   }
 
@@ -236,6 +241,22 @@ class _NotificationTileState extends State<_NotificationTile> {
     }
     await notificationService.setEnabled(value);
     if (mounted) setState(() => _enabled = value);
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: _hour, minute: _minute),
+    );
+    if (picked == null) return;
+    await notificationService.setTime(picked.hour, picked.minute);
+    if (mounted) setState(() { _hour = picked.hour; _minute = picked.minute; });
+  }
+
+  String get _timeLabel {
+    final h = _hour.toString().padLeft(2, '0');
+    final m = _minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
 
   @override
@@ -251,9 +272,19 @@ class _NotificationTileState extends State<_NotificationTile> {
           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
         ),
       ),
-      trailing: Switch(
-        value: _enabled,
-        onChanged: _toggle,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_enabled)
+            TextButton(
+              onPressed: _pickTime,
+              child: Text(_timeLabel),
+            ),
+          Switch(
+            value: _enabled,
+            onChanged: _toggle,
+          ),
+        ],
       ),
     );
   }
@@ -261,15 +292,17 @@ class _NotificationTileState extends State<_NotificationTile> {
 
 // ─── About tile ───────────────────────────────────────────────────────────────
 
-class _AboutTile extends StatefulWidget {
+class _AboutTile extends ConsumerStatefulWidget {
   const _AboutTile();
 
   @override
-  State<_AboutTile> createState() => _AboutTileState();
+  ConsumerState<_AboutTile> createState() => _AboutTileState();
 }
 
-class _AboutTileState extends State<_AboutTile> {
+class _AboutTileState extends ConsumerState<_AboutTile> {
   String _version = '...';
+  int _tapCount = 0;
+  bool _devPro = false;
 
   @override
   void initState() {
@@ -279,6 +312,24 @@ class _AboutTileState extends State<_AboutTile> {
         setState(() => _version = '${info.version} (${info.buildNumber})');
       }
     });
+    PremiumService.isDevProEnabled().then((v) {
+      if (mounted) setState(() => _devPro = v);
+    });
+  }
+
+  Future<void> _onTap() async {
+    _tapCount++;
+    if (_tapCount >= 7) {
+      _tapCount = 0;
+      final enabled = await PremiumService.toggleDevPro();
+      if (!mounted) return;
+      setState(() => _devPro = enabled);
+      ref.invalidate(isPremiumProvider);
+      ref.invalidate(premiumStatusProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(enabled ? '🔓 Dev Pro ON' : '🔒 Dev Pro OFF')),
+      );
+    }
   }
 
   @override
@@ -287,7 +338,8 @@ class _AboutTileState extends State<_AboutTile> {
     return ListTile(
       leading: const _IconBox(icon: Icons.info_outline),
       title: Text(l.about),
-      subtitle: Text('CardBlaze $_version · DoxITLabs'),
+      subtitle: Text('CardBlaze $_version · DoxITLabs${_devPro ? ' 🔓' : ''}'),
+      onTap: _onTap,
     );
   }
 }
@@ -492,31 +544,25 @@ class _PremiumCard extends ConsumerWidget {
             // Price buttons
             Row(
               children: [
-                if (_monthly != null)
-                  Expanded(
-                    child: _PriceButton(
-                      label: _monthly!.storeProduct.priceString,
-                      featured: false,
-                      onTap: () => _purchase(context, ref, _monthly!),
-                    ),
+                Expanded(
+                  child: _PriceButton(
+                    label: _monthly?.storeProduct.priceString ?? '€4,99/mj',
+                    featured: false,
+                    onTap: _monthly != null
+                        ? () => _purchase(context, ref, _monthly!)
+                        : null,
                   ),
-                if (_monthly != null && _yearly != null)
-                  const SizedBox(width: 10),
-                if (_yearly != null)
-                  Expanded(
-                    child: _PriceButton(
-                      label: _yearly!.storeProduct.priceString,
-                      featured: true,
-                      onTap: () => _purchase(context, ref, _yearly!),
-                    ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _PriceButton(
+                    label: _yearly?.storeProduct.priceString ?? '€29,99/god',
+                    featured: true,
+                    onTap: _yearly != null
+                        ? () => _purchase(context, ref, _yearly!)
+                        : null,
                   ),
-                if (_monthly == null && _yearly == null)
-                  const Expanded(
-                    child: ElevatedButton(
-                      onPressed: null,
-                      child: Text('—'),
-                    ),
-                  ),
+                ),
               ],
             ),
 
@@ -576,7 +622,7 @@ class _PriceButton extends StatelessWidget {
   });
   final String label;
   final bool featured;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

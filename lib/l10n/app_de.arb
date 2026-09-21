@@ -42,7 +42,7 @@
   "pdf_mode": "Dokument",
   "select_deck": "Deck auswählen",
   "new_deck": "Neues Deck",
-  "card_count": "Anzahl der Karten",
+  "card_count": "Max. Anzahl Karten",
   "generate_btn": "Generieren",
   "cards_saved": "{count, plural, =1{1 Karte gespeichert!} other{{count} Karten gespeichert!}}",
   "error_enter_text": "Text oder Thema eingeben.",
@@ -140,6 +140,6 @@
   "session_accuracy": "Genauigkeit",
   "finish_btn": "Fertig",
 
-  "notifications_on": "Tägliche Erinnerung um 9:00 Uhr",
+  "notifications_on": "Aktiviert",
   "notifications_off": "Tippen um tägliche Erinnerung zu aktivieren"
 }

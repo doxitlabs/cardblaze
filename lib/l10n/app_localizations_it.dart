@@ -148,7 +148,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get new_deck => 'Nuovo mazzo';
 
   @override
-  String get card_count => 'Numero di carte';
+  String get card_count => 'N. max. di carte';
 
   @override
   String get generate_btn => 'Genera';
@@ -441,7 +441,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get finish_btn => 'Fine';
 
   @override
-  String get notifications_on => 'Promemoria giornaliero alle 9:00';
+  String get notifications_on => 'Attivato';
 
   @override
   String get notifications_off =>

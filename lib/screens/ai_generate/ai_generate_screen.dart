@@ -8,6 +8,7 @@ import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/services/isar_service.dart';
+import 'package:cardblaze/services/rate_limit_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,6 +96,16 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       return;
     }
     final isPremium = await ref.read(premiumStatusProvider.future);
+
+    // Rate limit: free users max 5 generations/day
+    if (!isPremium) {
+      final allowed = await rateLimitService.consume();
+      if (!allowed && mounted) {
+        final used = await rateLimitService.usedToday();
+        _showError('Dnevni limit od ${rateLimitService.dailyLimit} generiranja dostignut ($used/${rateLimitService.dailyLimit}). Nadogradi na Pro za neograničeno generiranje.');
+        return;
+      }
+    }
 
     setState(() {
       _isLoading = true;

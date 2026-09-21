@@ -42,7 +42,7 @@
   "pdf_mode": "Documento",
   "select_deck": "Seleziona mazzo",
   "new_deck": "Nuovo mazzo",
-  "card_count": "Numero di carte",
+  "card_count": "N. max. di carte",
   "generate_btn": "Genera",
   "cards_saved": "{count, plural, =1{1 carta salvata!} other{{count} carte salvate!}}",
   "error_enter_text": "Inserire testo o argomento.",
@@ -140,6 +140,6 @@
   "session_accuracy": "Precisione",
   "finish_btn": "Fine",
 
-  "notifications_on": "Promemoria giornaliero alle 9:00",
+  "notifications_on": "Attivato",
   "notifications_off": "Tocca per attivare il promemoria giornaliero"
 }

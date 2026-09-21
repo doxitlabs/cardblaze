@@ -149,7 +149,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get new_deck => 'Novi deck';
 
   @override
-  String get card_count => 'Broj kartica';
+  String get card_count => 'Maks. broj kartica';
 
   @override
   String get generate_btn => 'Generiraj';
@@ -443,7 +443,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get finish_btn => 'Završi';
 
   @override
-  String get notifications_on => 'Dnevni podsjetnik u 9:00';
+  String get notifications_on => 'Uključeno';
 
   @override
   String get notifications_off => 'Dodirnite za uključivanje podsjetnika';

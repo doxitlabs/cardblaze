@@ -6,30 +6,45 @@ import 'package:timezone/timezone.dart' as tz;
 class NotificationService {
   static const _channelId = 'cardblaze_daily';
   static const _notifId = 1;
-  static const _prefKey = 'notifications_enabled';
+  static const _prefEnabled = 'notifications_enabled';
+  static const _prefHour = 'notifications_hour';
+  static const _prefMinute = 'notifications_minute';
 
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
     tz.initializeTimeZones();
-
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    await _plugin.initialize(
-      const InitializationSettings(android: android),
-    );
+    await _plugin.initialize(const InitializationSettings(android: android));
   }
 
   Future<bool> isEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_prefKey) ?? false;
+    return prefs.getBool(_prefEnabled) ?? false;
+  }
+
+  Future<(int, int)> getTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    return (prefs.getInt(_prefHour) ?? 9, prefs.getInt(_prefMinute) ?? 0);
+  }
+
+  Future<void> setTime(int hour, int minute) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_prefHour, hour);
+    await prefs.setInt(_prefMinute, minute);
+    if (prefs.getBool(_prefEnabled) ?? false) {
+      await _scheduleDaily(hour, minute);
+    }
   }
 
   Future<void> setEnabled(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_prefKey, value);
+    await prefs.setBool(_prefEnabled, value);
     if (value) {
-      await _scheduleDaily();
+      final h = prefs.getInt(_prefHour) ?? 9;
+      final m = prefs.getInt(_prefMinute) ?? 0;
+      await _scheduleDaily(h, m);
     } else {
       await _plugin.cancel(_notifId);
     }
@@ -43,13 +58,13 @@ class NotificationService {
     return granted ?? false;
   }
 
-  Future<void> _scheduleDaily() async {
+  Future<void> _scheduleDaily(int hour, int minute) async {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, 9);
+    var scheduled =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
-
     await _plugin.zonedSchedule(
       _notifId,
       'CardBlaze',

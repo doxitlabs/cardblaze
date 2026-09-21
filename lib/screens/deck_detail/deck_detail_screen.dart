@@ -124,7 +124,6 @@ class _DeckScreen extends ConsumerWidget {
                       (context, i) => _CardTile(
                         card: cards[i],
                         onDelete: () => _deleteCard(ref, cards[i]),
-                        onEdit: () => _showEditCard(context, ref, cards[i]),
                       ),
                       childCount: cards.length,
                     ),
@@ -372,11 +371,9 @@ class _CardTile extends StatelessWidget {
   const _CardTile({
     required this.card,
     required this.onDelete,
-    required this.onEdit,
   });
   final FlashCard card;
   final VoidCallback onDelete;
-  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -413,41 +410,29 @@ class _CardTile extends StatelessWidget {
         child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
       onDismissed: (_) => onDelete(),
-      child: GestureDetector(
-        onTap: onEdit,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: border),
-          ),
-          child: Row(
-            children: [
-              // Status icon
-              Icon(statusIcon, size: 20, color: statusColor),
-              const SizedBox(width: 12),
-              // Front + back
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      card.front,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: border),
+        ),
+        child: Row(
+          children: [
+            Icon(statusIcon, size: 20, color: statusColor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                card.front,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(width: 8),
-              Icon(Icons.chevron_right, color: textMuted, size: 18),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -42,7 +42,7 @@
   "pdf_mode": "Dokument",
   "select_deck": "Odaberi deck",
   "new_deck": "Novi deck",
-  "card_count": "Broj kartica",
+  "card_count": "Maks. broj kartica",
   "generate_btn": "Generiraj",
   "cards_saved": "{count, plural, =1{1 kartica spremljena!} other{{count} kartica spremljeno!}}",
   "error_enter_text": "Unesi tekst ili temu.",
@@ -140,6 +140,6 @@
   "session_accuracy": "Točnost",
   "finish_btn": "Završi",
 
-  "notifications_on": "Dnevni podsjetnik u 9:00",
+  "notifications_on": "Uključeno",
   "notifications_off": "Dodirnite za uključivanje podsjetnika"
 }

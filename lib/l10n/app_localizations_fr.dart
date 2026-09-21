@@ -149,7 +149,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get new_deck => 'Nouveau paquet';
 
   @override
-  String get card_count => 'Nombre de cartes';
+  String get card_count => 'Nbre max. de cartes';
 
   @override
   String get generate_btn => 'Générer';
@@ -445,7 +445,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get finish_btn => 'Terminer';
 
   @override
-  String get notifications_on => 'Rappel quotidien à 9h00';
+  String get notifications_on => 'Activé';
 
   @override
   String get notifications_off => 'Appuyer pour activer le rappel quotidien';

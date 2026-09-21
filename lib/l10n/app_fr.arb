@@ -42,7 +42,7 @@
   "pdf_mode": "Document",
   "select_deck": "Choisir un paquet",
   "new_deck": "Nouveau paquet",
-  "card_count": "Nombre de cartes",
+  "card_count": "Nbre max. de cartes",
   "generate_btn": "Générer",
   "cards_saved": "{count, plural, =1{1 carte enregistrée !} other{{count} cartes enregistrées !}}",
   "error_enter_text": "Saisir un texte ou un sujet.",
@@ -140,6 +140,6 @@
   "session_accuracy": "Précision",
   "finish_btn": "Terminer",
 
-  "notifications_on": "Rappel quotidien à 9h00",
+  "notifications_on": "Activé",
   "notifications_off": "Appuyer pour activer le rappel quotidien"
 }

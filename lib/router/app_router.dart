@@ -6,10 +6,11 @@ import 'package:cardblaze/screens/ai_generate/ai_generate_screen.dart';
 import 'package:cardblaze/screens/stats/stats_screen.dart';
 import 'package:cardblaze/screens/settings/settings_screen.dart';
 import 'package:cardblaze/screens/privacy/privacy_policy_screen.dart';
+import 'package:cardblaze/screens/splash/splash_screen.dart';
 import 'package:cardblaze/widgets/scaffold_with_nav.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   routes: [
     // ── Shell: ekrani s bottom navom ────────────────────────────────────────
     ShellRoute(
@@ -38,6 +39,14 @@ final appRouter = GoRouter(
           },
         ),
       ],
+    ),
+
+    // ── Splash ──────────────────────────────────────────────────────────────
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => SplashScreen(
+        onDone: () => context.go('/'),
+      ),
     ),
 
     // ── Fullscreen rute (bez bottom nav) ────────────────────────────────────

@@ -51,7 +51,7 @@
   "pdf_mode": "Document",
   "select_deck": "Select deck",
   "new_deck": "New deck",
-  "card_count": "Number of cards",
+  "card_count": "Max. number of cards",
   "generate_btn": "Generate",
   "cards_saved": "{count, plural, =1{1 card saved!} other{{count} cards saved!}}",
   "@cards_saved": { "placeholders": { "count": { "type": "int" } } },
@@ -152,6 +152,6 @@
   "session_accuracy": "Accuracy",
   "finish_btn": "Finish",
 
-  "notifications_on": "Daily reminder at 9:00 AM",
+  "notifications_on": "Enabled",
   "notifications_off": "Tap to enable daily reminder"
 }

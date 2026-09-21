@@ -313,6 +313,7 @@ class _DeckListTile extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _DeckOptionsSheet(
         deck: deck,
+        outerContext: context,
         onEdited: () {
           ref.invalidate(decksStreamProvider);
           ref.invalidate(deckByIdProvider(deck.id));
@@ -563,11 +564,13 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
 class _DeckOptionsSheet extends ConsumerWidget {
   const _DeckOptionsSheet({
     required this.deck,
+    required this.outerContext,
     required this.onEdited,
     required this.onDeleted,
   });
 
   final Deck deck;
+  final BuildContext outerContext;
   final VoidCallback onEdited;
   final VoidCallback onDeleted;
 
@@ -605,7 +608,7 @@ class _DeckOptionsSheet extends ConsumerWidget {
             onTap: () {
               Navigator.pop(context);
               showModalBottomSheet<void>(
-                context: context,
+                context: outerContext,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (ctx) => _DeckFormSheet(
@@ -621,42 +624,39 @@ class _DeckOptionsSheet extends ConsumerWidget {
               AppLocalizations.of(context).delete_deck,
               style: TextStyle(color: AppColors.badgeRed(context)),
             ),
-            onTap: () {
-              Navigator.pop(context);
-              _confirmDelete(context, ref);
+            onTap: () async {
+              // Show confirm dialog ON TOP of the open sheet (context is valid here)
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(AppLocalizations.of(ctx).delete_confirm_title),
+                  content: Text(AppLocalizations.of(ctx).delete_confirm_body(deck.name)),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(AppLocalizations.of(ctx).cancel),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(
+                        AppLocalizations.of(ctx).delete_btn,
+                        style: TextStyle(color: AppColors.badgeRed(ctx)),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                if (context.mounted) Navigator.pop(context);
+                await ref.read(isarServiceProvider).deleteDeck(deck.id);
+                onDeleted();
+              }
             },
           ),
           const SizedBox(height: 8),
         ],
       ),
     );
-  }
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx).delete_confirm_title),
-        content: Text(AppLocalizations.of(ctx).delete_confirm_body(deck.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(AppLocalizations.of(ctx).cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              AppLocalizations.of(ctx).delete_btn,
-              style: TextStyle(color: AppColors.badgeRed(context)),
-            ),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true && context.mounted) {
-      await ref.read(isarServiceProvider).deleteDeck(deck.id);
-      onDeleted();
-    }
   }
 }
 

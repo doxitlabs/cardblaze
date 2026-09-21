@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Product IDs ──────────────────────────────────────────────────────────────
 
@@ -45,7 +46,23 @@ class PremiumService {
     Purchases.removeCustomerInfoUpdateListener(listener);
   }
 
+  static const _devProKey = 'dev_pro_enabled';
+
+  static Future<bool> isDevProEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_devProKey) ?? false;
+  }
+
+  static Future<bool> toggleDevPro() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getBool(_devProKey) ?? false;
+    await prefs.setBool(_devProKey, !current);
+    return !current;
+  }
+
   Future<bool> isPremium() async {
+    final devPro = await isDevProEnabled();
+    if (devPro) return true;
     try {
       final info = await Purchases.getCustomerInfo();
       return info.entitlements.active.containsKey(_entitlementId);
