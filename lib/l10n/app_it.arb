@@ -24,7 +24,7 @@
   "due_today": "Da ripassare oggi",
   "all_done_today": "Tutto fatto per oggi!",
   "all_done_subtitle": "Nessuna carta in attesa. Eccellente!",
-  "cards_waiting": "{count, plural, =1{1 carta da ripassare} other{{count} carte da ripassare}}",
+  "cards_waiting": "carte da ripassare: {count}",
   "no_decks_title": "Nessun mazzo",
   "no_decks_body": "Aggiungi il tuo primo mazzo e inizia ad imparare con la ripetizione spaziata.",
   "add_first_deck": "Aggiungi il primo mazzo",
@@ -33,7 +33,7 @@
   "delete_deck": "Elimina mazzo",
   "delete_confirm_title": "Eliminare il mazzo?",
   "delete_confirm_body": "Questo eliminerà definitivamente \"{name}\" e tutte le sue carte.",
-  "deck_subtitle": "{cards} carte · {due} da ripassare",
+  "deck_subtitle": "{cards} risposte · {due} rimanenti",
 
   "generate_title": "Genera con IA",
   "generate_subtitle": "Genera carte da testo, argomento o PDF",
@@ -51,7 +51,7 @@
 
   "stats_title": "Statistiche",
   "streak_days": "{count, plural, =0{0 giorni} =1{1 giorno} other{{count} giorni}}",
-  "cards_this_week": "Carte questa settimana",
+  "cards_this_week": "Apprese questa settimana",
   "accuracy": "Precisione",
   "total_cards": "Carte totali",
   "active_decks": "Mazzi attivi",
@@ -124,7 +124,7 @@
   "upgrade_btn": "Passa a Pro",
   "upgrade_dialog_subtitle": "Sblocca tutte le funzionalità di CardBlaze Pro.",
   "benefit_unlimited_decks": "Mazzi illimitati (gratuito: 1)",
-  "benefit_cards_per_deck": "Fino a 100 carte per mazzo (gratuito: 20)",
+  "benefit_cards_per_deck": "Fino a 100 carte per mazzo (gratuito: 15)",
   "benefit_ai_generation": "Generazione IA illimitata",
   "benefit_pdf_import": "Importazione PDF e DOCX",
   "benefit_advanced_stats": "Statistiche di apprendimento avanzate",
@@ -139,7 +139,10 @@
   "session_incorrect": "Errato",
   "session_accuracy": "Precisione",
   "finish_btn": "Fine",
+  "next_btn": "Avanti",
 
   "notifications_on": "Attivato",
-  "notifications_off": "Tocca per attivare il promemoria giornaliero"
+  "notifications_off": "Tocca per attivare il promemoria giornaliero",
+
+  "deck_all_learned": "Tutto imparato"
 }

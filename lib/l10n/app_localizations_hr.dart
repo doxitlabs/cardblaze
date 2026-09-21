@@ -85,13 +85,7 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String cards_waiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count kartice čekaju',
-      one: '1 kartica čeka',
-    );
-    return '$_temp0';
+    return 'kartica na čekanju: $count';
   }
 
   @override
@@ -123,7 +117,7 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String deck_subtitle(int cards, int due) {
-    return '$cards kartica · $due na čekanju';
+    return '$cards odgovorenih · $due preostalo';
   }
 
   @override
@@ -190,7 +184,7 @@ class AppLocalizationsHr extends AppLocalizations {
   }
 
   @override
-  String get cards_this_week => 'Kartice ovaj tjedan';
+  String get cards_this_week => 'Naučeno ovaj tjedan';
 
   @override
   String get accuracy => 'Točnost';
@@ -401,7 +395,7 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get benefit_cards_per_deck =>
-      'Do 100 kartica po decku (besplatno: 20)';
+      'Do 100 kartica po decku (besplatno: 15)';
 
   @override
   String get benefit_ai_generation => 'Neograničena AI generacija kartica';
@@ -443,8 +437,14 @@ class AppLocalizationsHr extends AppLocalizations {
   String get finish_btn => 'Završi';
 
   @override
+  String get next_btn => 'Dalje';
+
+  @override
   String get notifications_on => 'Uključeno';
 
   @override
   String get notifications_off => 'Dodirnite za uključivanje podsjetnika';
+
+  @override
+  String get deck_all_learned => 'Sve naučeno';
 }

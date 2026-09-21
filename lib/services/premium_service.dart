@@ -13,7 +13,7 @@ class PremiumProductIds {
 
 class PremiumLimits {
   static const int maxDecks = 1;
-  static const int maxCardsPerDeck = 20;
+  static const int maxCardsPerDeck = 15;
   static const int maxAiInputChars = 500;
 }
 

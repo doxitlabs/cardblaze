@@ -24,7 +24,7 @@
   "due_today": "Na redu danas",
   "all_done_today": "Sve naučeno za danas!",
   "all_done_subtitle": "Nema kartica na čekanju. Odlično!",
-  "cards_waiting": "{count, plural, =1{1 kartica čeka} other{{count} kartice čekaju}}",
+  "cards_waiting": "kartica na čekanju: {count}",
   "no_decks_title": "Nema deckova",
   "no_decks_body": "Dodaj prvi deck i počni učiti s pametnim ponavljanjem.",
   "add_first_deck": "Dodaj prvi deck",
@@ -33,7 +33,7 @@
   "delete_deck": "Obriši deck",
   "delete_confirm_title": "Obriši deck?",
   "delete_confirm_body": "Ovo će trajno obrisati \"{name}\" i sve njegove kartice.",
-  "deck_subtitle": "{cards} kartica · {due} na čekanju",
+  "deck_subtitle": "{cards} odgovorenih · {due} preostalo",
 
   "generate_title": "AI Generiranje",
   "generate_subtitle": "Generiraj kartice iz teksta, teme, PDF-a ili DOCX-a",
@@ -51,7 +51,7 @@
 
   "stats_title": "Statistika",
   "streak_days": "{count, plural, =0{0 dana} =1{1 dan} other{{count} dana}}",
-  "cards_this_week": "Kartice ovaj tjedan",
+  "cards_this_week": "Naučeno ovaj tjedan",
   "accuracy": "Točnost",
   "total_cards": "Ukupno kartica",
   "active_decks": "Aktivni deckovi",
@@ -124,7 +124,7 @@
   "upgrade_btn": "Nadogradi na Pro",
   "upgrade_dialog_subtitle": "Otključaj sve značajke CardBlaze Pro plana.",
   "benefit_unlimited_decks": "Neograničen broj deckova (besplatno: 1)",
-  "benefit_cards_per_deck": "Do 100 kartica po decku (besplatno: 20)",
+  "benefit_cards_per_deck": "Do 100 kartica po decku (besplatno: 15)",
   "benefit_ai_generation": "Neograničena AI generacija kartica",
   "benefit_pdf_import": "Uvoz PDF i DOCX dokumenata",
   "benefit_advanced_stats": "Napredne statistike učenja",
@@ -139,7 +139,10 @@
   "session_incorrect": "Netočno",
   "session_accuracy": "Točnost",
   "finish_btn": "Završi",
+  "next_btn": "Dalje",
 
   "notifications_on": "Uključeno",
-  "notifications_off": "Dodirnite za uključivanje podsjetnika"
+  "notifications_off": "Dodirnite za uključivanje podsjetnika",
+
+  "deck_all_learned": "Sve naučeno"
 }

@@ -8,7 +8,6 @@ class Sm2Service {
     if (rating == 0) {
       card.repetitions = 0;
       card.interval = 1;
-      // easeFactor unchanged
     } else {
       final ef = card.easeFactor + (0.1 - (2 - rating) * (0.08 + (2 - rating) * 0.02));
       card.easeFactor = max(1.3, ef);
@@ -24,7 +23,7 @@ class Sm2Service {
     }
 
     card.lastReviewed = DateTime.now();
-    card.dueDate = DateTime.now().add(Duration(days: card.interval));
+    card.dueDate = rating == 0 ? DateTime.now() : DateTime.now().add(Duration(days: card.interval));
     return card;
   }
 }

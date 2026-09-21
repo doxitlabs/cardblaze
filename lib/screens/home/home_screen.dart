@@ -39,7 +39,7 @@ class HomeScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l.my_decks),
+        title: const Text('CardBlaze'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -97,15 +97,10 @@ class _HomeBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
+        const SliverToBoxAdapter(child: _PendingCard()),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _DueTodayCard(decks: decks),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
             child: Text(
               AppLocalizations.of(context).all_decks,
               style: Theme.of(context).textTheme.titleMedium,
@@ -124,111 +119,45 @@ class _HomeBody extends StatelessWidget {
   }
 }
 
-// ── "Na redu danas" card ──────────────────────────────────────────────────────
+// ── Pending cards summary card ────────────────────────────────────────────────
 
-class _DueTodayCard extends ConsumerWidget {
-  const _DueTodayCard({required this.decks});
-  final List<Deck> decks;
+class _PendingCard extends ConsumerWidget {
+  const _PendingCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dueAsync = ref.watch(totalDueCountProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final wrongAsync = ref.watch(totalWrongCountProvider);
+    final count = wrongAsync.valueOrNull ?? 0;
+    if (count == 0) return const SizedBox.shrink();
+
     final accent = AppColors.accent(context);
-    final bgColor = isDark
-        ? const Color(0xFF1A2A40)
-        : const Color(0xFFE3F0FF);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF1A2A40) : const Color(0xFFE3F0FF);
 
-    return dueAsync.when(
-      loading: () => _cardShell(
-        context,
-        bgColor: bgColor,
-        accent: accent,
-        onTap: null,
-        child: const SizedBox(height: 48, child: Center(child: CircularProgressIndicator())),
-      ),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (due) {
-        final allDone = due == 0;
-        final cardBg = allDone
-            ? (isDark ? const Color(0xFF1A3028) : const Color(0xFFE8F5E9))
-            : bgColor;
-        final iconColor = allDone ? AppColors.badgeGreen(context) : accent;
-
-        return _cardShell(
-          context,
-          bgColor: cardBg,
-          accent: iconColor,
-          onTap: allDone ? null : () => context.push('/study/all'),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  allDone ? Icons.check_circle_outline : Icons.schedule_outlined,
-                  color: iconColor,
-                  size: 26,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      allDone
-                          ? AppLocalizations.of(context).all_done_today
-                          : AppLocalizations.of(context).due_today,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      allDone
-                          ? AppLocalizations.of(context).all_done_subtitle
-                          : AppLocalizations.of(context).cards_waiting(due),
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              if (!allDone) ...[
-                const SizedBox(width: 8),
-                Icon(Icons.chevron_right, color: accent),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _cardShell(
-    BuildContext context, {
-    required Color bgColor,
-    required Color accent,
-    required VoidCallback? onTap,
-    required Widget child,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accent.withValues(alpha: 0.3)),
+          color: bg,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: accent.withValues(alpha: 0.35)),
         ),
-        child: child,
+        child: Row(
+          children: [
+            Icon(Icons.schedule_outlined, color: accent, size: 22),
+            const SizedBox(width: 12),
+            Text(
+              AppLocalizations.of(context).cards_waiting(count),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
-
 }
 
 // ── Deck list tile ────────────────────────────────────────────────────────────
@@ -245,11 +174,20 @@ class _DeckListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dueAsync = ref.watch(deckDueCountProvider(deck.id));
+    final wrongAsync = ref.watch(deckWrongCountProvider(deck.id));
+    final hasSessionAsync = ref.watch(deckHasSessionProvider(deck.id));
+    final totalAsync = ref.watch(deckTotalCountProvider(deck.id));
     final surface = AppColors.surface(context);
     final border = AppColors.border(context);
     final textMuted = AppColors.textMuted(context);
 
     final dueCount = dueAsync.valueOrNull ?? 0;
+    final wrongCount = wrongAsync.valueOrNull ?? 0;
+    final hasSession = hasSessionAsync.valueOrNull ?? false;
+    final totalCount = totalAsync.valueOrNull ?? 0;
+    // naučeno = total - wrongCount (only meaningful after first session)
+    final learnedCount = hasSession ? (totalCount - wrongCount).clamp(0, totalCount) : 0;
+    final pendingCount = hasSession ? wrongCount : totalCount;
 
     return GestureDetector(
       onTap: () => context.push('/deck/${deck.id}'),
@@ -287,7 +225,11 @@ class _DeckListTile extends ConsumerWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    AppLocalizations.of(context).deck_subtitle(deck.cardCount, dueCount),
+                    (!hasSession)
+                        ? AppLocalizations.of(context).deck_subtitle(0, totalCount)
+                        : (wrongCount == 0)
+                            ? AppLocalizations.of(context).deck_all_learned
+                            : AppLocalizations.of(context).deck_subtitle(learnedCount, pendingCount),
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall

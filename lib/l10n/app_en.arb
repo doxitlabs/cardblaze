@@ -25,7 +25,7 @@
   "due_today": "Due Today",
   "all_done_today": "All done today!",
   "all_done_subtitle": "No cards pending. Excellent!",
-  "cards_waiting": "{count, plural, =1{1 card due} other{{count} cards due}}",
+  "cards_waiting": "cards due: {count}",
   "@cards_waiting": { "placeholders": { "count": { "type": "int" } } },
   "no_decks_title": "No Decks",
   "no_decks_body": "Add your first deck and start learning with spaced repetition.",
@@ -36,7 +36,7 @@
   "delete_confirm_title": "Delete deck?",
   "delete_confirm_body": "This will permanently delete \"{name}\" and all its cards.",
   "@delete_confirm_body": { "placeholders": { "name": { "type": "String" } } },
-  "deck_subtitle": "{cards} cards · {due} due",
+  "deck_subtitle": "{cards} answered · {due} remaining",
   "@deck_subtitle": {
     "placeholders": {
       "cards": { "type": "int" },
@@ -62,7 +62,7 @@
   "stats_title": "Statistics",
   "streak_days": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
   "@streak_days": { "placeholders": { "count": { "type": "int" } } },
-  "cards_this_week": "Cards this week",
+  "cards_this_week": "Learned this week",
   "accuracy": "Accuracy",
   "total_cards": "Total cards",
   "active_decks": "Active decks",
@@ -136,7 +136,7 @@
   "upgrade_btn": "Upgrade to Pro",
   "upgrade_dialog_subtitle": "Unlock all CardBlaze Pro features.",
   "benefit_unlimited_decks": "Unlimited decks (free: 1)",
-  "benefit_cards_per_deck": "Up to 100 cards per deck (free: 20)",
+  "benefit_cards_per_deck": "Up to 100 cards per deck (free: 15)",
   "benefit_ai_generation": "Unlimited AI card generation",
   "benefit_pdf_import": "PDF & DOCX import",
   "benefit_advanced_stats": "Advanced learning statistics",
@@ -151,7 +151,10 @@
   "session_incorrect": "Incorrect",
   "session_accuracy": "Accuracy",
   "finish_btn": "Finish",
+  "next_btn": "Next",
 
   "notifications_on": "Enabled",
-  "notifications_off": "Tap to enable daily reminder"
+  "notifications_off": "Tap to enable daily reminder",
+
+  "deck_all_learned": "All learned"
 }

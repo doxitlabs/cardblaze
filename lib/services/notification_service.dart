@@ -15,6 +15,8 @@ class NotificationService {
 
   Future<void> init() async {
     tz.initializeTimeZones();
+    // Use UTC — we convert local times to UTC manually before scheduling
+    tz.setLocalLocation(tz.UTC);
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     await _plugin.initialize(const InitializationSettings(android: android));
   }
@@ -59,12 +61,14 @@ class NotificationService {
   }
 
   Future<void> _scheduleDaily(int hour, int minute) async {
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduled =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
-    if (scheduled.isBefore(now)) {
-      scheduled = scheduled.add(const Duration(days: 1));
+    // Build the next occurrence in local time, then convert to UTC for TZDateTime
+    final nowLocal = DateTime.now();
+    var scheduledLocal = DateTime(nowLocal.year, nowLocal.month, nowLocal.day, hour, minute);
+    if (!scheduledLocal.isAfter(nowLocal)) {
+      scheduledLocal = scheduledLocal.add(const Duration(days: 1));
     }
+    final scheduledUtc = scheduledLocal.toUtc();
+    var scheduled = tz.TZDateTime.from(scheduledUtc, tz.UTC);
     await _plugin.zonedSchedule(
       _notifId,
       'CardBlaze',

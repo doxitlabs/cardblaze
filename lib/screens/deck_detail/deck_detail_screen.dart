@@ -381,17 +381,23 @@ class _CardTile extends StatelessWidget {
     final isDue = !card.dueDate.isAfter(now);
     final isLearned = card.repetitions >= 1 && card.dueDate.isAfter(now);
 
+    final isWrong = card.lastReviewed != null && card.repetitions == 0;
+
     final statusColor = isDue
         ? AppColors.badgeOrange(context)
         : isLearned
             ? AppColors.badgeGreen(context)
-            : AppColors.textMuted(context);
+            : isWrong
+                ? AppColors.badgeRed(context)
+                : AppColors.textMuted(context);
 
     final statusIcon = isDue
         ? Icons.schedule_outlined
         : isLearned
             ? Icons.check_circle_outline
-            : Icons.fiber_new_outlined;
+            : isWrong
+                ? Icons.cancel
+                : Icons.radio_button_unchecked;
 
     final surface = AppColors.surface(context);
     final border = AppColors.border(context);

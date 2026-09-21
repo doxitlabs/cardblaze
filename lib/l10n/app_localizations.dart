@@ -239,7 +239,7 @@ abstract class AppLocalizations {
   /// No description provided for @cards_waiting.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 card due} other{{count} cards due}}'**
+  /// **'cards due: {count}'**
   String cards_waiting(int count);
 
   /// No description provided for @no_decks_title.
@@ -293,7 +293,7 @@ abstract class AppLocalizations {
   /// No description provided for @deck_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'{cards} cards · {due} due'**
+  /// **'{cards} answered · {due} remaining'**
   String deck_subtitle(int cards, int due);
 
   /// No description provided for @generate_title.
@@ -389,7 +389,7 @@ abstract class AppLocalizations {
   /// No description provided for @cards_this_week.
   ///
   /// In en, this message translates to:
-  /// **'Cards this week'**
+  /// **'Learned this week'**
   String get cards_this_week;
 
   /// No description provided for @accuracy.
@@ -791,7 +791,7 @@ abstract class AppLocalizations {
   /// No description provided for @benefit_cards_per_deck.
   ///
   /// In en, this message translates to:
-  /// **'Up to 100 cards per deck (free: 20)'**
+  /// **'Up to 100 cards per deck (free: 15)'**
   String get benefit_cards_per_deck;
 
   /// No description provided for @benefit_ai_generation.
@@ -872,6 +872,12 @@ abstract class AppLocalizations {
   /// **'Finish'**
   String get finish_btn;
 
+  /// No description provided for @next_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next_btn;
+
   /// No description provided for @notifications_on.
   ///
   /// In en, this message translates to:
@@ -883,6 +889,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to enable daily reminder'**
   String get notifications_off;
+
+  /// No description provided for @deck_all_learned.
+  ///
+  /// In en, this message translates to:
+  /// **'All learned'**
+  String get deck_all_learned;
 }
 
 class _AppLocalizationsDelegate

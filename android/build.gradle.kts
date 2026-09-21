@@ -9,7 +9,7 @@ allprojects {
 subprojects {
     afterEvaluate {
         if (plugins.hasPlugin("com.android.library")) {
-            val android = extensions.findByType(com.android.build.gradle.LibraryExtension::class.java)
+            val android = extensions.findByType(com.android.build.api.dsl.LibraryExtension::class.java)
             if (android != null) {
                 // Add missing namespace from AndroidManifest.xml
                 if (android.namespace == null) {

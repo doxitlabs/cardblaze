@@ -24,7 +24,7 @@
   "due_today": "À réviser aujourd'hui",
   "all_done_today": "Tout terminé aujourd'hui !",
   "all_done_subtitle": "Aucune carte en attente. Excellent !",
-  "cards_waiting": "{count, plural, =1{1 carte à réviser} other{{count} cartes à réviser}}",
+  "cards_waiting": "cartes à réviser: {count}",
   "no_decks_title": "Aucun paquet",
   "no_decks_body": "Ajoutez votre premier paquet et commencez à apprendre avec la répétition espacée.",
   "add_first_deck": "Ajouter le premier paquet",
@@ -33,7 +33,7 @@
   "delete_deck": "Supprimer le paquet",
   "delete_confirm_title": "Supprimer le paquet ?",
   "delete_confirm_body": "Cela supprimera définitivement \"{name}\" et toutes ses cartes.",
-  "deck_subtitle": "{cards} cartes · {due} à réviser",
+  "deck_subtitle": "{cards} répondues · {due} restantes",
 
   "generate_title": "Générer par IA",
   "generate_subtitle": "Générer des cartes à partir de texte, sujet ou PDF",
@@ -51,7 +51,7 @@
 
   "stats_title": "Statistiques",
   "streak_days": "{count, plural, =0{0 jour} =1{1 jour} other{{count} jours}}",
-  "cards_this_week": "Cartes cette semaine",
+  "cards_this_week": "Appris cette semaine",
   "accuracy": "Précision",
   "total_cards": "Total des cartes",
   "active_decks": "Paquets actifs",
@@ -124,7 +124,7 @@
   "upgrade_btn": "Passer à Pro",
   "upgrade_dialog_subtitle": "Débloquez toutes les fonctionnalités CardBlaze Pro.",
   "benefit_unlimited_decks": "Paquets illimités (gratuit : 1)",
-  "benefit_cards_per_deck": "Jusqu'à 100 cartes par paquet (gratuit : 20)",
+  "benefit_cards_per_deck": "Jusqu'à 100 cartes par paquet (gratuit : 15)",
   "benefit_ai_generation": "Génération IA illimitée",
   "benefit_pdf_import": "Import PDF & DOCX",
   "benefit_advanced_stats": "Statistiques d'apprentissage avancées",
@@ -139,7 +139,10 @@
   "session_incorrect": "Incorrect",
   "session_accuracy": "Précision",
   "finish_btn": "Terminer",
+  "next_btn": "Suivant",
 
   "notifications_on": "Activé",
-  "notifications_off": "Appuyer pour activer le rappel quotidien"
+  "notifications_off": "Appuyer pour activer le rappel quotidien",
+
+  "deck_all_learned": "Tout appris"
 }

@@ -18,10 +18,10 @@ class PremiumRequiredException implements Exception {
 }
 
 class GroqService {
-  static const apiKey = 'gsk_ТВOJ_KLJUČ_ОВДЕ';
+  static const apiKey = 'REDACTED_GROQ_API_KEY';
   static const _apiKey = apiKey;
   static const _url = 'https://api.groq.com/openai/v1/chat/completions';
-  static const _model = 'llama-3.3-70b-versatile';
+  static const _model = 'openai/gpt-oss-120b';
 
   static const _freeMaxChars = 500;
   static const _proMaxChars = 5000;
@@ -31,6 +31,7 @@ class GroqService {
     int count,
     String mode, {
     bool isPremium = false,
+    String language = 'en',
   }) async {
     final maxChars = isPremium ? _proMaxChars : _freeMaxChars;
     if (input.length > maxChars) {
@@ -42,24 +43,115 @@ class GroqService {
       throw GroqException('Tekst premašuje limit od $_proMaxChars znakova.');
     }
 
-    final prompt = _buildPrompt(input, count, mode);
+    final prompt = _buildPrompt(input, count, mode, language);
     final cards = await _callWithRetry(prompt);
     return cards;
   }
 
-  String _buildPrompt(String input, int count, String mode) {
+  String _buildPrompt(String input, int count, String mode, String language) {
+    final langName = _languageName(language);
+    final extraHr = language == 'hr'
+        ? 'Pay special attention to Croatian grammar: correct noun cases (padeži), verb conjugation, and natural word order. Avoid direct translation from English. '
+        : '';
+    final langInstruction =
+        'Write all questions and answers in $langName. Use correct $langName grammar, natural phrasing, and proper sentence structure — not a literal translation. $extraHr';
+    const jsonRules = 'IMPORTANT: Return ONLY a valid JSON array. Do NOT use quotation marks or apostrophes inside the text values — rephrase to avoid them. No markdown, no code blocks, no extra text.\n';
     if (mode == 'text') {
-      return 'Analiziraj sljedeći tekst i generiraj točno $count flashkartica.\n'
-          'Vrati SAMO JSON array bez ikakvog dodatnog teksta:\n'
-          '[{"front": "pitanje", "back": "odgovor"}, ...]\n'
-          'Pitanja trebaju biti jasna i specifična.\n'
-          'Odgovori trebaju biti kratki i precizni (1-2 rečenice).\n'
-          'Tekst: $input';
+      return '${langInstruction}Analyze the following text and generate exactly $count flashcards.\n'
+          '${jsonRules}'
+          '[{"front": "question", "back": "answer"}, ...]\n'
+          'Questions should be clear and specific.\n'
+          'Answers should be short and precise (1-2 sentences).\n'
+          'Text: $input';
     }
-    return 'Generiraj točno $count flashkartica za temu: $input\n'
-        'Vrati SAMO JSON array bez ikakvog dodatnog teksta:\n'
-        '[{"front": "pitanje", "back": "odgovor"}, ...]\n'
-        'Pokri ključne koncepte, definicije i važne činjenice.';
+    return '${langInstruction}Generate UP TO $count flashcards STRICTLY about this specific topic: "$input"\n'
+        'Generate as many as the topic allows — do not invent or repeat content just to reach $count.\n'
+        'Every question and answer must be directly and specifically about "$input" — do NOT drift to broader or related topics.\n'
+        '${jsonRules}'
+        '[{"front": "question", "back": "answer"}, ...]\n'
+        'Cover specific facts, dates, names, causes and consequences related only to "$input".';
+  }
+
+  String _languageName(String code) {
+    const map = {
+      'hr': 'Croatian',
+      'de': 'German',
+      'fr': 'French',
+      'it': 'Italian',
+      'en': 'English',
+    };
+    return map[code] ?? 'English';
+  }
+
+  // Returns map: card index → list of 2 wrong answers
+  Future<Map<int, List<String>>> generateDistractors(
+    List<FlashCard> cards,
+    String language,
+  ) async {
+    if (cards.isEmpty) return {};
+
+    const batchSize = 8;
+    final result = <int, List<String>>{};
+
+    for (var start = 0; start < cards.length; start += batchSize) {
+      final end = (start + batchSize).clamp(0, cards.length);
+      final batch = cards.sublist(start, end);
+
+      final items = batch
+          .asMap()
+          .entries
+          .map((e) =>
+              '{"i":${e.key},"q":${jsonEncode(e.value.front)},"a":${jsonEncode(e.value.back)}}')
+          .join(',');
+
+      final prompt =
+          'You are generating quiz distractors.\n'
+          'For EVERY card below, produce exactly 2 WRONG but plausible answer alternatives.\n'
+          'CRITICAL: Write each wrong answer in the SAME language as that card\'s correct answer ("a" field) — detect the language automatically per card.\n'
+          'Wrong answers must look realistic — vary numbers, dates, names, swap cause/effect, etc.\n'
+          'NEVER repeat the correct answer. Keep wrong answers the same length/style as the correct answer.\n'
+          'Return ONLY a valid JSON array with exactly ${batch.length} entries, no extra text:\n'
+          '[{"i":0,"w":["wrong1","wrong2"]},{"i":1,"w":["wrong1","wrong2"]},...]\n'
+          'Cards: [$items]';
+
+      try {
+        final http.Response response = await http
+            .post(
+              Uri.parse(_url),
+              headers: {
+                'Authorization': 'Bearer $_apiKey',
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                'model': _model,
+                'messages': [
+                  {'role': 'user', 'content': prompt},
+                ],
+                'temperature': 0.8,
+                'max_tokens': 2048,
+              }),
+            )
+            .timeout(const Duration(seconds: 30));
+
+        if (response.statusCode != 200) continue;
+
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final content =
+            (data['choices'] as List)[0]['message']['content'] as String;
+        final clean = _cleanJson(content);
+        final list = jsonDecode(clean) as List;
+        for (final item in list) {
+          final m = item as Map<String, dynamic>;
+          final localIdx = (m['i'] as num).toInt();
+          final wrongs = (m['w'] as List).map((e) => e.toString()).toList();
+          result[start + localIdx] = wrongs;
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return result;
   }
 
   Future<List<FlashCard>> _callWithRetry(String prompt) async {
@@ -111,11 +203,7 @@ class GroqService {
   List<FlashCard> _parseCards(String content) {
     dynamic parsed;
     try {
-      // strip potential markdown fences
-      final clean = content
-          .replaceAll(RegExp(r'```json\s*'), '')
-          .replaceAll(RegExp(r'```\s*'), '')
-          .trim();
+      final clean = _cleanJson(content);
       parsed = jsonDecode(clean);
     } catch (e) {
       throw GroqException('Neispravni JSON odgovor: $e');
@@ -146,5 +234,17 @@ class GroqService {
         ..createdAt = now
         ..dueDate = now;
     }).toList();
+  }
+
+  String _cleanJson(String content) {
+    return content
+        .replaceAll(RegExp(r'```json\s*'), '')
+        .replaceAll(RegExp(r'```\s*'), '')
+        // Replace smart/curly quotes with straight quotes
+        .replaceAll('“', '"').replaceAll('”', '"')
+        .replaceAll('‘', "'").replaceAll('’', "'")
+        // Replace Croatian/other typographic apostrophes
+        .replaceAll('ʼ', "'").replaceAll('′', "'")
+        .trim();
   }
 }

@@ -9,6 +9,8 @@ import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/sm2_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cardblaze/screens/stats/stats_screen.dart';
 import 'package:cardblaze/services/widget_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 
@@ -21,13 +23,19 @@ class StudyScreen extends ConsumerStatefulWidget {
 }
 
 class _StudyScreenState extends ConsumerState<StudyScreen> {
-  List<FlashCard> _dueCards = [];
+  // All cards in this session (shuffled at start)
+  List<FlashCard> _allCards = [];
+  // Current round queue — starts as all cards, then only wrong answers
+  List<FlashCard> _queue = [];
+  // Cards answered wrong in current round
+  List<FlashCard> _wrongThisRound = [];
   int _index = 0;
   bool _loading = true;
   bool _optionsLoading = false;
 
   List<String> _options = [];
   String? _selectedOption;
+  bool _answered = false;
 
   int _correctCount = 0;
   int _incorrectCount = 0;
@@ -40,16 +48,38 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     _loadCards();
   }
 
+  static String _wrongKey(int deckId) => 'wrong_cards_$deckId';
+
   Future<void> _loadCards() async {
     final id = int.tryParse(widget.deckId) ?? 0;
     final isar = ref.read(isarServiceProvider);
-    var all = await isar.getCardsForDeck(id);
-    all.shuffle(Random());
+    final all = await isar.getCardsForDeck(id);
+
+    // Check for saved wrong IDs from previous session
+    final prefs = await SharedPreferences.getInstance();
+    final savedWrong = prefs.getStringList(_wrongKey(id));
+
+    List<FlashCard> queue;
+    if (savedWrong != null && savedWrong.isNotEmpty) {
+      final wrongIds = savedWrong.map(int.parse).toSet();
+      final wrongCards = all.where((c) => wrongIds.contains(c.id)).toList()..shuffle(Random());
+      queue = wrongCards.isNotEmpty ? wrongCards : (List.from(all)..shuffle(Random()));
+    } else {
+      // Fresh session — reset SM2 so cards behave like new
+      await isar.resetCardsForDeck(id);
+      final fresh = await isar.getCardsForDeck(id);
+      fresh.shuffle(Random());
+      queue = fresh;
+    }
+
     setState(() {
-      _dueCards = all;
+      _allCards = queue.length == all.length ? queue : all;
+      _queue = queue;
+      _wrongThisRound = [];
+      _index = 0;
       _loading = false;
     });
-    if (all.isNotEmpty) {
+    if (queue.isNotEmpty) {
       await _buildOptions();
     }
   }
@@ -63,8 +93,8 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
   }
 
   Future<void> _buildOptions() async {
-    if (_index >= _dueCards.length) return;
-    final card = _dueCards[_index];
+    if (_index >= _queue.length) return;
+    final card = _queue[_index];
     setState(() { _optionsLoading = true; _selectedOption = null; _options = []; });
 
     final lang = _locale();
@@ -76,32 +106,35 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 
     if (!mounted) return;
     final opts = [card.back, ...distractors.take(2)]..shuffle(Random());
-    setState(() { _options = opts; _optionsLoading = false; });
+    setState(() { _options = opts; _optionsLoading = false; _answered = false; });
   }
 
   Future<void> _onOptionTap(String option) async {
     if (_selectedOption != null) return;
 
-    final card = _dueCards[_index];
+    final card = _queue[_index];
     final correct = option == card.back;
 
     setState(() {
       _selectedOption = option;
+      _answered = true;
     });
 
     if (correct) {
       _correctCount++;
     } else {
       _incorrectCount++;
+      _wrongThisRound.add(card);
     }
 
     final rated = sm2Service.applyRating(card, correct ? 2 : 0);
     await ref.read(isarServiceProvider).saveCard(rated);
+  }
 
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (!mounted) return;
+  Future<void> _onNext() async {
+    if (!_answered) return;
 
-    if (_index + 1 >= _dueCards.length) {
+    if (_index + 1 >= _queue.length) {
       await _finishSession();
       if (mounted) _showResults();
       return;
@@ -113,14 +146,34 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 
   Future<void> _finishSession() async {
     final id = int.tryParse(widget.deckId) ?? 0;
+
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save wrong card IDs for next session (or clear if all correct)
+    if (_wrongThisRound.isEmpty) {
+      await prefs.remove(_wrongKey(id));
+    } else {
+      await prefs.setStringList(
+        _wrongKey(id),
+        _wrongThisRound.map((c) => c.id.toString()).toList(),
+      );
+    }
+
+    // Clear AI recap cache so it regenerates after this session
+    final now2 = DateTime.now();
+    final startOfYear = DateTime(now2.year, 1, 1);
+    final isoWeek = ((now2.difference(startOfYear).inDays + startOfYear.weekday - 1) / 7).ceil() + 1;
+    await prefs.remove('ai_recap_${now2.year}_$isoWeek');
+
     final session = StudySession()
       ..deckId = id
       ..date = DateTime.now()
-      ..cardsStudied = _dueCards.length
+      ..cardsStudied = _queue.length
       ..correctCount = _correctCount
       ..incorrectCount = _incorrectCount;
     await ref.read(isarServiceProvider).saveSession(session);
     ref.invalidate(cardsRefreshProvider);
+    ref.invalidate(statsProvider);
     await ref.read(widgetServiceProvider).updateWidget();
   }
 
@@ -129,10 +182,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => _ResultDialog(
-        total: _dueCards.length,
+        total: _allCards.length,
         correct: _correctCount,
         incorrect: _incorrectCount,
-        onDone: () => context.pop(),
+        onDone: () => context.go('/stats'),
         l: AppLocalizations.of(ctx),
       ),
     );
@@ -152,7 +205,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       );
     }
 
-    if (_dueCards.isEmpty) {
+    if (_allCards.isEmpty) {
       return Scaffold(
         backgroundColor: AppColors.pageBg(context),
         appBar: AppBar(
@@ -182,8 +235,8 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       );
     }
 
-    final card = _dueCards[_index];
-    final progress = _index / _dueCards.length;
+    final card = _queue[_index];
+    final progress = _queue.isEmpty ? 0.0 : _index / _queue.length;
 
     return Scaffold(
       backgroundColor: AppColors.pageBg(context),
@@ -205,7 +258,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
             children: [
               const SizedBox(height: 12),
               Text(
-                '${_index + 1} / ${_dueCards.length}',
+                '${_index + 1} / ${_queue.length}',
                 style: Theme.of(context).textTheme.labelMedium,
               ),
               const SizedBox(height: 20),
@@ -264,6 +317,20 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                             .toList(),
                       ),
               ),
+              if (_answered) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _onNext,
+                    child: Text(
+                      _index + 1 >= _queue.length
+                          ? AppLocalizations.of(context).finish_btn
+                          : AppLocalizations.of(context).next_btn,
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
             ],
           ),

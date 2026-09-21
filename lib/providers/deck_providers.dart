@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cardblaze/models/deck.dart';
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:cardblaze/services/isar_service.dart';
@@ -26,6 +27,39 @@ final cardsForDeckProvider = FutureProvider.family<List<FlashCard>, int>((ref, d
 final dueCardsCountProvider = FutureProvider.family<int, int>((ref, deckId) {
   ref.watch(cardsRefreshProvider);
   return ref.read(isarServiceProvider).getDueCards(deckId).then((l) => l.length);
+});
+
+final deckAnsweredCountProvider = FutureProvider.family<int, int>((ref, deckId) {
+  ref.watch(cardsRefreshProvider);
+  return ref.read(isarServiceProvider).getAnsweredCountForDeck(deckId);
+});
+
+final deckTotalCountProvider = StreamProvider.family<int, int>((ref, deckId) {
+  return ref.read(isarServiceProvider).watchCardsForDeck(deckId).map((cards) => cards.length);
+});
+
+final deckHasSessionProvider = FutureProvider.family<bool, int>((ref, deckId) async {
+  ref.watch(cardsRefreshProvider);
+  return ref.read(isarServiceProvider).deckHasSession(deckId);
+});
+
+final deckWrongCountProvider = FutureProvider.family<int, int>((ref, deckId) async {
+  ref.watch(cardsRefreshProvider);
+  final prefs = await SharedPreferences.getInstance();
+  final wrong = prefs.getStringList('wrong_cards_$deckId');
+  return wrong?.length ?? 0;
+});
+
+final totalWrongCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(cardsRefreshProvider);
+  final decks = await ref.read(isarServiceProvider).getAllDecks();
+  final prefs = await SharedPreferences.getInstance();
+  int total = 0;
+  for (final deck in decks) {
+    final wrong = prefs.getStringList('wrong_cards_${deck.id}');
+    total += wrong?.length ?? 0;
+  }
+  return total;
 });
 
 // ── StreamProviders (live Isar watchers) ──────────────────────────────────────

@@ -121,12 +121,14 @@ final aiRecapProvider = FutureProvider.family<String?, StatsData>((ref, stats) a
 
   const apiKey = GroqService.apiKey;
   const url = 'https://api.groq.com/openai/v1/chat/completions';
-  const model = 'openai/gpt-oss-20b';
+  const model = 'openai/gpt-oss-120b';
 
   final prompt =
-      'Analiziraj ove tjedne statistike učenja i daj kratki personalizirani recap '
-      'od 2-3 rečenice s konkretnim savjetom. '
-      'Statistike: ${jsonEncode(statsJson)}. Budi pozitivan ali precizan.';
+      'Analiziraj ove tjedne statistike učenja flash kartica i napiši personalizirani tjedni sažetak od 2-3 rečenice. '
+      'Budi konkretan i specifičan prema podacima — ne izmišljaj pohvale koje nisu opravdane. '
+      'Na kraju daj jedan konkretan prijedlog za sljedeći tjedan. '
+      'Piši u drugom licu (Ti...). Jezik: hrvatski. '
+      'Statistike: ${jsonEncode(statsJson)}.';
 
   try {
     final response = await http
@@ -559,20 +561,63 @@ class _PremiumRecapContent extends ConsumerWidget {
       ),
       data: (text) {
         if (text == null) {
-          return const Text(
-            'Recap se generira svake nedjelje. Vrati se u nedjelju!',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Nema dovoljno podataka za recap ovog tjedna.',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              _RefreshRecapButton(stats: stats),
+            ],
           );
         }
-        return Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            height: 1.5,
-          ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _RefreshRecapButton(stats: stats),
+          ],
         );
       },
+    );
+  }
+}
+
+class _RefreshRecapButton extends ConsumerWidget {
+  const _RefreshRecapButton({required this.stats});
+  final StatsData stats;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GestureDetector(
+      onTap: () async {
+        final prefs = await SharedPreferences.getInstance();
+        final now = DateTime.now();
+        final weekKey = 'ai_recap_${now.year}_${_isoWeek(now)}';
+        await prefs.remove(weekKey);
+        ref.invalidate(aiRecapProvider(stats));
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          Icon(Icons.refresh, color: Colors.white54, size: 14),
+          SizedBox(width: 4),
+          Text(
+            'Osvježi',
+            style: TextStyle(color: Colors.white54, fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 }

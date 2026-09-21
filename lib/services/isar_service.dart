@@ -56,13 +56,7 @@ class IsarService {
           .idProperty()
           .findAll();
       await _isar.flashCards.deleteAll(cardIds);
-      // Delete sessions too
-      final sessionIds = await _isar.studySessions
-          .filter()
-          .deckIdEqualTo(id)
-          .idProperty()
-          .findAll();
-      await _isar.studySessions.deleteAll(sessionIds);
+      // Sessions are kept intentionally — deleting a deck must not affect stats history
     });
   }
 
@@ -73,6 +67,14 @@ class IsarService {
         .filter()
         .deckIdEqualTo(deckId)
         .findAll();
+  }
+
+  Future<int> getAnsweredCountForDeck(int deckId) {
+    return _isar.flashCards
+        .filter()
+        .deckIdEqualTo(deckId)
+        .repetitionsGreaterThan(0)
+        .count();
   }
 
   Future<int> getMasteredCount() {
@@ -103,6 +105,19 @@ class IsarService {
     await _isar.writeTxn(() => _isar.flashCards.put(card));
   }
 
+  Future<void> resetCardsForDeck(int deckId) async {
+    final cards = await _isar.flashCards.filter().deckIdEqualTo(deckId).findAll();
+    final now = DateTime.now();
+    for (final c in cards) {
+      c.repetitions = 0;
+      c.interval = 1;
+      c.easeFactor = 2.5;
+      c.dueDate = now;
+      c.lastReviewed = null;
+    }
+    await _isar.writeTxn(() => _isar.flashCards.putAll(cards));
+  }
+
   Future<void> deleteCard(int id) async {
     await _isar.writeTxn(() => _isar.flashCards.delete(id));
   }
@@ -111,6 +126,11 @@ class IsarService {
 
   Future<void> saveSession(StudySession session) async {
     await _isar.writeTxn(() => _isar.studySessions.put(session));
+  }
+
+  Future<bool> deckHasSession(int deckId) async {
+    final count = await _isar.studySessions.filter().deckIdEqualTo(deckId).count();
+    return count > 0;
   }
 
   Future<List<StudySession>> getRecentSessions(int days) {

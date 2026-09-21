@@ -24,7 +24,7 @@
   "due_today": "Heute fällig",
   "all_done_today": "Alles für heute erledigt!",
   "all_done_subtitle": "Keine Karten ausstehend. Ausgezeichnet!",
-  "cards_waiting": "{count, plural, =1{1 Karte fällig} other{{count} Karten fällig}}",
+  "cards_waiting": "Karten fällig: {count}",
   "no_decks_title": "Keine Decks",
   "no_decks_body": "Füge dein erstes Deck hinzu und beginne mit Spaced Repetition.",
   "add_first_deck": "Erstes Deck hinzufügen",
@@ -33,7 +33,7 @@
   "delete_deck": "Deck löschen",
   "delete_confirm_title": "Deck löschen?",
   "delete_confirm_body": "Dies löscht \"{name}\" und alle Karten dauerhaft.",
-  "deck_subtitle": "{cards} Karten · {due} fällig",
+  "deck_subtitle": "{cards} beantwortet · {due} verbleibend",
 
   "generate_title": "KI-Generierung",
   "generate_subtitle": "Karten aus Text, Thema oder PDF generieren",
@@ -51,7 +51,7 @@
 
   "stats_title": "Statistiken",
   "streak_days": "{count, plural, =0{0 Tage} =1{1 Tag} other{{count} Tage}}",
-  "cards_this_week": "Karten diese Woche",
+  "cards_this_week": "Gelernt diese Woche",
   "accuracy": "Genauigkeit",
   "total_cards": "Karten gesamt",
   "active_decks": "Aktive Decks",
@@ -124,7 +124,7 @@
   "upgrade_btn": "Auf Pro upgraden",
   "upgrade_dialog_subtitle": "Schalte alle CardBlaze Pro-Funktionen frei.",
   "benefit_unlimited_decks": "Unbegrenzte Decks (kostenlos: 1)",
-  "benefit_cards_per_deck": "Bis zu 100 Karten pro Deck (kostenlos: 20)",
+  "benefit_cards_per_deck": "Bis zu 100 Karten pro Deck (kostenlos: 15)",
   "benefit_ai_generation": "Unbegrenzte KI-Kartengenerierung",
   "benefit_pdf_import": "PDF & DOCX Import",
   "benefit_advanced_stats": "Erweiterte Lernstatistiken",
@@ -139,7 +139,10 @@
   "session_incorrect": "Falsch",
   "session_accuracy": "Genauigkeit",
   "finish_btn": "Fertig",
+  "next_btn": "Weiter",
 
   "notifications_on": "Aktiviert",
-  "notifications_off": "Tippen um tägliche Erinnerung zu aktivieren"
+  "notifications_off": "Tippen um tägliche Erinnerung zu aktivieren",
+
+  "deck_all_learned": "Alles gelernt"
 }

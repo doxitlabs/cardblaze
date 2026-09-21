@@ -85,13 +85,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String cards_waiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count cartes à réviser',
-      one: '1 carte à réviser',
-    );
-    return '$_temp0';
+    return 'cartes à réviser: $count';
   }
 
   @override
@@ -123,7 +117,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String deck_subtitle(int cards, int due) {
-    return '$cards cartes · $due à réviser';
+    return '$cards répondues · $due restantes';
   }
 
   @override
@@ -190,7 +184,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get cards_this_week => 'Cartes cette semaine';
+  String get cards_this_week => 'Appris cette semaine';
 
   @override
   String get accuracy => 'Précision';
@@ -403,7 +397,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get benefit_cards_per_deck =>
-      'Jusqu\'à 100 cartes par paquet (gratuit : 20)';
+      'Jusqu\'à 100 cartes par paquet (gratuit : 15)';
 
   @override
   String get benefit_ai_generation => 'Génération IA illimitée';
@@ -445,8 +439,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get finish_btn => 'Terminer';
 
   @override
+  String get next_btn => 'Suivant';
+
+  @override
   String get notifications_on => 'Activé';
 
   @override
   String get notifications_off => 'Appuyer pour activer le rappel quotidien';
+
+  @override
+  String get deck_all_learned => 'Tout appris';
 }
