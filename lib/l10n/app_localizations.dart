@@ -374,6 +374,78 @@ abstract class AppLocalizations {
   /// **'Enter a name for the new deck.'**
   String get error_deck_name;
 
+  /// No description provided for @ai_document_loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Document loaded'**
+  String get ai_document_loaded;
+
+  /// No description provided for @ai_chars_loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} characters loaded'**
+  String ai_chars_loaded(int count);
+
+  /// No description provided for @ai_deck_limit_reached.
+  ///
+  /// In en, this message translates to:
+  /// **'This deck has reached the maximum number of cards ({limit}).'**
+  String ai_deck_limit_reached(int limit);
+
+  /// No description provided for @ai_unsaved_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards not saved'**
+  String get ai_unsaved_title;
+
+  /// No description provided for @ai_unsaved_body.
+  ///
+  /// In en, this message translates to:
+  /// **'If you leave this tab, the generated cards you haven\'t saved will be lost.'**
+  String get ai_unsaved_body;
+
+  /// No description provided for @ai_leave_without_saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave without saving'**
+  String get ai_leave_without_saving;
+
+  /// No description provided for @error_text_too_long_pro.
+  ///
+  /// In en, this message translates to:
+  /// **'Text exceeds the {max} character limit. Split the content into parts and generate cards in multiple steps for the same deck.'**
+  String error_text_too_long_pro(int max);
+
+  /// No description provided for @error_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {details}'**
+  String error_generic(String details);
+
+  /// No description provided for @error_text_too_long_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Text is too long for the Free plan. Upgrade to Pro for longer texts.'**
+  String get error_text_too_long_free;
+
+  /// No description provided for @export_pdf_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Export to PDF'**
+  String get export_pdf_action;
+
+  /// No description provided for @export_pdf_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'This deck has no cards to export.'**
+  String get export_pdf_empty;
+
+  /// No description provided for @export_pdf_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error exporting PDF: {details}'**
+  String export_pdf_error(String details);
+
   /// No description provided for @stats_title.
   ///
   /// In en, this message translates to:
@@ -817,6 +889,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PDF & DOCX import'**
   String get benefit_pdf_import;
+
+  /// No description provided for @benefit_pdf_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export decks to PDF (with answers)'**
+  String get benefit_pdf_export;
 
   /// No description provided for @benefit_advanced_stats.
   ///

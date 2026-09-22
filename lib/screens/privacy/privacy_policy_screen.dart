@@ -111,7 +111,7 @@ const _hr = <_Section>[
   _Section('CardBlaze ("mi", "aplikacija") razvija DoxITLabs. Ova politika objašnjava koje podatke prikupljamo, kako ih koristimo i koja su vaša prava.'),
 
   _Section('1. Podaci koje prikupljamo', heading: true),
-  _Section('CardBlaze pohranjuje sve vaše kartice, špilove i sesije učenja lokalno na vašem uređaju. Ne vodimo servere koji pohranjuju vaše osobne podatke.'),
+  _Section('CardBlaze pohranjuje sve vaše kartice, deckove i sesije učenja lokalno na vašem uređaju. Ne vodimo servere koji pohranjuju vaše osobne podatke.'),
 
   _Section('2. AI generiranje kartica', heading: true),
   _Section('Kad koristite funkciju AI generiranja, tekst ili tema koje unesete šalju se usluzi Groq (groq.com) radi generiranja kartica. Ne prenose se osobni podaci. Pogledajte politiku privatnosti Groqa na groq.com/privacy.'),

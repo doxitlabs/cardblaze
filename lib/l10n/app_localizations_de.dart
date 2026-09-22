@@ -168,6 +168,55 @@ class AppLocalizationsDe extends AppLocalizations {
   String get error_deck_name => 'Namen für neues Deck eingeben.';
 
   @override
+  String get ai_document_loaded => 'Dokument geladen';
+
+  @override
+  String ai_chars_loaded(int count) {
+    return '$count Zeichen geladen';
+  }
+
+  @override
+  String ai_deck_limit_reached(int limit) {
+    return 'Dieses Deck hat die maximale Kartenanzahl erreicht ($limit).';
+  }
+
+  @override
+  String get ai_unsaved_title => 'Karten nicht gespeichert';
+
+  @override
+  String get ai_unsaved_body =>
+      'Wenn du diesen Tab verlässt, gehen die noch nicht gespeicherten generierten Karten verloren.';
+
+  @override
+  String get ai_leave_without_saving => 'Ohne Speichern verlassen';
+
+  @override
+  String error_text_too_long_pro(int max) {
+    return 'Der Text überschreitet das Limit von $max Zeichen. Teile den Inhalt auf und generiere die Karten in mehreren Schritten für dasselbe Deck.';
+  }
+
+  @override
+  String error_generic(String details) {
+    return 'Fehler: $details';
+  }
+
+  @override
+  String get error_text_too_long_free =>
+      'Der Text ist für den kostenlosen Plan zu lang. Wechsle zu Pro für längere Texte.';
+
+  @override
+  String get export_pdf_action => 'Als PDF exportieren';
+
+  @override
+  String get export_pdf_empty =>
+      'Dieses Deck hat keine Karten zum Exportieren.';
+
+  @override
+  String export_pdf_error(String details) {
+    return 'Fehler beim PDF-Export: $details';
+  }
+
+  @override
   String get stats_title => 'Statistiken';
 
   @override
@@ -410,6 +459,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get benefit_pdf_import => 'PDF & DOCX Import';
+
+  @override
+  String get benefit_pdf_export => 'Decks als PDF exportieren (mit Antworten)';
 
   @override
   String get benefit_advanced_stats => 'Erweiterte Lernstatistiken';

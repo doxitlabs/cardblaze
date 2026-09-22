@@ -169,6 +169,54 @@ class AppLocalizationsFr extends AppLocalizations {
   String get error_deck_name => 'Saisir un nom pour le nouveau paquet.';
 
   @override
+  String get ai_document_loaded => 'Document chargé';
+
+  @override
+  String ai_chars_loaded(int count) {
+    return '$count caractères chargés';
+  }
+
+  @override
+  String ai_deck_limit_reached(int limit) {
+    return 'Ce paquet a atteint le nombre maximal de cartes ($limit).';
+  }
+
+  @override
+  String get ai_unsaved_title => 'Cartes non enregistrées';
+
+  @override
+  String get ai_unsaved_body =>
+      'Si tu quittes cet onglet, les cartes générées non enregistrées seront perdues.';
+
+  @override
+  String get ai_leave_without_saving => 'Quitter sans enregistrer';
+
+  @override
+  String error_text_too_long_pro(int max) {
+    return 'Le texte dépasse la limite de $max caractères. Divise le contenu en plusieurs parties et génère les cartes en plusieurs étapes pour le même paquet.';
+  }
+
+  @override
+  String error_generic(String details) {
+    return 'Erreur : $details';
+  }
+
+  @override
+  String get error_text_too_long_free =>
+      'Le texte est trop long pour le plan Free. Passe à Pro pour des textes plus longs.';
+
+  @override
+  String get export_pdf_action => 'Exporter en PDF';
+
+  @override
+  String get export_pdf_empty => 'Ce paquet n\'a aucune carte à exporter.';
+
+  @override
+  String export_pdf_error(String details) {
+    return 'Erreur lors de l\'export PDF : $details';
+  }
+
+  @override
   String get stats_title => 'Statistiques';
 
   @override
@@ -410,6 +458,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get benefit_pdf_import => 'Import PDF & DOCX';
+
+  @override
+  String get benefit_pdf_export =>
+      'Exporter les paquets en PDF (avec réponses)';
 
   @override
   String get benefit_advanced_stats => 'Statistiques d\'apprentissage avancées';

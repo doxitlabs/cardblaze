@@ -169,6 +169,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error_deck_name => 'Enter a name for the new deck.';
 
   @override
+  String get ai_document_loaded => 'Document loaded';
+
+  @override
+  String ai_chars_loaded(int count) {
+    return '$count characters loaded';
+  }
+
+  @override
+  String ai_deck_limit_reached(int limit) {
+    return 'This deck has reached the maximum number of cards ($limit).';
+  }
+
+  @override
+  String get ai_unsaved_title => 'Cards not saved';
+
+  @override
+  String get ai_unsaved_body =>
+      'If you leave this tab, the generated cards you haven\'t saved will be lost.';
+
+  @override
+  String get ai_leave_without_saving => 'Leave without saving';
+
+  @override
+  String error_text_too_long_pro(int max) {
+    return 'Text exceeds the $max character limit. Split the content into parts and generate cards in multiple steps for the same deck.';
+  }
+
+  @override
+  String error_generic(String details) {
+    return 'Error: $details';
+  }
+
+  @override
+  String get error_text_too_long_free =>
+      'Text is too long for the Free plan. Upgrade to Pro for longer texts.';
+
+  @override
+  String get export_pdf_action => 'Export to PDF';
+
+  @override
+  String get export_pdf_empty => 'This deck has no cards to export.';
+
+  @override
+  String export_pdf_error(String details) {
+    return 'Error exporting PDF: $details';
+  }
+
+  @override
   String get stats_title => 'Statistics';
 
   @override
@@ -405,6 +453,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get benefit_pdf_import => 'PDF & DOCX import';
+
+  @override
+  String get benefit_pdf_export => 'Export decks to PDF (with answers)';
 
   @override
   String get benefit_advanced_stats => 'Advanced learning statistics';

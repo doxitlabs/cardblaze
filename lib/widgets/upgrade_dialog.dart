@@ -46,6 +46,7 @@ class UpgradeDialog extends StatelessWidget {
       (icon: Icons.style_outlined,          text: l.benefit_cards_per_deck),
       (icon: Icons.auto_awesome_outlined,   text: l.benefit_ai_generation),
       (icon: Icons.picture_as_pdf_outlined, text: l.benefit_pdf_import),
+      (icon: Icons.ios_share_outlined,      text: l.benefit_pdf_export),
       (icon: Icons.bar_chart_outlined,      text: l.benefit_advanced_stats),
     ];
 

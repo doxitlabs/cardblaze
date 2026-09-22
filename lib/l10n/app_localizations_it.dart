@@ -168,6 +168,54 @@ class AppLocalizationsIt extends AppLocalizations {
   String get error_deck_name => 'Inserire il nome del nuovo mazzo.';
 
   @override
+  String get ai_document_loaded => 'Documento caricato';
+
+  @override
+  String ai_chars_loaded(int count) {
+    return '$count caratteri caricati';
+  }
+
+  @override
+  String ai_deck_limit_reached(int limit) {
+    return 'Questo mazzo ha raggiunto il numero massimo di carte ($limit).';
+  }
+
+  @override
+  String get ai_unsaved_title => 'Carte non salvate';
+
+  @override
+  String get ai_unsaved_body =>
+      'Se esci da questa scheda, le carte generate non salvate andranno perse.';
+
+  @override
+  String get ai_leave_without_saving => 'Esci senza salvare';
+
+  @override
+  String error_text_too_long_pro(int max) {
+    return 'Il testo supera il limite di $max caratteri. Dividi il contenuto in parti e genera le carte in più passaggi per lo stesso mazzo.';
+  }
+
+  @override
+  String error_generic(String details) {
+    return 'Errore: $details';
+  }
+
+  @override
+  String get error_text_too_long_free =>
+      'Il testo è troppo lungo per il piano Free. Passa a Pro per testi più lunghi.';
+
+  @override
+  String get export_pdf_action => 'Esporta in PDF';
+
+  @override
+  String get export_pdf_empty => 'Questo mazzo non ha carte da esportare.';
+
+  @override
+  String export_pdf_error(String details) {
+    return 'Errore durante l\'esportazione del PDF: $details';
+  }
+
+  @override
   String get stats_title => 'Statistiche';
 
   @override
@@ -406,6 +454,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get benefit_pdf_import => 'Importazione PDF e DOCX';
+
+  @override
+  String get benefit_pdf_export => 'Esporta i mazzi in PDF (con risposte)';
 
   @override
   String get benefit_advanced_stats => 'Statistiche di apprendimento avanzate';

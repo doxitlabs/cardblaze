@@ -9,6 +9,8 @@ import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/rate_limit_service.dart';
+import 'package:cardblaze/services/pdf_service.dart';
+import 'package:cardblaze/services/premium_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -16,6 +18,11 @@ import 'package:cardblaze/theme/app_theme.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 final _groqServiceProvider = Provider<GroqService>((_) => GroqService());
+final _pdfServiceProvider = Provider<PdfService>((_) => PdfService());
+
+// True while the Generate tab has AI-generated cards in preview that have
+// not been saved yet — read by ScaffoldWithNav to warn before navigating away.
+final aiGenerateHasUnsavedCardsProvider = StateProvider<bool>((_) => false);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Screen
@@ -39,6 +46,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
   bool _isLoading = false;
 
   int? _selectedDeckId;
+  String? _pickedFileName;
 
   List<FlashCard> _preview = [];
   // parallel controllers for editable preview cards
@@ -54,6 +62,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     for (final c in _backCtrl) {
       c.dispose();
     }
+    ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = false;
     super.dispose();
   }
 
@@ -107,6 +116,22 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
       }
     }
 
+    // Card count limit: free 15 total per deck, pro 100 total per deck —
+    // minus cards the deck already has.
+    final existingCards = await ref.read(cardsForDeckProvider(_selectedDeckId!).future);
+    final limit = isPremium ? PremiumLimits.maxCardsPerDeckPro : PremiumLimits.maxCardsPerDeck;
+    final remainingCapacity = (limit - existingCards.length).clamp(0, limit);
+    if (remainingCapacity <= 0) {
+      if (!mounted) return;
+      if (isPremium) {
+        _showError(AppLocalizations.of(context).ai_deck_limit_reached(limit));
+      } else {
+        await showUpgradeDialog(context);
+      }
+      return;
+    }
+    final requestedCount = _cardCount > remainingCapacity ? remainingCapacity : _cardCount;
+
     setState(() {
       _isLoading = true;
       _preview = [];
@@ -114,23 +139,50 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
 
     try {
       final groq = ref.read(_groqServiceProvider);
-      final mode = _mode == _InputMode.text ? 'text' : 'topic';
+      final mode = _mode == _InputMode.topic ? 'topic' : 'text';
       final cards = await groq.generateCards(
         input,
-        _cardCount,
+        requestedCount,
         mode,
         isPremium: isPremium,
         language: Localizations.localeOf(context).languageCode,
       );
       setState(() => _setPreview(cards));
+      ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = cards.isNotEmpty;
     } on PremiumRequiredException catch (_) {
-      if (mounted) await showUpgradeDialog(context);
+      if (mounted) {
+        _showError(AppLocalizations.of(context).error_text_too_long_free);
+        // Give the snackbar a moment on screen before the modal covers it.
+        await Future.delayed(const Duration(milliseconds: 1400));
+        if (mounted) await showUpgradeDialog(context);
+      }
+    } on TextTooLongException catch (e) {
+      _showError(AppLocalizations.of(context).error_text_too_long_pro(e.maxChars));
     } on GroqException catch (e) {
       _showError(e.message);
     } catch (e) {
-      _showError('Greška: $e');
+      if (mounted) _showError(AppLocalizations.of(context).error_generic('$e'));
     } finally {
       setState(() => _isLoading = false);
+    }
+  }
+
+  // ── document import ───────────────────────────────────────────────────────
+
+  Future<void> _pickDocument() async {
+    try {
+      final text = await ref.read(_pdfServiceProvider).pickAndExtract();
+      if (text == null || !mounted) return; // user cancelled the picker
+      setState(() {
+        _inputCtrl.text = text;
+        _pickedFileName = AppLocalizations.of(context).ai_document_loaded;
+      });
+    } on FileNotFoundException catch (e) {
+      _showError(e.message);
+    } on PdfExtractionException catch (e) {
+      _showError(e.message);
+    } catch (e) {
+      if (mounted) _showError(AppLocalizations.of(context).error_generic('$e'));
     }
   }
 
@@ -170,6 +222,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         _preview = [];
         _inputCtrl.clear();
       });
+      ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = false;
     }
   }
 
@@ -179,7 +232,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(msg, style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.badgeRed(context),
         behavior: SnackBarBehavior.floating,
       ),
@@ -243,7 +296,9 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
                   _mode = m;
                   _preview = [];
                   _inputCtrl.clear();
+                  _pickedFileName = null;
                 });
+                ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = false;
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
@@ -286,13 +341,25 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
 
   Widget _buildInputField() {
     if (_mode == _InputMode.pdf) {
-      return OutlinedButton.icon(
-        onPressed: () {},
-        icon: const Icon(Icons.upload_file),
-        label: Text(AppLocalizations.of(context).pdf_mode),
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 52),
-        ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OutlinedButton.icon(
+            onPressed: _isLoading ? null : _pickDocument,
+            icon: const Icon(Icons.upload_file),
+            label: Text(_pickedFileName ?? AppLocalizations.of(context).pdf_mode),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 52),
+            ),
+          ),
+          if (_pickedFileName != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              AppLocalizations.of(context).ai_chars_loaded(_inputCtrl.text.length),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ],
       );
     }
 
@@ -371,6 +438,30 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
   // ── card count row ─────────────────────────────────────────────────────────
 
   Widget _buildCardCountRow(ColorScheme cs) {
+    final isPremiumAsync = ref.watch(premiumStatusProvider);
+    final isPremium = isPremiumAsync.value ?? false;
+    final limit = isPremium ? PremiumLimits.maxCardsPerDeckPro : PremiumLimits.maxCardsPerDeck;
+
+    int? maxAllowed;
+    if (_selectedDeckId != null) {
+      final existingAsync = ref.watch(cardsForDeckProvider(_selectedDeckId!));
+      final existingCount = existingAsync.value?.length;
+      if (existingCount != null) {
+        maxAllowed = (limit - existingCount).clamp(0, limit);
+      }
+    }
+    // Unknown yet (deck not selected or still loading) — fall back to the
+    // free-tier ceiling so the stepper never overshoots before we know better.
+    maxAllowed ??= limit;
+
+    final minAllowed = maxAllowed <= 0 ? 0 : (maxAllowed < 5 ? 1 : 5);
+    if (_cardCount > maxAllowed || _cardCount < minAllowed) {
+      final clamped = maxAllowed <= 0 ? 0 : _cardCount.clamp(minAllowed, maxAllowed);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _cardCount != clamped) setState(() => _cardCount = clamped);
+      });
+    }
+
     return Row(
       children: [
         Text(
@@ -380,7 +471,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         const Spacer(),
         _CountButton(
           icon: Icons.remove,
-          onTap: _cardCount > 5
+          onTap: _cardCount > minAllowed
               ? () => setState(() => _cardCount--)
               : null,
         ),
@@ -397,7 +488,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         ),
         _CountButton(
           icon: Icons.add,
-          onTap: _cardCount < 30
+          onTap: _cardCount < maxAllowed
               ? () => setState(() => _cardCount++)
               : null,
         ),
@@ -456,15 +547,6 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         ),
         const SizedBox(height: 12),
         ...List.generate(_preview.length, (i) => _buildPreviewTile(i, cs)),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _saveAll,
-            icon: const Icon(Icons.save_alt),
-            label: Text(AppLocalizations.of(context).cards_saved(_preview.length)),
-          ),
-        ),
       ],
     );
   }

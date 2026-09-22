@@ -437,6 +437,7 @@ class _PremiumCard extends ConsumerWidget {
     l.benefit_cards_per_deck,
     l.benefit_ai_generation,
     l.benefit_pdf_import,
+    l.benefit_pdf_export,
     l.benefit_advanced_stats,
   ];
 

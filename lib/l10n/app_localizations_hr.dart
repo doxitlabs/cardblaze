@@ -169,6 +169,54 @@ class AppLocalizationsHr extends AppLocalizations {
   String get error_deck_name => 'Unesi naziv novog decka.';
 
   @override
+  String get ai_document_loaded => 'Dokument učitan';
+
+  @override
+  String ai_chars_loaded(int count) {
+    return '$count znakova učitano';
+  }
+
+  @override
+  String ai_deck_limit_reached(int limit) {
+    return 'Ovaj deck je dosegao maksimalan broj kartica ($limit).';
+  }
+
+  @override
+  String get ai_unsaved_title => 'Kartice nisu spremljene';
+
+  @override
+  String get ai_unsaved_body =>
+      'Ako izađeš iz ovog tab-a, generirane kartice koje nisi spremio bit će izgubljene.';
+
+  @override
+  String get ai_leave_without_saving => 'Izađi bez spremanja';
+
+  @override
+  String error_text_too_long_pro(int max) {
+    return 'Tekst premašuje limit od $max znakova. Podijeli sadržaj na dijelove i generiraj kartice u više koraka za isti deck.';
+  }
+
+  @override
+  String error_generic(String details) {
+    return 'Greška: $details';
+  }
+
+  @override
+  String get error_text_too_long_free =>
+      'Tekst je predugačak za Free plan. Nadogradi na Pro za dulje tekstove.';
+
+  @override
+  String get export_pdf_action => 'Export u PDF';
+
+  @override
+  String get export_pdf_empty => 'Ovaj deck nema kartica za export.';
+
+  @override
+  String export_pdf_error(String details) {
+    return 'Greška pri exportu PDF-a: $details';
+  }
+
+  @override
   String get stats_title => 'Statistika';
 
   @override
@@ -408,6 +456,9 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get benefit_pdf_import => 'Uvoz PDF i DOCX dokumenata';
+
+  @override
+  String get benefit_pdf_export => 'Izvoz deckova u PDF (s odgovorima)';
 
   @override
   String get benefit_advanced_stats => 'Napredne statistike učenja';

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
+import 'package:cardblaze/screens/ai_generate/ai_generate_screen.dart' show aiGenerateHasUnsavedCardsProvider;
 
 class ScaffoldWithNav extends ConsumerWidget {
   const ScaffoldWithNav({super.key, required this.child});
@@ -25,9 +26,32 @@ class ScaffoldWithNav extends ConsumerWidget {
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
+        onDestinationSelected: (index) async {
+          final target = tabs[index].path;
+          if (location.startsWith('/generate') &&
+              target != '/generate' &&
+              ref.read(aiGenerateHasUnsavedCardsProvider)) {
+            final leave = await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text(l.ai_unsaved_title),
+                content: Text(l.ai_unsaved_body),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                    child: Text(l.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    child: Text(l.ai_leave_without_saving),
+                  ),
+                ],
+              ),
+            );
+            if (leave != true || !context.mounted) return;
+          }
           ref.read(cardsRefreshProvider.notifier).state++;
-          context.go(tabs[index].path);
+          context.go(target);
         },
         destinations: tabs
             .map((t) => NavigationDestination(

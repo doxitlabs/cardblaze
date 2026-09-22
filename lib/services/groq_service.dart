@@ -10,11 +10,21 @@ class GroqException implements Exception {
   String toString() => 'GroqException: $message';
 }
 
+// Free user's input exceeds the free character limit — UI localizes and
+// displays the reason itself, since this service has no BuildContext.
 class PremiumRequiredException implements Exception {
-  final String message;
-  const PremiumRequiredException(this.message);
+  const PremiumRequiredException();
   @override
-  String toString() => 'PremiumRequiredException: $message';
+  String toString() => 'PremiumRequiredException';
+}
+
+// Pro user's input exceeds the pro character limit — UI localizes the
+// message itself using [maxChars], since this service has no BuildContext.
+class TextTooLongException implements Exception {
+  final int maxChars;
+  const TextTooLongException(this.maxChars);
+  @override
+  String toString() => 'TextTooLongException: $maxChars';
 }
 
 class GroqService {
@@ -22,7 +32,7 @@ class GroqService {
   static const _anonKey = 'sb_publishable_0ibllJ0g4i7n5cfOM3nnsg_wZIFOfLW';
   static const _model = 'openai/gpt-oss-120b';
 
-  static const _freeMaxChars = 500;
+  static const _freeMaxChars = 2500;
   static const _proMaxChars = 5000;
 
   Future<List<FlashCard>> generateCards(
@@ -35,11 +45,9 @@ class GroqService {
     final maxChars = isPremium ? _proMaxChars : _freeMaxChars;
     if (input.length > maxChars) {
       if (!isPremium) {
-        throw const PremiumRequiredException(
-          'Tekst je predugačak. Nadogradi na Pro za do 5000 znakova.',
-        );
+        throw const PremiumRequiredException();
       }
-      throw GroqException('Tekst premašuje limit od $_proMaxChars znakova.');
+      throw TextTooLongException(_proMaxChars);
     }
 
     final prompt = _buildPrompt(input, count, mode, language);

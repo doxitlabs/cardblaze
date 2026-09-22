@@ -130,6 +130,7 @@ final aiRecapProvider = FutureProvider.family<String?, (StatsData, String)>((ref
       'Be specific and concrete about the data — do not invent praise that is not warranted. '
       'At the end give one concrete suggestion for next week. '
       'Write in second person (You...). Write in $langName. '
+      'IMPORTANT: This app calls a flashcard collection a "deck" (do not translate this word — keep it as "deck" even in $langName, e.g. Croatian uses "deck"/"deckovi", not "špil"/"špilovi"). '
       'Statistics: ${jsonEncode(statsJson)}.';
 
   try {

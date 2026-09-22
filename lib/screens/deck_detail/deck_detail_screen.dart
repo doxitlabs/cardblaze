@@ -7,9 +7,11 @@ import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/premium_service.dart';
+import 'package:cardblaze/services/pdf_export_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 
 // ── DeckDetailScreen ──────────────────────────────────────────────────────────
 
@@ -62,6 +64,11 @@ class _DeckScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.ios_share_outlined),
+            tooltip: AppLocalizations.of(context).export_pdf_action,
+            onPressed: () => _exportPdf(context, ref, cards),
+          ),
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: AppLocalizations.of(context).edit_deck_tooltip,
@@ -133,6 +140,34 @@ class _DeckScreen extends ConsumerWidget {
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  Future<void> _exportPdf(BuildContext context, WidgetRef ref, List<FlashCard> cards) async {
+    final l = AppLocalizations.of(context);
+    if (!await checkPremium(context, ref)) return;
+    if (!context.mounted) return;
+
+    if (cards.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.export_pdf_empty), behavior: SnackBarBehavior.floating),
+      );
+      return;
+    }
+
+    try {
+      final path = await PdfExportService().exportDeck(deck.name, cards);
+      await SharePlus.instance.share(ShareParams(files: [XFile(path)], subject: deck.name));
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.export_pdf_error(e.toString()), style: const TextStyle(color: Colors.white)),
+            backgroundColor: AppColors.badgeRed(context),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
 
   void _showEditDeck(BuildContext context, WidgetRef ref) {
     showModalBottomSheet<void>(
