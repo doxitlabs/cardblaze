@@ -68,6 +68,7 @@ class NotificationService {
     }
     final scheduledUtc = scheduledLocal.toUtc();
     final scheduled = tz.TZDateTime.from(scheduledUtc, tz.UTC);
+    const notifBody = '📚 Vrijeme za učenje! Kartice čekaju.';
     const details = NotificationDetails(
       android: AndroidNotificationDetails(
         _channelId,
@@ -76,13 +77,14 @@ class NotificationService {
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
         icon: '@mipmap/ic_launcher',
+        styleInformation: BigTextStyleInformation(notifBody),
       ),
     );
     try {
       await _plugin.zonedSchedule(
         _notifId,
         'CardBlaze',
-        '📚 Vrijeme za učenje! Kartice čekaju.',
+        notifBody,
         scheduled,
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -95,7 +97,7 @@ class NotificationService {
       await _plugin.zonedSchedule(
         _notifId,
         'CardBlaze',
-        '📚 Vrijeme za učenje! Kartice čekaju.',
+        notifBody,
         scheduled,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

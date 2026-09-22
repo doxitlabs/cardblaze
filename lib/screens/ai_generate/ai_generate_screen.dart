@@ -152,8 +152,8 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     } on PremiumRequiredException catch (_) {
       if (mounted) {
         _showError(AppLocalizations.of(context).error_text_too_long_free);
-        // Give the snackbar a moment on screen before the modal covers it.
-        await Future.delayed(const Duration(milliseconds: 1400));
+        // Wait for the snackbar to fully disappear before the modal opens.
+        await Future.delayed(_errorSnackDuration);
         if (mounted) await showUpgradeDialog(context);
       }
     } on TextTooLongException catch (e) {
@@ -228,6 +228,8 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
 
   // ── dialogs ────────────────────────────────────────────────────────────────
 
+  static const _errorSnackDuration = Duration(seconds: 3);
+
   void _showError(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -235,6 +237,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         content: Text(msg, style: const TextStyle(color: Colors.white)),
         backgroundColor: AppColors.badgeRed(context),
         behavior: SnackBarBehavior.floating,
+        duration: _errorSnackDuration,
       ),
     );
   }
