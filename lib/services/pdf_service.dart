@@ -95,7 +95,7 @@ class PdfService {
       allowedExtensions: ['pdf', 'docx'],
     );
 
-    if (files == null || files.isEmpty) return null;
+    if (files.isEmpty) return null;
 
     final path = files.single.path;
     if (path == null) return null;

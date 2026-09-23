@@ -728,54 +728,6 @@ abstract class AppLocalizations {
   /// **'Use AI Generate to create cards from text, topic or document.'**
   String get no_cards_body_ai;
 
-  /// No description provided for @edit_card_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit card'**
-  String get edit_card_title;
-
-  /// No description provided for @new_card_title.
-  ///
-  /// In en, this message translates to:
-  /// **'New card'**
-  String get new_card_title;
-
-  /// No description provided for @front_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Question (front)'**
-  String get front_label;
-
-  /// No description provided for @front_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter question...'**
-  String get front_hint;
-
-  /// No description provided for @back_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Answer (back)'**
-  String get back_label;
-
-  /// No description provided for @back_hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter answer...'**
-  String get back_hint;
-
-  /// No description provided for @save_changes_btn.
-  ///
-  /// In en, this message translates to:
-  /// **'Save changes'**
-  String get save_changes_btn;
-
-  /// No description provided for @save_card_btn.
-  ///
-  /// In en, this message translates to:
-  /// **'Save card'**
-  String get save_card_btn;
-
   /// No description provided for @name_label.
   ///
   /// In en, this message translates to:
@@ -997,6 +949,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'pending'**
   String get pending_label;
+
+  /// No description provided for @study_reset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over?'**
+  String get study_reset_title;
+
+  /// No description provided for @study_reset_body.
+  ///
+  /// In en, this message translates to:
+  /// **'All cards in this deck are learned ({count}). Studying again will reset their progress. Continue?'**
+  String study_reset_body(int count);
+
+  /// No description provided for @study_reset_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Start over'**
+  String get study_reset_confirm;
 }
 
 class _AppLocalizationsDelegate

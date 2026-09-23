@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "hr",
 
   "appName": "CardBlaze",
@@ -118,14 +118,6 @@
   "no_cards_title": "Nema kartica",
   "no_cards_body": "Dodaj kartice ručno ili koristi AI Generate.",
   "no_cards_body_ai": "Koristi AI Generate za kreiranje kartica iz teksta, teme ili dokumenta.",
-  "edit_card_title": "Uredi karticu",
-  "new_card_title": "Nova kartica",
-  "front_label": "Pitanje (front)",
-  "front_hint": "Unesi pitanje...",
-  "back_label": "Odgovor (back)",
-  "back_hint": "Unesi odgovor...",
-  "save_changes_btn": "Spremi izmjene",
-  "save_card_btn": "Spremi karticu",
   "name_label": "Naziv",
   "streak_motivation_0": "Počni danas i izgradi naviku!",
   "streak_motivation_low": "Dobar početak — nastavi!",
@@ -166,5 +158,8 @@
 
   "deck_all_learned": "Sve naučeno",
   "answered_label": "Odgovoreno:",
-  "pending_label": "na čekanju"
+  "pending_label": "na čekanju",
+  "study_reset_title": "Krenuti ispočetka?",
+  "study_reset_body": "Sve kartice u ovom decku su naučene ({count}). Novo učenje poništit će njihov napredak. Nastaviti?",
+  "study_reset_confirm": "Kreni ispočetka"
 }

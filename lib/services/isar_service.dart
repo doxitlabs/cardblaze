@@ -160,6 +160,10 @@ class IsarService {
         .watch(fireImmediately: true);
   }
 
+  Stream<List<FlashCard>> watchAllCards() {
+    return _isar.flashCards.where().watch(fireImmediately: true);
+  }
+
   Stream<List<Deck>> watchAllDecks() {
     return _isar.decks.where().watch(fireImmediately: true).asyncMap((decks) async {
       for (final deck in decks) {

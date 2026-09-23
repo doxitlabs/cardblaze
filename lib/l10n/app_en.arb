@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "en",
 
   "appName": "CardBlaze",
@@ -130,14 +130,6 @@
   "no_cards_title": "No Cards",
   "no_cards_body": "Add cards manually or use AI Generate.",
   "no_cards_body_ai": "Use AI Generate to create cards from text, topic or document.",
-  "edit_card_title": "Edit card",
-  "new_card_title": "New card",
-  "front_label": "Question (front)",
-  "front_hint": "Enter question...",
-  "back_label": "Answer (back)",
-  "back_hint": "Enter answer...",
-  "save_changes_btn": "Save changes",
-  "save_card_btn": "Save card",
   "name_label": "Name",
   "streak_motivation_0": "Start today and build a habit!",
   "streak_motivation_low": "Great start — keep going!",
@@ -178,5 +170,13 @@
 
   "deck_all_learned": "All learned",
   "answered_label": "Answered:",
-  "pending_label": "pending"
+  "pending_label": "pending",
+  "study_reset_title": "Start over?",
+  "study_reset_body": "All cards in this deck are learned ({count}). Studying again will reset their progress. Continue?",
+  "@study_reset_body": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "study_reset_confirm": "Start over"
 }

@@ -4,13 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:cardblaze/models/deck.dart';
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
-import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/services/isar_service.dart';
-import 'package:cardblaze/services/premium_service.dart';
 import 'package:cardblaze/services/pdf_export_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
+import 'package:cardblaze/widgets/math_text.dart';
 import 'package:share_plus/share_plus.dart';
 
 // ── DeckDetailScreen ──────────────────────────────────────────────────────────
@@ -216,34 +215,6 @@ class _DeckScreen extends ConsumerWidget {
     }
   }
 
-  void _showCardSheet(
-    BuildContext context,
-    WidgetRef ref, {
-    required FlashCard? existingCard,
-  }) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _CardFormSheet(
-        deckId: deckId,
-        existingCard: existingCard,
-        onSaved: () {
-          ref.read(cardsRefreshProvider.notifier).state++;
-          ref.invalidate(cardsStreamProvider(deckId));
-          ref.invalidate(deckStreamProvider(deckId));
-          ref.invalidate(deckDueCountProvider(deckId));
-          ref.invalidate(decksStreamProvider);
-          ref.invalidate(allDecksProvider);
-        },
-      ),
-    );
-  }
-
-  void _showEditCard(BuildContext context, WidgetRef ref, FlashCard card) {
-    _showCardSheet(context, ref, existingCard: card);
-  }
-
   Future<void> _deleteCard(WidgetRef ref, FlashCard card) async {
     await ref.read(isarServiceProvider).deleteCard(card.id);
     ref.read(cardsRefreshProvider.notifier).state++;
@@ -265,9 +236,7 @@ class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final now = DateTime.now();
-    final dueCount = cards.where((c) => !c.dueDate.isAfter(now)).length;
-    final learnedCount = cards.where((c) => c.repetitions >= 1 && c.dueDate.isAfter(now)).length;
+    final (total: _, learned: learnedCount, due: dueCount) = deckProgress(cards);
     final surface = AppColors.surface(context);
     final border = AppColors.border(context);
 
@@ -376,6 +345,34 @@ class _StudyNowButton extends StatelessWidget {
   final int deckId;
   final List<FlashCard> cards;
 
+  // StudyScreen shows only cards that are not learned yet. When every card is
+  // learned it starts over and resets all progress — warn before that.
+  Future<void> _startStudy(BuildContext context) async {
+    final progress = deckProgress(cards);
+    if (progress.learned == progress.total) {
+      final l = AppLocalizations.of(context);
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.study_reset_title),
+          content: Text(l.study_reset_body(progress.learned)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.study_reset_confirm),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    if (context.mounted) context.push('/study/$deckId');
+  }
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
@@ -384,7 +381,7 @@ class _StudyNowButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: cards.isEmpty ? null : () => context.push('/study/$deckId'),
+        onPressed: cards.isEmpty ? null : () => _startStudy(context),
         icon: const Icon(Icons.play_arrow),
         label: Text(
           dueCount > 0
@@ -435,7 +432,6 @@ class _CardTile extends StatelessWidget {
 
     final surface = AppColors.surface(context);
     final border = AppColors.border(context);
-    final textMuted = AppColors.textMuted(context);
 
     return Dismissible(
       key: ValueKey(card.id),
@@ -463,7 +459,7 @@ class _CardTile extends StatelessWidget {
             Icon(statusIcon, size: 20, color: statusColor),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
+              child: MathText(
                 card.front,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w600,
@@ -518,155 +514,6 @@ class _EmptyCards extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-// ── Card form bottom sheet (add / edit) ───────────────────────────────────────
-
-class _CardFormSheet extends ConsumerStatefulWidget {
-  const _CardFormSheet({
-    required this.deckId,
-    required this.onSaved,
-    this.existingCard,
-  });
-
-  final int deckId;
-  final FlashCard? existingCard;
-  final VoidCallback onSaved;
-
-  @override
-  ConsumerState<_CardFormSheet> createState() => _CardFormSheetState();
-}
-
-class _CardFormSheetState extends ConsumerState<_CardFormSheet> {
-  late final TextEditingController _frontCtrl;
-  late final TextEditingController _backCtrl;
-  bool _saving = false;
-
-  bool get _isEditing => widget.existingCard != null;
-
-  @override
-  void initState() {
-    super.initState();
-    _frontCtrl = TextEditingController(text: widget.existingCard?.front ?? '');
-    _backCtrl = TextEditingController(text: widget.existingCard?.back ?? '');
-  }
-
-  @override
-  void dispose() {
-    _frontCtrl.dispose();
-    _backCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final surface = AppColors.surface(context);
-    final border = AppColors.border(context);
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
-
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottom),
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        border: Border(top: BorderSide(color: border)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-          ),
-          Text(
-            _isEditing
-                ? AppLocalizations.of(context).edit_card_title
-                : AppLocalizations.of(context).new_card_title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: _frontCtrl,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).front_label,
-              hintText: AppLocalizations.of(context).front_hint,
-              alignLabelWithHint: true,
-            ),
-            maxLines: 4,
-            minLines: 2,
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _backCtrl,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context).back_label,
-              hintText: AppLocalizations.of(context).back_hint,
-              alignLabelWithHint: true,
-            ),
-            maxLines: 4,
-            minLines: 2,
-            textCapitalization: TextCapitalization.sentences,
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _saving ? null : _save,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: Text(
-                _isEditing
-                    ? AppLocalizations.of(context).save_changes_btn
-                    : AppLocalizations.of(context).save_card_btn,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _save() async {
-    final front = _frontCtrl.text.trim();
-    final back = _backCtrl.text.trim();
-    if (front.isEmpty || back.isEmpty) return;
-    setState(() => _saving = true);
-
-    final service = ref.read(isarServiceProvider);
-    if (_isEditing) {
-      widget.existingCard!
-        ..front = front
-        ..back = back;
-      await service.saveCard(widget.existingCard!);
-    } else {
-      final now = DateTime.now();
-      final card = FlashCard()
-        ..deckId = widget.deckId
-        ..front = front
-        ..back = back
-        ..createdAt = now
-        ..dueDate = now;
-      await service.saveCard(card);
-    }
-
-    if (mounted) {
-      widget.onSaved();
-      Navigator.pop(context);
-    }
   }
 }
 

@@ -157,10 +157,9 @@ class _PendingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final statsAsync = ref.watch(totalLearnedPendingProvider);
-    final stats = statsAsync.valueOrNull;
+    final stats = ref.watch(totalProgressProvider).valueOrNull;
     final learned = stats?.learned ?? 0;
-    final pending = stats?.pending ?? 0;
+    final pending = stats?.due ?? 0;
     final total = learned + pending;
     if (total == 0) return const SizedBox.shrink();
 
@@ -273,21 +272,17 @@ class _DeckListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dueAsync = ref.watch(deckDueCountProvider(deck.id));
-    final wrongAsync = ref.watch(deckWrongCountProvider(deck.id));
-    final hasSessionAsync = ref.watch(deckHasSessionProvider(deck.id));
-    final totalAsync = ref.watch(deckTotalCountProvider(deck.id));
+    // Live from the cards' SM2 state — same numbers as the deck detail screen,
+    // updated after every answer (also when a session is left midway).
+    final progress = ref.watch(deckProgressProvider(deck.id)).valueOrNull;
     final surface = AppColors.surface(context);
     final border = AppColors.border(context);
     final textMuted = AppColors.textMuted(context);
 
-    final dueCount = dueAsync.valueOrNull ?? 0;
-    final wrongCount = wrongAsync.valueOrNull ?? 0;
-    final hasSession = hasSessionAsync.valueOrNull ?? false;
-    final totalCount = totalAsync.valueOrNull ?? 0;
-    // naučeno = total - wrongCount (only meaningful after first session)
-    final learnedCount = hasSession ? (totalCount - wrongCount).clamp(0, totalCount) : 0;
-    final pendingCount = hasSession ? wrongCount : totalCount;
+    final dueCount = progress?.due ?? 0;
+    final totalCount = progress?.total ?? 0;
+    final learnedCount = progress?.learned ?? 0;
+    final allLearned = totalCount > 0 && learnedCount == totalCount;
 
     return GestureDetector(
       onTap: () => context.push('/deck/${deck.id}'),
@@ -325,11 +320,9 @@ class _DeckListTile extends ConsumerWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    (!hasSession)
-                        ? AppLocalizations.of(context).deck_subtitle(0, totalCount)
-                        : (wrongCount == 0)
-                            ? AppLocalizations.of(context).deck_all_learned
-                            : AppLocalizations.of(context).deck_subtitle(learnedCount, pendingCount),
+                    allLearned
+                        ? AppLocalizations.of(context).deck_all_learned
+                        : AppLocalizations.of(context).deck_subtitle(learnedCount, dueCount),
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall

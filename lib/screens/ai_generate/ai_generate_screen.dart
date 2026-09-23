@@ -11,6 +11,7 @@ import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/rate_limit_service.dart';
 import 'package:cardblaze/services/pdf_service.dart';
 import 'package:cardblaze/services/premium_service.dart';
+import 'package:cardblaze/widgets/math_text.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,6 +133,8 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     }
     final requestedCount = _cardCount > remainingCapacity ? remainingCapacity : _cardCount;
 
+    if (!mounted) return;
+    final language = Localizations.localeOf(context).languageCode;
     setState(() {
       _isLoading = true;
       _preview = [];
@@ -145,7 +148,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         requestedCount,
         mode,
         isPremium: isPremium,
-        language: Localizations.localeOf(context).languageCode,
+        language: language,
       );
       setState(() => _setPreview(cards));
       ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = cards.isNotEmpty;
@@ -157,7 +160,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         if (mounted) await showUpgradeDialog(context);
       }
     } on TextTooLongException catch (e) {
-      _showError(AppLocalizations.of(context).error_text_too_long_pro(e.maxChars));
+      if (mounted) _showError(AppLocalizations.of(context).error_text_too_long_pro(e.maxChars));
     } on GroqException catch (e) {
       _showError(e.message);
     } catch (e) {
@@ -583,7 +586,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
             ),
           ),
         ),
-        title: Text(
+        title: MathText(
           _frontCtrl[i].text,
           style: Theme.of(context).textTheme.bodyLarge,
           maxLines: 2,
@@ -685,6 +688,7 @@ class _EditableField extends StatelessWidget {
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           ),
         ),
+        MathPreview(controller: controller),
       ],
     );
   }

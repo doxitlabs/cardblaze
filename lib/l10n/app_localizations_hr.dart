@@ -372,30 +372,6 @@ class AppLocalizationsHr extends AppLocalizations {
       'Koristi AI Generate za kreiranje kartica iz teksta, teme ili dokumenta.';
 
   @override
-  String get edit_card_title => 'Uredi karticu';
-
-  @override
-  String get new_card_title => 'Nova kartica';
-
-  @override
-  String get front_label => 'Pitanje (front)';
-
-  @override
-  String get front_hint => 'Unesi pitanje...';
-
-  @override
-  String get back_label => 'Odgovor (back)';
-
-  @override
-  String get back_hint => 'Unesi odgovor...';
-
-  @override
-  String get save_changes_btn => 'Spremi izmjene';
-
-  @override
-  String get save_card_btn => 'Spremi karticu';
-
-  @override
   String get name_label => 'Naziv';
 
   @override
@@ -510,4 +486,15 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get pending_label => 'na čekanju';
+
+  @override
+  String get study_reset_title => 'Krenuti ispočetka?';
+
+  @override
+  String study_reset_body(int count) {
+    return 'Sve kartice u ovom decku su naučene ($count). Novo učenje poništit će njihov napredak. Nastaviti?';
+  }
+
+  @override
+  String get study_reset_confirm => 'Kreni ispočetka';
 }

@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "it",
 
   "appName": "CardBlaze",
@@ -118,14 +118,6 @@
   "no_cards_title": "Nessuna carta",
   "no_cards_body": "Aggiungi carte manualmente o usa AI Generate.",
   "no_cards_body_ai": "Usa AI Generate per creare carte da testo, argomento o documento.",
-  "edit_card_title": "Modifica carta",
-  "new_card_title": "Nuova carta",
-  "front_label": "Domanda (fronte)",
-  "front_hint": "Inserisci domanda...",
-  "back_label": "Risposta (retro)",
-  "back_hint": "Inserisci risposta...",
-  "save_changes_btn": "Salva modifiche",
-  "save_card_btn": "Salva carta",
   "name_label": "Nome",
   "streak_motivation_0": "Inizia oggi e costruisci un'abitudine!",
   "streak_motivation_low": "Ottimo inizio — continua così!",
@@ -166,5 +158,8 @@
 
   "deck_all_learned": "Tutto imparato",
   "answered_label": "Risposto:",
-  "pending_label": "in attesa"
+  "pending_label": "in attesa",
+  "study_reset_title": "Ricominciare?",
+  "study_reset_body": "Tutte le carte di questo deck sono imparate ({count}). Studiare di nuovo azzererà i loro progressi. Continuare?",
+  "study_reset_confirm": "Ricomincia"
 }

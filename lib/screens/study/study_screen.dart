@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cardblaze/screens/stats/stats_screen.dart';
 import 'package:cardblaze/services/widget_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
+import 'package:cardblaze/widgets/math_text.dart';
 
 class StudyScreen extends ConsumerStatefulWidget {
   const StudyScreen({super.key, required this.deckId});
@@ -27,8 +28,6 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
   List<FlashCard> _allCards = [];
   // Current round queue — starts as all cards, then only wrong answers
   List<FlashCard> _queue = [];
-  // Cards answered wrong in current round
-  List<FlashCard> _wrongThisRound = [];
   int _index = 0;
   bool _loading = true;
   bool _optionsLoading = false;
@@ -48,24 +47,22 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     _loadCards();
   }
 
-  static String _wrongKey(int deckId) => 'wrong_cards_$deckId';
-
   Future<void> _loadCards() async {
     final id = int.tryParse(widget.deckId) ?? 0;
     final isar = ref.read(isarServiceProvider);
     final all = await isar.getCardsForDeck(id);
 
-    // Check for saved wrong IDs from previous session
-    final prefs = await SharedPreferences.getInstance();
-    final savedWrong = prefs.getStringList(_wrongKey(id));
+    // Study only cards that are not learned yet (answered wrong, never
+    // answered, or due again). Every answer is saved immediately, so this
+    // also resumes correctly after leaving a session midway.
+    final pending = all.where((c) => !isCardLearned(c)).toList();
 
     List<FlashCard> queue;
-    if (savedWrong != null && savedWrong.isNotEmpty) {
-      final wrongIds = savedWrong.map(int.parse).toSet();
-      final wrongCards = all.where((c) => wrongIds.contains(c.id)).toList()..shuffle(Random());
-      queue = wrongCards.isNotEmpty ? wrongCards : (List.from(all)..shuffle(Random()));
+    if (pending.isNotEmpty) {
+      queue = pending..shuffle(Random());
     } else {
-      // Fresh session — reset SM2 so cards behave like new
+      // Every card is learned — start over (DeckDetailScreen warns about
+      // this before opening the session). Reset SM2 so cards behave like new.
       await isar.resetCardsForDeck(id);
       final fresh = await isar.getCardsForDeck(id);
       fresh.shuffle(Random());
@@ -75,7 +72,6 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     setState(() {
       _allCards = queue.length == all.length ? queue : all;
       _queue = queue;
-      _wrongThisRound = [];
       _index = 0;
       _loading = false;
     });
@@ -124,7 +120,6 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       _correctCount++;
     } else {
       _incorrectCount++;
-      _wrongThisRound.add(card);
     }
 
     final rated = sm2Service.applyRating(card, correct ? 2 : 0);
@@ -148,16 +143,9 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     final id = int.tryParse(widget.deckId) ?? 0;
 
     final prefs = await SharedPreferences.getInstance();
-
-    // Save wrong card IDs for next session (or clear if all correct)
-    if (_wrongThisRound.isEmpty) {
-      await prefs.remove(_wrongKey(id));
-    } else {
-      await prefs.setStringList(
-        _wrongKey(id),
-        _wrongThisRound.map((c) => c.id.toString()).toList(),
-      );
-    }
+    // Legacy: wrong card IDs used to be stored here; progress now comes from
+    // the cards' SM2 state, so drop any leftover list.
+    await prefs.remove('wrong_cards_$id');
 
     // Clear AI recap cache so it regenerates after this session
     final now2 = DateTime.now();
@@ -290,7 +278,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
+                    MathText(
                       card.front,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -402,7 +390,7 @@ class _OptionTile extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
+                child: MathText(
                   text,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,

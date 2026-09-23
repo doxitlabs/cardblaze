@@ -32,6 +32,15 @@ class GroqService {
   static const _anonKey = 'sb_publishable_0ibllJ0g4i7n5cfOM3nnsg_wZIFOfLW';
   static const _model = 'openai/gpt-oss-120b';
 
+  // Formulas are rendered in-app by MathText (flutter_math_fork), which
+  // expects LaTeX between $...$ (inline) or $$...$$ (standalone).
+  static const _mathRules =
+      'If a question or answer contains any mathematical, physical or chemical formula, equation, fraction, root, exponent, index or symbol, '
+      r'write that part in LaTeX wrapped in single dollar signs, e.g. $\frac{a}{b}$, $x^{2}$, $\sqrt{2}$, $H_{2}O$, $\int_0^1 x\,dx$. '
+      'Use dollar signs ONLY around math — never for currency or anything else. Keep normal words outside the dollar signs. '
+      r'Inside JSON strings every LaTeX backslash MUST be doubled (write \\frac, \\sqrt, \\alpha).'
+      '\n';
+
   static const _freeMaxChars = 2500;
   static const _proMaxChars = 5000;
 
@@ -62,10 +71,11 @@ class GroqService {
         : '';
     final langInstruction =
         'Write all questions and answers in $langName. Use correct $langName grammar, natural phrasing, and proper sentence structure — not a literal translation. $extraHr';
-    const jsonRules = 'IMPORTANT: Return ONLY a valid JSON array. Do NOT use quotation marks or apostrophes inside the text values — rephrase to avoid them. No markdown, no code blocks, no extra text.\n';
+    const jsonRules = 'IMPORTANT: Return ONLY a valid JSON array. Do NOT use quotation marks or apostrophes inside the text values — rephrase to avoid them. No markdown, no code blocks, no extra text.\n'
+        '$_mathRules';
     if (mode == 'text') {
       return '${langInstruction}Analyze the following text and generate exactly $count flashcards.\n'
-          '${jsonRules}'
+          '$jsonRules'
           '[{"front": "question", "back": "answer"}, ...]\n'
           'Questions should be clear and specific.\n'
           'Answers should be short and precise (1-2 sentences).\n'
@@ -74,7 +84,7 @@ class GroqService {
     return '${langInstruction}Generate as close to $count flashcards as the topic allows — stop only if the topic genuinely has no more distinct facts to cover.\n'
         'Topic: "$input"\n'
         'Every question and answer must be directly and specifically about "$input" — do NOT drift to broader or related topics.\n'
-        '${jsonRules}'
+        '$jsonRules'
         '[{"front": "question", "back": "answer"}, ...]\n'
         'Cover specific facts, dates, names, causes and consequences related only to "$input".';
   }
@@ -117,6 +127,8 @@ class GroqService {
           'CRITICAL: Write each wrong answer in the SAME language as that card\'s correct answer ("a" field) — detect the language automatically per card.\n'
           'Wrong answers must look realistic — vary numbers, dates, names, swap cause/effect, etc.\n'
           'NEVER repeat the correct answer. Keep wrong answers the same length/style as the correct answer.\n'
+          r'If the correct answer contains LaTeX between $...$, write the wrong answers in the same LaTeX format (e.g. vary exponents, signs, coefficients). Double every backslash inside JSON strings.'
+          '\n'
           'Return ONLY a valid JSON array with exactly ${batch.length} entries, no extra text:\n'
           '[{"i":0,"w":["wrong1","wrong2"]},{"i":1,"w":["wrong1","wrong2"]},...]\n'
           'Cards: [$items]';
@@ -254,6 +266,24 @@ class GroqService {
         .replaceAll('‘', "'").replaceAll('’', "'")
         // Replace Croatian/other typographic apostrophes
         .replaceAll('ʼ', "'").replaceAll('′', "'")
-        .trim();
+        .trim()
+        .replaceAllMapped(_singleBackslash, _escapeLatexBackslash);
+  }
+
+  // A lone backslash (not part of an already-escaped \\) followed by letters.
+  static final _singleBackslash = RegExp(r'(?<!\\)((?:\\\\)*)\\([a-zA-Z]+)');
+
+  // Models often emit LaTeX with single backslashes inside JSON strings.
+  // Then \frac, \times, \neq, \beta silently decode as form-feed / tab /
+  // newline / backspace, and \sqrt, \alpha make jsonDecode throw. Double the
+  // backslash for anything that looks like a LaTeX command, keeping real
+  // JSON escapes (\n, \t, \uXXXX followed by a non-letter or sentence text).
+  static String _escapeLatexBackslash(Match m) {
+    final prefix = m.group(1)!;
+    final word = m.group(2)!;
+    final isJsonEscape = (word.length == 1 && 'bfnrt'.contains(word)) ||
+        ('bfnrt'.contains(word[0]) && word[1].toUpperCase() == word[1]) ||
+        (word == 'u' || word.startsWith('u') && RegExp(r'^u[0-9a-fA-F]{4}').hasMatch(word));
+    return isJsonEscape ? m[0]! : '$prefix\\\\$word';
   }
 }

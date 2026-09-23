@@ -371,30 +371,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Usa AI Generate per creare carte da testo, argomento o documento.';
 
   @override
-  String get edit_card_title => 'Modifica carta';
-
-  @override
-  String get new_card_title => 'Nuova carta';
-
-  @override
-  String get front_label => 'Domanda (fronte)';
-
-  @override
-  String get front_hint => 'Inserisci domanda...';
-
-  @override
-  String get back_label => 'Risposta (retro)';
-
-  @override
-  String get back_hint => 'Inserisci risposta...';
-
-  @override
-  String get save_changes_btn => 'Salva modifiche';
-
-  @override
-  String get save_card_btn => 'Salva carta';
-
-  @override
   String get name_label => 'Nome';
 
   @override
@@ -509,4 +485,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get pending_label => 'in attesa';
+
+  @override
+  String get study_reset_title => 'Ricominciare?';
+
+  @override
+  String study_reset_body(int count) {
+    return 'Tutte le carte di questo deck sono imparate ($count). Studiare di nuovo azzererà i loro progressi. Continuare?';
+  }
+
+  @override
+  String get study_reset_confirm => 'Ricomincia';
 }
