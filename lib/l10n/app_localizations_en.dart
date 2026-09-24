@@ -494,4 +494,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get study_reset_confirm => 'Start over';
+
+  @override
+  String get notif_reminder_body => '📚 Time to study! Your cards are waiting.';
+
+  @override
+  String get notif_channel_name => 'Daily reminder';
+
+  @override
+  String get notif_channel_desc => 'Daily study reminder';
+
+  @override
+  String get ai_error_network =>
+      'No internet connection. Check your connection and try again.';
+
+  @override
+  String get ai_error_failed => 'AI generation failed. Please try again.';
+
+  @override
+  String ai_daily_limit_reached(int limit, int used) {
+    return 'Daily limit of $limit generations reached ($used/$limit). Upgrade to Pro for unlimited generation.';
+  }
+
+  @override
+  String get error_loading_decks => 'Error loading decks';
+
+  @override
+  String ai_preview_title(int count) {
+    return 'Preview ($count cards)';
+  }
+
+  @override
+  String get open_in_browser => 'Open in browser';
+
+  @override
+  String get recap_blur_placeholder =>
+      'You made great progress this week! Your accuracy went up and your streak continues. Focus on the harder cards next.';
+
+  @override
+  String get error_document_read =>
+      'Could not read the document. Make sure it is a valid PDF or DOCX file.';
+
+  @override
+  String get color_blue => 'Blue';
+
+  @override
+  String get color_green => 'Green';
+
+  @override
+  String get color_purple => 'Purple';
+
+  @override
+  String get color_orange => 'Orange';
+
+  @override
+  String get color_teal => 'Teal';
+
+  @override
+  String get color_pink => 'Pink';
+
+  @override
+  String price_per_month(String price) {
+    return '$price/mo';
+  }
+
+  @override
+  String price_per_year(String price) {
+    return '$price/yr';
+  }
 }

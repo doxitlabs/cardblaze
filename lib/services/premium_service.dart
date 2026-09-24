@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // ─── Product IDs ──────────────────────────────────────────────────────────────
 
@@ -21,13 +20,19 @@ class PremiumLimits {
 // ─── PremiumService ───────────────────────────────────────────────────────────
 
 class PremiumService {
-  static const String _entitlementId = 'pro';
-  static const String _apiKey = 'YOUR_RC_API_KEY';
+  // Entitlement identifier as defined in the RevenueCat dashboard.
+  static const String entitlementId = 'cardblaze_pro';
+
+  // Dev builds use RevenueCat's Test Store (simulated purchases, no Play
+  // Console needed); the Play Store build uses the Google Play public key.
+  static const String _testStoreApiKey = 'test_BWxepqviwgugxcmMZVgrYIsrrEj';
+  static const String _googlePlayApiKey = 'YOUR_RC_GOOGLE_API_KEY';
+  static const String _apiKey = isDevBuild ? _testStoreApiKey : _googlePlayApiKey;
 
   final _statusController = StreamController<bool>.broadcast();
 
   static Future<void> init() async {
-    await Purchases.setLogLevel(LogLevel.debug);
+    await Purchases.setLogLevel(isDevBuild ? LogLevel.debug : LogLevel.warn);
     final config = PurchasesConfiguration(_apiKey);
     await Purchases.configure(config);
   }
@@ -35,38 +40,27 @@ class PremiumService {
   Stream<bool> get premiumStatus async* {
     yield await isPremium();
 
-    void listener(CustomerInfo info) {
-      if (!_statusController.isClosed) {
-        _statusController.add(
-          info.entitlements.active.containsKey(_entitlementId),
-        );
-      }
-    }
+    void listener(CustomerInfo info) => _emit(info);
     Purchases.addCustomerInfoUpdateListener(listener);
     yield* _statusController.stream;
     Purchases.removeCustomerInfoUpdateListener(listener);
   }
 
-  static const _devProKey = 'dev_pro_enabled';
-
-  static Future<bool> isDevProEnabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_devProKey) ?? false;
+  void _emit(CustomerInfo info) {
+    if (!_statusController.isClosed) {
+      _statusController.add(info.entitlements.active.containsKey(entitlementId));
+    }
   }
 
-  static Future<bool> toggleDevPro() async {
-    final prefs = await SharedPreferences.getInstance();
-    final current = prefs.getBool(_devProKey) ?? false;
-    await prefs.setBool(_devProKey, !current);
-    return !current;
-  }
+  // True only for local builds made with --dart-define=CARDBLAZE_DEV=true —
+  // they use RevenueCat's Test Store, where Pro is tested via a simulated
+  // purchase. Compile-time constant, so the Play build can't be switched.
+  static const isDevBuild = bool.fromEnvironment('CARDBLAZE_DEV');
 
   Future<bool> isPremium() async {
-    final devPro = await isDevProEnabled();
-    if (devPro) return true;
     try {
       final info = await Purchases.getCustomerInfo();
-      return info.entitlements.active.containsKey(_entitlementId);
+      return info.entitlements.active.containsKey(entitlementId);
     } catch (_) {
       return false;
     }
@@ -77,35 +71,8 @@ class PremiumService {
     try {
       final result = await Purchases.purchasePackage(package);
       final info = result.customerInfo;
-      _statusController.add(
-        info.entitlements.active.containsKey(_entitlementId),
-      );
+      _emit(info);
       return info;
-    } on PurchasesErrorCode catch (_) {
-      return null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<CustomerInfo?> purchaseMonthly() =>
-      _purchaseById(PremiumProductIds.monthly);
-
-  Future<CustomerInfo?> purchaseYearly() =>
-      _purchaseById(PremiumProductIds.yearly);
-
-  Future<CustomerInfo?> _purchaseById(String productId) async {
-    try {
-      final offerings = await Purchases.getOfferings();
-      final packages = offerings.current?.availablePackages ?? [];
-      final pkg = packages.firstWhere(
-        (p) => p.storeProduct.identifier == productId,
-        orElse: () {
-          if (packages.isEmpty) throw Exception('No packages available');
-          return packages.first;
-        },
-      );
-      return purchase(pkg);
     } on PurchasesErrorCode catch (_) {
       return null;
     } catch (_) {
@@ -116,9 +83,7 @@ class PremiumService {
   Future<CustomerInfo?> restorePurchases() async {
     try {
       final result = await Purchases.restorePurchases();
-      _statusController.add(
-        result.entitlements.active.containsKey(_entitlementId),
-      );
+      _emit(result);
       return result;
     } catch (_) {
       return null;

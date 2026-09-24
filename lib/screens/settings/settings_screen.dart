@@ -301,8 +301,6 @@ class _AboutTile extends ConsumerStatefulWidget {
 
 class _AboutTileState extends ConsumerState<_AboutTile> {
   String _version = '...';
-  int _tapCount = 0;
-  bool _devPro = false;
 
   @override
   void initState() {
@@ -312,24 +310,6 @@ class _AboutTileState extends ConsumerState<_AboutTile> {
         setState(() => _version = '${info.version} (${info.buildNumber})');
       }
     });
-    PremiumService.isDevProEnabled().then((v) {
-      if (mounted) setState(() => _devPro = v);
-    });
-  }
-
-  Future<void> _onTap() async {
-    _tapCount++;
-    if (_tapCount >= 7) {
-      _tapCount = 0;
-      final enabled = await PremiumService.toggleDevPro();
-      if (!mounted) return;
-      setState(() => _devPro = enabled);
-      ref.invalidate(isPremiumProvider);
-      ref.invalidate(premiumStatusProvider);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(enabled ? '🔓 Dev Pro ON' : '🔒 Dev Pro OFF')),
-      );
-    }
   }
 
   @override
@@ -338,8 +318,7 @@ class _AboutTileState extends ConsumerState<_AboutTile> {
     return ListTile(
       leading: const _IconBox(icon: Icons.info_outline),
       title: Text(l.about),
-      subtitle: Text('CardBlaze $_version · DoxITLabs${_devPro ? ' 🔓' : ''}'),
-      onTap: _onTap,
+      subtitle: Text('CardBlaze $_version · DoxITLabs'),
     );
   }
 }
@@ -402,7 +381,7 @@ class _SubscriptionTab extends ConsumerWidget {
     if (!context.mounted) return;
     final l = AppLocalizations.of(context);
     if (result != null) {
-      final active = result.entitlements.active.containsKey('pro');
+      final active = result.entitlements.active.containsKey(PremiumService.entitlementId);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(active ? l.restore_snack_success : l.restore_snack_none),
@@ -450,13 +429,13 @@ class _PremiumCard extends ConsumerWidget {
   Package? get _monthly => packages
       .where((p) =>
           p.packageType == PackageType.monthly ||
-          p.storeProduct.identifier == 'cardblaze_pro_monthly')
+          p.storeProduct.identifier.startsWith(PremiumProductIds.monthly))
       .firstOrNull;
 
   Package? get _yearly => packages
       .where((p) =>
           p.packageType == PackageType.annual ||
-          p.storeProduct.identifier == 'cardblaze_pro_yearly')
+          p.storeProduct.identifier.startsWith(PremiumProductIds.yearly))
       .firstOrNull;
 
   @override
@@ -547,7 +526,9 @@ class _PremiumCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: _PriceButton(
-                    label: _monthly?.storeProduct.priceString ?? '€4,99/mj',
+                    label: _monthly != null
+                        ? AppLocalizations.of(context).price_per_month(_monthly!.storeProduct.priceString)
+                        : '—',
                     featured: false,
                     onTap: _monthly != null
                         ? () => _purchase(context, ref, _monthly!)
@@ -557,7 +538,9 @@ class _PremiumCard extends ConsumerWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _PriceButton(
-                    label: _yearly?.storeProduct.priceString ?? '€29,99/god',
+                    label: _yearly != null
+                        ? AppLocalizations.of(context).price_per_year(_yearly!.storeProduct.priceString)
+                        : '—',
                     featured: true,
                     onTap: _yearly != null
                         ? () => _purchase(context, ref, _yearly!)
@@ -604,7 +587,7 @@ class _PremiumCard extends ConsumerWidget {
     final svc = ref.read(premiumServiceProvider);
     final result = await svc.purchase(package);
     if (!context.mounted) return;
-    if (result != null && result.entitlements.active.containsKey('pro')) {
+    if (result != null && result.entitlements.active.containsKey(PremiumService.entitlementId)) {
       ref.invalidate(isPremiumProvider);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).pro_welcome)),

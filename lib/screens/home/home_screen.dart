@@ -9,23 +9,23 @@ import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/premium_service.dart';
 import 'package:cardblaze/services/widget_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
+import 'package:cardblaze/theme/deck_colors.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 
 // ── M-04 deck color palette (6 options) ──────────────────────────────────────
 
 const _kColorOptions = [
-  _ColorOption(hex: '4A9EFF', label: 'Plava'),
-  _ColorOption(hex: '43A047', label: 'Zelena'),
-  _ColorOption(hex: '7B4FA0', label: 'Ljubičasta'),
-  _ColorOption(hex: 'F57C00', label: 'Narančasta'),
-  _ColorOption(hex: '00ACC1', label: 'Tirkizna'),
-  _ColorOption(hex: 'E91E63', label: 'Roza'),
+  _ColorOption(hex: '4A9EFF'),
+  _ColorOption(hex: '43A047'),
+  _ColorOption(hex: '7B4FA0'),
+  _ColorOption(hex: 'F57C00'),
+  _ColorOption(hex: '00ACC1'),
+  _ColorOption(hex: 'E91E63'),
 ];
 
 class _ColorOption {
-  const _ColorOption({required this.hex, required this.label});
+  const _ColorOption({required this.hex});
   final String hex;
-  final String label;
 }
 
 // ── HomeScreen ────────────────────────────────────────────────────────────────
@@ -80,7 +80,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           : null,
       body: decksAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context).error_generic('$e'))),
         data: (allDecks) {
           final decks = allDecks
               .where((d) => d.language == null || d.language == locale)
@@ -535,7 +535,7 @@ class _DeckFormSheetState extends ConsumerState<_DeckFormSheet> {
               return GestureDetector(
                 onTap: () => setState(() => _selectedHex = opt.hex),
                 child: Tooltip(
-                  message: opt.label,
+                  message: deckColorName(AppLocalizations.of(context), opt.hex),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     width: 44,

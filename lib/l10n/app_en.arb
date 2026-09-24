@@ -178,5 +178,45 @@
       "count": { "type": "int" }
     }
   },
-  "study_reset_confirm": "Start over"
+  "study_reset_confirm": "Start over",
+  "notif_reminder_body": "📚 Time to study! Your cards are waiting.",
+  "notif_channel_name": "Daily reminder",
+  "notif_channel_desc": "Daily study reminder",
+  "ai_error_network": "No internet connection. Check your connection and try again.",
+  "ai_error_failed": "AI generation failed. Please try again.",
+  "ai_daily_limit_reached": "Daily limit of {limit} generations reached ({used}/{limit}). Upgrade to Pro for unlimited generation.",
+  "@ai_daily_limit_reached": {
+    "placeholders": {
+      "limit": { "type": "int" },
+      "used": { "type": "int" }
+    }
+  },
+  "error_loading_decks": "Error loading decks",
+  "ai_preview_title": "Preview ({count} cards)",
+  "@ai_preview_title": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "open_in_browser": "Open in browser",
+  "recap_blur_placeholder": "You made great progress this week! Your accuracy went up and your streak continues. Focus on the harder cards next.",
+  "error_document_read": "Could not read the document. Make sure it is a valid PDF or DOCX file.",
+  "color_blue": "Blue",
+  "color_green": "Green",
+  "color_purple": "Purple",
+  "color_orange": "Orange",
+  "color_teal": "Teal",
+  "color_pink": "Pink",
+  "price_per_month": "{price}/mo",
+  "@price_per_month": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  },
+  "price_per_year": "{price}/yr",
+  "@price_per_year": {
+    "placeholders": {
+      "price": { "type": "String" }
+    }
+  }
 }

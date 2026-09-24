@@ -26,7 +26,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.open_in_browser_outlined),
-            tooltip: 'Open in browser',
+            tooltip: l.open_in_browser,
             onPressed: () => launchUrl(
               Uri.parse('https://doxitlabs.github.io/cardblaze-privacy/'),
               mode: LaunchMode.externalApplication,

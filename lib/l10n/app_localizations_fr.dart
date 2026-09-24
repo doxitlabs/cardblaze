@@ -500,4 +500,73 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get study_reset_confirm => 'Recommencer';
+
+  @override
+  String get notif_reminder_body =>
+      '📚 C\'est l\'heure de réviser ! Tes cartes t\'attendent.';
+
+  @override
+  String get notif_channel_name => 'Rappel quotidien';
+
+  @override
+  String get notif_channel_desc => 'Rappel quotidien de révision';
+
+  @override
+  String get ai_error_network =>
+      'Pas de connexion Internet. Vérifie ta connexion et réessaie.';
+
+  @override
+  String get ai_error_failed => 'La génération IA a échoué. Réessaie.';
+
+  @override
+  String ai_daily_limit_reached(int limit, int used) {
+    return 'Limite quotidienne de $limit générations atteinte ($used/$limit). Passe à Pro pour une génération illimitée.';
+  }
+
+  @override
+  String get error_loading_decks => 'Erreur lors du chargement des decks';
+
+  @override
+  String ai_preview_title(int count) {
+    return 'Aperçu ($count cartes)';
+  }
+
+  @override
+  String get open_in_browser => 'Ouvrir dans le navigateur';
+
+  @override
+  String get recap_blur_placeholder =>
+      'Tu as fait de beaux progrès cette semaine ! Ta précision a augmenté et ta série continue. Concentre-toi sur les cartes plus difficiles.';
+
+  @override
+  String get error_document_read =>
+      'Impossible de lire le document. Vérifie qu\'il s\'agit d\'un fichier PDF ou DOCX valide.';
+
+  @override
+  String get color_blue => 'Bleu';
+
+  @override
+  String get color_green => 'Vert';
+
+  @override
+  String get color_purple => 'Violet';
+
+  @override
+  String get color_orange => 'Orange';
+
+  @override
+  String get color_teal => 'Turquoise';
+
+  @override
+  String get color_pink => 'Rose';
+
+  @override
+  String price_per_month(String price) {
+    return '$price/mois';
+  }
+
+  @override
+  String price_per_year(String price) {
+    return '$price/an';
+  }
 }

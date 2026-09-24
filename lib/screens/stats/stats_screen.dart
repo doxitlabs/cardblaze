@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cardblaze/models/study_session.dart';
 import 'package:cardblaze/providers/premium_providers.dart';
@@ -199,7 +200,7 @@ class StatsScreen extends ConsumerWidget {
       ),
       body: statsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Greška: $e')),
+        error: (e, _) => Center(child: Text(AppLocalizations.of(context).error_generic('$e'))),
         data: (stats) {
           final isPremium = isPremiumAsync.valueOrNull ?? false;
           return ListView(
@@ -381,16 +382,15 @@ class _WeeklyBarChart extends StatelessWidget {
   const _WeeklyBarChart({required this.cardsPerDay});
   final List<double> cardsPerDay;
 
-  static const _days = ['Po', 'Ut', 'Sr', 'Če', 'Pe', 'Su', 'Ne'];
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final now = DateTime.now();
-    // Labels: last 7 days in order
+    // Labels: last 7 days in order, short weekday names in the app language
+    final dayFormat = DateFormat.E(Localizations.localeOf(context).languageCode);
     final labels = List.generate(7, (i) {
       final day = now.subtract(Duration(days: 6 - i));
-      return _days[day.weekday - 1];
+      return dayFormat.format(day);
     });
 
     final maxY = cardsPerDay.reduce((a, b) => a > b ? a : b);
@@ -646,11 +646,9 @@ class _FreeRecapBlur extends StatelessWidget {
     return Stack(
       children: [
         // Placeholder text to blur
-        const Text(
-          'Ovaj tjedan si napravio odličan napredak! '
-          'Tvoja točnost je porasla i streak se nastavlja. '
-          'Preporučujem da fokusiraš na teže kartice.',
-          style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+        Text(
+          AppLocalizations.of(context).recap_blur_placeholder,
+          style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
         ),
         Positioned.fill(
           child: ClipRRect(

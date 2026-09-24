@@ -497,4 +497,72 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get study_reset_confirm => 'Kreni ispočetka';
+
+  @override
+  String get notif_reminder_body => '📚 Vrijeme za učenje! Kartice čekaju.';
+
+  @override
+  String get notif_channel_name => 'Dnevni podsjetnik';
+
+  @override
+  String get notif_channel_desc => 'Dnevni podsjetnik za učenje';
+
+  @override
+  String get ai_error_network =>
+      'Nema internetske veze. Provjeri vezu i pokušaj ponovno.';
+
+  @override
+  String get ai_error_failed => 'AI generiranje nije uspjelo. Pokušaj ponovno.';
+
+  @override
+  String ai_daily_limit_reached(int limit, int used) {
+    return 'Dnevni limit od $limit generiranja dostignut ($used/$limit). Nadogradi na Pro za neograničeno generiranje.';
+  }
+
+  @override
+  String get error_loading_decks => 'Greška pri učitavanju deckova';
+
+  @override
+  String ai_preview_title(int count) {
+    return 'Pregled ($count kartica)';
+  }
+
+  @override
+  String get open_in_browser => 'Otvori u pregledniku';
+
+  @override
+  String get recap_blur_placeholder =>
+      'Ovaj tjedan si napravio odličan napredak! Tvoja točnost je porasla i streak se nastavlja. Fokusiraj se na teže kartice.';
+
+  @override
+  String get error_document_read =>
+      'Dokument nije moguće pročitati. Provjeri je li ispravna PDF ili DOCX datoteka.';
+
+  @override
+  String get color_blue => 'Plava';
+
+  @override
+  String get color_green => 'Zelena';
+
+  @override
+  String get color_purple => 'Ljubičasta';
+
+  @override
+  String get color_orange => 'Narančasta';
+
+  @override
+  String get color_teal => 'Tirkizna';
+
+  @override
+  String get color_pink => 'Roza';
+
+  @override
+  String price_per_month(String price) {
+    return '$price/mj';
+  }
+
+  @override
+  String price_per_year(String price) {
+    return '$price/god';
+  }
 }

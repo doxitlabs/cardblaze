@@ -3,9 +3,11 @@ import 'package:http/http.dart' as http;
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:isar/isar.dart';
 
+// UI localizes by [isNetwork]; [message] is a technical detail (English).
 class GroqException implements Exception {
   final String message;
-  const GroqException(this.message);
+  final bool isNetwork;
+  const GroqException(this.message, {this.isNetwork = false});
   @override
   String toString() => 'GroqException: $message';
 }
@@ -207,11 +209,11 @@ class GroqService {
           )
           .timeout(const Duration(seconds: 30));
     } catch (e) {
-      throw GroqException('Mrežna greška: $e');
+      throw GroqException('Network error: $e', isNetwork: true);
     }
 
     if (response.statusCode != 200) {
-      throw GroqException('API greška ${response.statusCode}: ${response.body}');
+      throw GroqException('API error ${response.statusCode}: ${response.body}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -227,7 +229,7 @@ class GroqService {
       final clean = _cleanJson(content);
       parsed = jsonDecode(clean);
     } catch (e) {
-      throw GroqException('Neispravni JSON odgovor: $e');
+      throw GroqException('Invalid JSON response: $e');
     }
 
     List<dynamic> list;
@@ -238,10 +240,10 @@ class GroqService {
         (v) => v is List,
         orElse: () => null,
       );
-      if (val == null) throw const GroqException('Neočekivani format odgovora.');
+      if (val == null) throw const GroqException('Unexpected response format.');
       list = val as List;
     } else {
-      throw const GroqException('Neočekivani format odgovora.');
+      throw const GroqException('Unexpected response format.');
     }
 
     final now = DateTime.now();

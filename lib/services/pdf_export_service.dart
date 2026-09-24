@@ -32,7 +32,7 @@ class PdfExportService {
   // writes it to a temp file and returns the file path, ready to share.
   Future<String> exportDeck(String deckName, List<FlashCard> cards) async {
     if (cards.isEmpty) {
-      throw const PdfExportException('Deck nema kartica za export.');
+      throw const PdfExportException('Deck has no cards to export.');
     }
 
     _regularBytes ??= await _loadFontBytes('assets/fonts/roboto-regular.ttf');

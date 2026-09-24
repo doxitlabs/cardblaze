@@ -967,6 +967,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start over'**
   String get study_reset_confirm;
+
+  /// No description provided for @notif_reminder_body.
+  ///
+  /// In en, this message translates to:
+  /// **'📚 Time to study! Your cards are waiting.'**
+  String get notif_reminder_body;
+
+  /// No description provided for @notif_channel_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get notif_channel_name;
+
+  /// No description provided for @notif_channel_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily study reminder'**
+  String get notif_channel_desc;
+
+  /// No description provided for @ai_error_network.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your connection and try again.'**
+  String get ai_error_network;
+
+  /// No description provided for @ai_error_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'AI generation failed. Please try again.'**
+  String get ai_error_failed;
+
+  /// No description provided for @ai_daily_limit_reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit of {limit} generations reached ({used}/{limit}). Upgrade to Pro for unlimited generation.'**
+  String ai_daily_limit_reached(int limit, int used);
+
+  /// No description provided for @error_loading_decks.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading decks'**
+  String get error_loading_decks;
+
+  /// No description provided for @ai_preview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview ({count} cards)'**
+  String ai_preview_title(int count);
+
+  /// No description provided for @open_in_browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get open_in_browser;
+
+  /// No description provided for @recap_blur_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'You made great progress this week! Your accuracy went up and your streak continues. Focus on the harder cards next.'**
+  String get recap_blur_placeholder;
+
+  /// No description provided for @error_document_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the document. Make sure it is a valid PDF or DOCX file.'**
+  String get error_document_read;
+
+  /// No description provided for @color_blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get color_blue;
+
+  /// No description provided for @color_green.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get color_green;
+
+  /// No description provided for @color_purple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get color_purple;
+
+  /// No description provided for @color_orange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get color_orange;
+
+  /// No description provided for @color_teal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get color_teal;
+
+  /// No description provided for @color_pink.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink'**
+  String get color_pink;
+
+  /// No description provided for @price_per_month.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/mo'**
+  String price_per_month(String price);
+
+  /// No description provided for @price_per_year.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/yr'**
+  String price_per_year(String price);
 }
 
 class _AppLocalizationsDelegate

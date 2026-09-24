@@ -110,9 +110,10 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     // Rate limit: free users max 5 generations/day
     if (!isPremium) {
       final allowed = await rateLimitService.consume();
-      if (!allowed && mounted) {
+      if (!allowed) {
         final used = await rateLimitService.usedToday();
-        _showError('Dnevni limit od ${rateLimitService.dailyLimit} generiranja dostignut ($used/${rateLimitService.dailyLimit}). Nadogradi na Pro za neograničeno generiranje.');
+        if (!mounted) return;
+        _showError(AppLocalizations.of(context).ai_daily_limit_reached(rateLimitService.dailyLimit, used));
         return;
       }
     }
@@ -162,7 +163,10 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     } on TextTooLongException catch (e) {
       if (mounted) _showError(AppLocalizations.of(context).error_text_too_long_pro(e.maxChars));
     } on GroqException catch (e) {
-      _showError(e.message);
+      if (mounted) {
+        final l = AppLocalizations.of(context);
+        _showError(e.isNetwork ? l.ai_error_network : l.ai_error_failed);
+      }
     } catch (e) {
       if (mounted) _showError(AppLocalizations.of(context).error_generic('$e'));
     } finally {
@@ -180,10 +184,10 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         _inputCtrl.text = text;
         _pickedFileName = AppLocalizations.of(context).ai_document_loaded;
       });
-    } on FileNotFoundException catch (e) {
-      _showError(e.message);
-    } on PdfExtractionException catch (e) {
-      _showError(e.message);
+    } on FileNotFoundException catch (_) {
+      if (mounted) _showError(AppLocalizations.of(context).error_document_read);
+    } on PdfExtractionException catch (_) {
+      if (mounted) _showError(AppLocalizations.of(context).error_document_read);
     } catch (e) {
       if (mounted) _showError(AppLocalizations.of(context).error_generic('$e'));
     }
@@ -398,7 +402,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         const SizedBox(height: 8),
         decksAsync.when(
           loading: () => const LinearProgressIndicator(),
-          error: (_, __) => const Text('Greška pri učitavanju deckova'),
+          error: (_, __) => Text(AppLocalizations.of(context).error_loading_decks),
           data: (decks) {
             final items = decks.map(
               (d) => DropdownMenuItem<int>(
@@ -540,7 +544,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         Row(
           children: [
             Text(
-              'Pregled (${_preview.length} kartica)',
+              AppLocalizations.of(context).ai_preview_title(_preview.length),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const Spacer(),

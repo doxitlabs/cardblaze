@@ -496,4 +496,73 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get study_reset_confirm => 'Ricomincia';
+
+  @override
+  String get notif_reminder_body =>
+      '📚 È ora di studiare! Le tue carte ti aspettano.';
+
+  @override
+  String get notif_channel_name => 'Promemoria giornaliero';
+
+  @override
+  String get notif_channel_desc => 'Promemoria giornaliero per lo studio';
+
+  @override
+  String get ai_error_network =>
+      'Nessuna connessione Internet. Controlla la connessione e riprova.';
+
+  @override
+  String get ai_error_failed => 'Generazione IA non riuscita. Riprova.';
+
+  @override
+  String ai_daily_limit_reached(int limit, int used) {
+    return 'Limite giornaliero di $limit generazioni raggiunto ($used/$limit). Passa a Pro per generazioni illimitate.';
+  }
+
+  @override
+  String get error_loading_decks => 'Errore nel caricamento dei deck';
+
+  @override
+  String ai_preview_title(int count) {
+    return 'Anteprima ($count carte)';
+  }
+
+  @override
+  String get open_in_browser => 'Apri nel browser';
+
+  @override
+  String get recap_blur_placeholder =>
+      'Questa settimana hai fatto grandi progressi! La tua precisione è aumentata e la tua serie continua. Concentrati sulle carte più difficili.';
+
+  @override
+  String get error_document_read =>
+      'Impossibile leggere il documento. Assicurati che sia un file PDF o DOCX valido.';
+
+  @override
+  String get color_blue => 'Blu';
+
+  @override
+  String get color_green => 'Verde';
+
+  @override
+  String get color_purple => 'Viola';
+
+  @override
+  String get color_orange => 'Arancione';
+
+  @override
+  String get color_teal => 'Turchese';
+
+  @override
+  String get color_pink => 'Rosa';
+
+  @override
+  String price_per_month(String price) {
+    return '$price/mese';
+  }
+
+  @override
+  String price_per_year(String price) {
+    return '$price/anno';
+  }
 }

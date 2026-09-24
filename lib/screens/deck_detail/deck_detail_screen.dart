@@ -7,6 +7,7 @@ import 'package:cardblaze/providers/deck_providers.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/pdf_export_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
+import 'package:cardblaze/theme/deck_colors.dart';
 import 'package:cardblaze/widgets/upgrade_dialog.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/widgets/math_text.dart';
@@ -27,7 +28,7 @@ class DeckDetailScreen extends ConsumerWidget {
 
     return deckAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
+      error: (e, _) => Scaffold(body: Center(child: Text(AppLocalizations.of(context).error_generic('$e')))),
       data: (deck) {
         if (deck == null) {
           return Scaffold(body: Center(child: Text(AppLocalizations.of(context).deck_not_found)));
@@ -117,7 +118,7 @@ class _DeckScreen extends ConsumerWidget {
               ),
             ),
             error: (e, _) => SliverToBoxAdapter(
-              child: Center(child: Text('Error: $e')),
+              child: Center(child: Text(AppLocalizations.of(context).error_generic('$e'))),
             ),
             data: (cards) => cards.isEmpty
                 ? const SliverToBoxAdapter(child: _EmptyCards())
@@ -520,18 +521,17 @@ class _EmptyCards extends StatelessWidget {
 // ── Deck edit bottom sheet ────────────────────────────────────────────────────
 
 const _kDeckColors = [
-  _DeckColor(hex: '4A9EFF', label: 'Plava'),
-  _DeckColor(hex: '43A047', label: 'Zelena'),
-  _DeckColor(hex: '7B4FA0', label: 'Ljubičasta'),
-  _DeckColor(hex: 'F57C00', label: 'Narančasta'),
-  _DeckColor(hex: '00ACC1', label: 'Tirkizna'),
-  _DeckColor(hex: 'E91E63', label: 'Roza'),
+  _DeckColor(hex: '4A9EFF'),
+  _DeckColor(hex: '43A047'),
+  _DeckColor(hex: '7B4FA0'),
+  _DeckColor(hex: 'F57C00'),
+  _DeckColor(hex: '00ACC1'),
+  _DeckColor(hex: 'E91E63'),
 ];
 
 class _DeckColor {
-  const _DeckColor({required this.hex, required this.label});
+  const _DeckColor({required this.hex});
   final String hex;
-  final String label;
 }
 
 class _DeckEditSheet extends ConsumerStatefulWidget {
@@ -614,7 +614,7 @@ class _DeckEditSheetState extends ConsumerState<_DeckEditSheet> {
               return GestureDetector(
                 onTap: () => setState(() => _selectedHex = opt.hex),
                 child: Tooltip(
-                  message: opt.label,
+                  message: deckColorName(AppLocalizations.of(context), opt.hex),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     width: 44,
