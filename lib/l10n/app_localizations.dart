@@ -836,6 +836,12 @@ abstract class AppLocalizations {
   /// **'Unlimited AI card generation'**
   String get benefit_ai_generation;
 
+  /// No description provided for @benefit_quiz_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz mode with multiple choice'**
+  String get benefit_quiz_mode;
+
   /// No description provided for @benefit_pdf_import.
   ///
   /// In en, this message translates to:
@@ -865,6 +871,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QUESTION'**
   String get question_label;
+
+  /// No description provided for @answer_label.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER'**
+  String get answer_label;
 
   /// No description provided for @no_cards_today.
   ///
@@ -914,6 +926,30 @@ abstract class AppLocalizations {
   /// **'Finish'**
   String get finish_btn;
 
+  /// No description provided for @session_review_done.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reviewed all cards.'**
+  String get session_review_done;
+
+  /// No description provided for @session_review_restart.
+  ///
+  /// In en, this message translates to:
+  /// **'You can start over.'**
+  String get session_review_restart;
+
+  /// No description provided for @session_review_upgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Pro and unlock Quiz mode — choose the right answer from multiple options for a more engaging and effective study experience.'**
+  String get session_review_upgrade;
+
+  /// No description provided for @show_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show answer'**
+  String get show_answer;
+
   /// No description provided for @next_btn.
   ///
   /// In en, this message translates to:
@@ -931,6 +967,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to enable daily reminder'**
   String get notifications_off;
+
+  /// No description provided for @notifications_battery_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'For reliable reminders, disable battery optimization for CardBlaze in your phone’s Settings → Apps.'**
+  String get notifications_battery_hint;
 
   /// No description provided for @deck_all_learned.
   ///

@@ -1,21 +1,29 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Must match the model the app sends (GroqService._model, stats recap).
-const ALLOWED_MODEL = 'openai/gpt-oss-120b';
-// App uses 4096 (cards), 2048 (distractors), 256 (weekly recap).
-const MAX_TOKENS = 4096;
+const CF_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const MAX_TOKENS = 2048;
 const MAX_MESSAGES = 4;
 const ALLOWED_ROLES = new Set(['system', 'user', 'assistant']);
-// Pro input limit is 5000 chars; prompts add ~2 KB of instructions and
-// JSON-escaping can inflate the text — 40 KB leaves ample headroom.
 const MAX_BODY_CHARS = 40_000;
+const RATE_LIMIT_PER_DAY = 30;
+const _ipCounts = new Map<string, { count: number; day: string }>();
+
+function checkRateLimit(ip: string): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  const entry = _ipCounts.get(ip);
+  if (!entry || entry.day !== today) {
+    _ipCounts.set(ip, { count: 1, day: today });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_PER_DAY) return false;
+  entry.count++;
+  return true;
+}
 
 function jsonError(error: string, status: number): Response {
   return new Response(JSON.stringify({ error }), {
@@ -29,21 +37,25 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  if (req.method === 'GET') {
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (req.method !== 'POST') return jsonError('Method not allowed', 405);
+
   try {
-    const apiKey = Deno.env.get('GROQ_API_KEY');
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'GROQ_API_KEY not set' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const accountId = Deno.env.get('CF_ACCOUNT_ID');
+    const apiToken = Deno.env.get('CF_API_TOKEN');
+    if (!accountId || !apiToken) {
+      return jsonError('CF_ACCOUNT_ID or CF_API_TOKEN not set', 500);
     }
 
-    if (req.method !== 'POST') return jsonError('Method not allowed', 405);
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+    if (!checkRateLimit(ip)) return jsonError('Rate limit exceeded', 429);
 
-    // The function is public (verify_jwt = false, anon key ships in the APK),
-    // so never forward the raw client body to Groq — only a whitelisted,
-    // size-capped request built here. Otherwise anyone could use our Groq
-    // key with any model and unlimited tokens.
     const raw = await req.text();
     if (raw.length > MAX_BODY_CHARS) return jsonError('Request too large', 413);
 
@@ -68,8 +80,8 @@ serve(async (req) => {
 
     const requestedTokens = Number(body.max_tokens);
     const temperature = Number(body.temperature);
-    const safeBody = {
-      model: ALLOWED_MODEL,
+
+    const cfBody = {
       messages: messages.map((m: any) => ({ role: m.role, content: m.content })),
       max_tokens: Number.isFinite(requestedTokens)
         ? Math.min(Math.max(1, Math.floor(requestedTokens)), MAX_TOKENS)
@@ -79,19 +91,43 @@ serve(async (req) => {
         : 0.7,
     };
 
-    const groqRes = await fetch(GROQ_URL, {
+    const cfUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${CF_MODEL}`;
+    const cfRes = await fetch(cfUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(safeBody),
+      body: JSON.stringify(cfBody),
     });
 
-    const data = await groqRes.json();
+    const cfData = await cfRes.json();
 
-    return new Response(JSON.stringify(data), {
-      status: groqRes.status,
+    // Cloudflare returns { result: { response: "..." }, success: true }
+    // Convert to OpenAI-compatible format that groq_service.dart expects
+    if (!cfData.success) {
+      return new Response(JSON.stringify({ error: JSON.stringify(cfData.errors) }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const rawContent = cfData.result?.response ?? '';
+    const content = typeof rawContent === 'string' ? rawContent : JSON.stringify(rawContent);
+
+    const openAiResponse = {
+      choices: [
+        {
+          message: {
+            role: 'assistant',
+            content,
+          },
+        },
+      ],
+    };
+
+    return new Response(JSON.stringify(openAiResponse), {
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {

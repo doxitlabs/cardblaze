@@ -63,7 +63,11 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     for (final c in _backCtrl) {
       c.dispose();
     }
-    ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = false;
+    // Guard against "Cannot use ref after widget was disposed" — this fires
+    // when the user navigates away while a generation is in flight.
+    try {
+      ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = false;
+    } catch (_) {}
     super.dispose();
   }
 
@@ -170,7 +174,7 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
     } catch (e) {
       if (mounted) _showError(AppLocalizations.of(context).error_generic('$e'));
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

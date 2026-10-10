@@ -32,33 +32,43 @@ const FlashCardSchema = CollectionSchema(
       name: r'deckId',
       type: IsarType.long,
     ),
-    r'dueDate': PropertySchema(
+    r'distractor1': PropertySchema(
       id: 3,
+      name: r'distractor1',
+      type: IsarType.string,
+    ),
+    r'distractor2': PropertySchema(
+      id: 4,
+      name: r'distractor2',
+      type: IsarType.string,
+    ),
+    r'dueDate': PropertySchema(
+      id: 5,
       name: r'dueDate',
       type: IsarType.dateTime,
     ),
     r'easeFactor': PropertySchema(
-      id: 4,
+      id: 6,
       name: r'easeFactor',
       type: IsarType.double,
     ),
     r'front': PropertySchema(
-      id: 5,
+      id: 7,
       name: r'front',
       type: IsarType.string,
     ),
     r'interval': PropertySchema(
-      id: 6,
+      id: 8,
       name: r'interval',
       type: IsarType.long,
     ),
     r'lastReviewed': PropertySchema(
-      id: 7,
+      id: 9,
       name: r'lastReviewed',
       type: IsarType.dateTime,
     ),
     r'repetitions': PropertySchema(
-      id: 8,
+      id: 10,
       name: r'repetitions',
       type: IsarType.long,
     )
@@ -111,6 +121,18 @@ int _flashCardEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.back.length * 3;
+  {
+    final value = object.distractor1;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  {
+    final value = object.distractor2;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
   bytesCount += 3 + object.front.length * 3;
   return bytesCount;
 }
@@ -124,12 +146,14 @@ void _flashCardSerialize(
   writer.writeString(offsets[0], object.back);
   writer.writeDateTime(offsets[1], object.createdAt);
   writer.writeLong(offsets[2], object.deckId);
-  writer.writeDateTime(offsets[3], object.dueDate);
-  writer.writeDouble(offsets[4], object.easeFactor);
-  writer.writeString(offsets[5], object.front);
-  writer.writeLong(offsets[6], object.interval);
-  writer.writeDateTime(offsets[7], object.lastReviewed);
-  writer.writeLong(offsets[8], object.repetitions);
+  writer.writeString(offsets[3], object.distractor1);
+  writer.writeString(offsets[4], object.distractor2);
+  writer.writeDateTime(offsets[5], object.dueDate);
+  writer.writeDouble(offsets[6], object.easeFactor);
+  writer.writeString(offsets[7], object.front);
+  writer.writeLong(offsets[8], object.interval);
+  writer.writeDateTime(offsets[9], object.lastReviewed);
+  writer.writeLong(offsets[10], object.repetitions);
 }
 
 FlashCard _flashCardDeserialize(
@@ -142,13 +166,15 @@ FlashCard _flashCardDeserialize(
   object.back = reader.readString(offsets[0]);
   object.createdAt = reader.readDateTime(offsets[1]);
   object.deckId = reader.readLong(offsets[2]);
-  object.dueDate = reader.readDateTime(offsets[3]);
-  object.easeFactor = reader.readDouble(offsets[4]);
-  object.front = reader.readString(offsets[5]);
+  object.distractor1 = reader.readStringOrNull(offsets[3]);
+  object.distractor2 = reader.readStringOrNull(offsets[4]);
+  object.dueDate = reader.readDateTime(offsets[5]);
+  object.easeFactor = reader.readDouble(offsets[6]);
+  object.front = reader.readString(offsets[7]);
   object.id = id;
-  object.interval = reader.readLong(offsets[6]);
-  object.lastReviewed = reader.readDateTimeOrNull(offsets[7]);
-  object.repetitions = reader.readLong(offsets[8]);
+  object.interval = reader.readLong(offsets[8]);
+  object.lastReviewed = reader.readDateTimeOrNull(offsets[9]);
+  object.repetitions = reader.readLong(offsets[10]);
   return object;
 }
 
@@ -166,16 +192,20 @@ P _flashCardDeserializeProp<P>(
     case 2:
       return (reader.readLong(offset)) as P;
     case 3:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 5:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 7:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 8:
+      return (reader.readLong(offset)) as P;
+    case 9:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 10:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -706,6 +736,310 @@ extension FlashCardQueryFilter
     });
   }
 
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1IsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'distractor1',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1IsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'distractor1',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1EqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1GreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1LessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1Between(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'distractor1',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'distractor1',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor1Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'distractor1',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'distractor1',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor1IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'distractor1',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2IsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'distractor2',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2IsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'distractor2',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2EqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2GreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2LessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2Between(
+    String? lower,
+    String? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'distractor2',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2StartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2EndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2Contains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'distractor2',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> distractor2Matches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'distractor2',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2IsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'distractor2',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition>
+      distractor2IsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'distractor2',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<FlashCard, FlashCard, QAfterFilterCondition> dueDateEqualTo(
       DateTime value) {
     return QueryBuilder.apply(this, (query) {
@@ -1229,6 +1563,30 @@ extension FlashCardQuerySortBy on QueryBuilder<FlashCard, FlashCard, QSortBy> {
     });
   }
 
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> sortByDistractor1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> sortByDistractor1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor1', Sort.desc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> sortByDistractor2() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor2', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> sortByDistractor2Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor2', Sort.desc);
+    });
+  }
+
   QueryBuilder<FlashCard, FlashCard, QAfterSortBy> sortByDueDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dueDate', Sort.asc);
@@ -1340,6 +1698,30 @@ extension FlashCardQuerySortThenBy
     });
   }
 
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> thenByDistractor1() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor1', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> thenByDistractor1Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor1', Sort.desc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> thenByDistractor2() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor2', Sort.asc);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QAfterSortBy> thenByDistractor2Desc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'distractor2', Sort.desc);
+    });
+  }
+
   QueryBuilder<FlashCard, FlashCard, QAfterSortBy> thenByDueDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'dueDate', Sort.asc);
@@ -1446,6 +1828,20 @@ extension FlashCardQueryWhereDistinct
     });
   }
 
+  QueryBuilder<FlashCard, FlashCard, QDistinct> distinctByDistractor1(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'distractor1', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<FlashCard, FlashCard, QDistinct> distinctByDistractor2(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'distractor2', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<FlashCard, FlashCard, QDistinct> distinctByDueDate() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'dueDate');
@@ -1507,6 +1903,18 @@ extension FlashCardQueryProperty
   QueryBuilder<FlashCard, int, QQueryOperations> deckIdProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'deckId');
+    });
+  }
+
+  QueryBuilder<FlashCard, String?, QQueryOperations> distractor1Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'distractor1');
+    });
+  }
+
+  QueryBuilder<FlashCard, String?, QQueryOperations> distractor2Property() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'distractor2');
     });
   }
 

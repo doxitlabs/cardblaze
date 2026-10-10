@@ -17,7 +17,6 @@ class NotificationService {
 
   Future<void> init() async {
     tz.initializeTimeZones();
-    // Use UTC — we convert local times to UTC manually before scheduling
     tz.setLocalLocation(tz.UTC);
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     await _plugin.initialize(const InitializationSettings(android: android));

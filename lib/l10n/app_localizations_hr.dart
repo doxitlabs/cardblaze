@@ -431,6 +431,9 @@ class AppLocalizationsHr extends AppLocalizations {
   String get benefit_ai_generation => 'Neograničena AI generacija kartica';
 
   @override
+  String get benefit_quiz_mode => 'Quiz mod s višestrukim izborom';
+
+  @override
   String get benefit_pdf_import => 'Uvoz PDF i DOCX dokumenata';
 
   @override
@@ -444,6 +447,9 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get question_label => 'PITANJE';
+
+  @override
+  String get answer_label => 'ODGOVOR';
 
   @override
   String get no_cards_today => 'Nema kartica za danas!';
@@ -470,6 +476,19 @@ class AppLocalizationsHr extends AppLocalizations {
   String get finish_btn => 'Završi';
 
   @override
+  String get session_review_done => 'Prošao si sve kartice.';
+
+  @override
+  String get session_review_restart => 'Možeš učiti ispočetka.';
+
+  @override
+  String get session_review_upgrade =>
+      'Nadogradi na Pro i otključaj Kviz mod — odaberi točan odgovor iz ponuđenih opcija za zanimljivije i učinkovitije učenje.';
+
+  @override
+  String get show_answer => 'Prikaži odgovor';
+
+  @override
   String get next_btn => 'Dalje';
 
   @override
@@ -477,6 +496,10 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get notifications_off => 'Dodirnite za uključivanje podsjetnika';
+
+  @override
+  String get notifications_battery_hint =>
+      'Za pouzdane podsjetnike, isključi optimizaciju baterije za CardBlaze u Postavkama telefona → Aplikacije.';
 
   @override
   String get deck_all_learned => 'Sve naučeno';

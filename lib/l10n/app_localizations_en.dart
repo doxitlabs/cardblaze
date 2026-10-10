@@ -428,6 +428,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get benefit_ai_generation => 'Unlimited AI card generation';
 
   @override
+  String get benefit_quiz_mode => 'Quiz mode with multiple choice';
+
+  @override
   String get benefit_pdf_import => 'PDF & DOCX import';
 
   @override
@@ -441,6 +444,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get question_label => 'QUESTION';
+
+  @override
+  String get answer_label => 'ANSWER';
 
   @override
   String get no_cards_today => 'No cards for today!';
@@ -467,6 +473,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finish_btn => 'Finish';
 
   @override
+  String get session_review_done => 'You have reviewed all cards.';
+
+  @override
+  String get session_review_restart => 'You can start over.';
+
+  @override
+  String get session_review_upgrade =>
+      'Upgrade to Pro and unlock Quiz mode — choose the right answer from multiple options for a more engaging and effective study experience.';
+
+  @override
+  String get show_answer => 'Show answer';
+
+  @override
   String get next_btn => 'Next';
 
   @override
@@ -474,6 +493,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifications_off => 'Tap to enable daily reminder';
+
+  @override
+  String get notifications_battery_hint =>
+      'For reliable reminders, disable battery optimization for CardBlaze in your phone’s Settings → Apps.';
 
   @override
   String get deck_all_learned => 'All learned';

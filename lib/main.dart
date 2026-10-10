@@ -18,6 +18,7 @@ void main() async {
   await PremiumService.init();
 
   await notificationService.init();
+  await notificationService.refreshIfEnabled();
 
   // Update home screen widget with today's due count
   await WidgetService(isarService).updateWidget();

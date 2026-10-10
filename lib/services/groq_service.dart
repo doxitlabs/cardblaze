@@ -1,4 +1,5 @@
-import 'dart:convert';
+﻿import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:isar/isar.dart';
@@ -62,7 +63,7 @@ class GroqService {
     }
 
     final prompt = _buildPrompt(input, count, mode, language);
-    final cards = await _callWithRetry(prompt);
+    final cards = await _callWithRetry(prompt, isPremium: isPremium);
     return cards;
   }
 
@@ -105,8 +106,9 @@ class GroqService {
   // Returns map: card index → list of 2 wrong answers
   Future<Map<int, List<String>>> generateDistractors(
     List<FlashCard> cards,
-    String language,
-  ) async {
+    String language, {
+    bool isPremium = false,
+  }) async {
     if (cards.isEmpty) return {};
 
     const batchSize = 8;
@@ -146,6 +148,7 @@ class GroqService {
               },
               body: jsonEncode({
                 'model': _model,
+                'isPro': isPremium,
                 'messages': [
                   {'role': 'user', 'content': prompt},
                 ],
@@ -176,18 +179,18 @@ class GroqService {
     return result;
   }
 
-  Future<List<FlashCard>> _callWithRetry(String prompt) async {
+  Future<List<FlashCard>> _callWithRetry(String prompt, {bool isPremium = false}) async {
     try {
-      return await _call(prompt);
+      return await _call(prompt, isPremium: isPremium);
     } on GroqException {
       rethrow;
     } catch (_) {
       // single retry
-      return await _call(prompt);
+      return await _call(prompt, isPremium: isPremium);
     }
   }
 
-  Future<List<FlashCard>> _call(String prompt) async {
+  Future<List<FlashCard>> _call(String prompt, {bool isPremium = false}) async {
     final http.Response response;
     try {
       response = await http
@@ -200,25 +203,31 @@ class GroqService {
             },
             body: jsonEncode({
               'model': _model,
+              'isPro': isPremium,
               'messages': [
                 {'role': 'user', 'content': prompt},
               ],
               'temperature': 0.7,
-              'max_tokens': 4096,
+              'max_tokens': 2048,
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 60));
     } catch (e) {
+      debugPrint('[GroqService] network error: $e');
       throw GroqException('Network error: $e', isNetwork: true);
     }
+
+    debugPrint('[GroqService] status: ${response.statusCode}');
+    debugPrint('[GroqService] body: ${response.body}');
 
     if (response.statusCode != 200) {
       throw GroqException('API error ${response.statusCode}: ${response.body}');
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final content =
-        (data['choices'] as List)[0]['message']['content'] as String;
+    final rawContent = (data['choices'] as List)[0]['message']['content'];
+    debugPrint('[GroqService] content type: ${rawContent.runtimeType}');
+    final content = rawContent is String ? rawContent : jsonEncode(rawContent);
 
     return _parseCards(content);
   }
@@ -260,16 +269,22 @@ class GroqService {
   }
 
   String _cleanJson(String content) {
-    return content
-        .replaceAll(RegExp(r'```json\s*'), '')
-        .replaceAll(RegExp(r'```\s*'), '')
-        // Replace smart/curly quotes with straight quotes
-        .replaceAll('“', '"').replaceAll('”', '"')
-        .replaceAll('‘', "'").replaceAll('’', "'")
-        // Replace Croatian/other typographic apostrophes
-        .replaceAll('ʼ', "'").replaceAll('′', "'")
-        .trim()
-        .replaceAllMapped(_singleBackslash, _escapeLatexBackslash);
+    var s = content
+        .replaceAll(RegExp(r'`' + '``' + r'json\s*'), '')
+        .replaceAll(RegExp(r'`' + '``' + r'\s*'), '')
+        .replaceAll('\u201c', '"').replaceAll('\u201d', '"')
+        .replaceAll('\u2018', "'").replaceAll('\u2019', "'")
+        .replaceAll('\u02bc', "'").replaceAll('\u2032', "'")
+        .trim();
+
+    // Strip any prose the model prepended — the payload is always an array.
+    final arrStart = s.indexOf('[');
+    final arrEnd = s.lastIndexOf(']');
+    if (arrStart != -1 && arrEnd > arrStart) {
+      s = s.substring(arrStart, arrEnd + 1);
+    }
+
+    return s.replaceAllMapped(_singleBackslash, _escapeLatexBackslash);
   }
 
   // A lone backslash (not part of an already-escaped \\) followed by letters.

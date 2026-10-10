@@ -23,4 +23,8 @@ class FlashCard {
   late DateTime dueDate;
 
   DateTime? lastReviewed;
+
+  // Cached wrong answers for quiz mode — null means not yet generated.
+  String? distractor1;
+  String? distractor2;
 }

@@ -6,6 +6,7 @@ import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:cardblaze/models/study_session.dart';
 import 'package:cardblaze/providers/deck_providers.dart';
+import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/services/groq_service.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/services/sm2_service.dart';
@@ -14,6 +15,7 @@ import 'package:cardblaze/screens/stats/stats_screen.dart';
 import 'package:cardblaze/services/widget_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
 import 'package:cardblaze/widgets/math_text.dart';
+import 'package:cardblaze/widgets/upgrade_dialog.dart';
 
 class StudyScreen extends ConsumerStatefulWidget {
   const StudyScreen({super.key, required this.deckId});
@@ -23,7 +25,8 @@ class StudyScreen extends ConsumerStatefulWidget {
   ConsumerState<StudyScreen> createState() => _StudyScreenState();
 }
 
-class _StudyScreenState extends ConsumerState<StudyScreen> {
+class _StudyScreenState extends ConsumerState<StudyScreen>
+    with SingleTickerProviderStateMixin {
   // All cards in this session (shuffled at start)
   List<FlashCard> _allCards = [];
   // Current round queue — starts as all cards, then only wrong answers
@@ -38,13 +41,28 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
 
   int _correctCount = 0;
   int _incorrectCount = 0;
+  bool _sessionHadQuiz = false;
+
+  late final AnimationController _flipController;
+  late final Animation<double> _flipAnim;
 
   final _groq = GroqService();
 
   @override
   void initState() {
     super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _flipAnim = CurvedAnimation(parent: _flipController, curve: Curves.easeInOut);
     _loadCards();
+  }
+
+  @override
+  void dispose() {
+    _flipController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCards() async {
@@ -93,15 +111,42 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     final card = _queue[_index];
     setState(() { _optionsLoading = true; _selectedOption = null; _options = []; });
 
+    final isPremium = await ref.read(isPremiumProvider.future);
+
+    // Quiz mode (multiple choice) is a Pro feature.
+    // Free users get flip-card mode only.
+    if (!isPremium) {
+      if (!mounted) return;
+      setState(() { _options = []; _optionsLoading = false; _answered = false; });
+      return;
+    }
+
     final lang = _locale();
     List<String> distractors = [];
-    try {
-      final result = await _groq.generateDistractors([card], lang);
-      distractors = result[0] ?? [];
-    } catch (_) {}
+
+    // Use cached distractors if available — avoids an API call on repeat study.
+    if (card.distractor1 != null && card.distractor2 != null) {
+      distractors = [card.distractor1!, card.distractor2!];
+    } else {
+      for (var attempt = 0; attempt < 2 && distractors.length < 2; attempt++) {
+        try {
+          final result = await _groq.generateDistractors([card], lang, isPremium: true);
+          distractors = result[0] ?? [];
+        } catch (_) {}
+      }
+      if (distractors.length >= 2) {
+        card.distractor1 = distractors[0];
+        card.distractor2 = distractors[1];
+        final isar = ref.read(isarServiceProvider);
+        await isar.saveCard(card);
+      }
+    }
 
     if (!mounted) return;
-    final opts = [card.back, ...distractors.take(2)]..shuffle(Random());
+    final opts = distractors.length >= 2
+        ? ([card.back, distractors[0], distractors[1]]..shuffle(Random()))
+        : <String>[];
+    if (opts.isNotEmpty) _sessionHadQuiz = true;
     setState(() { _options = opts; _optionsLoading = false; _answered = false; });
   }
 
@@ -115,6 +160,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       _selectedOption = option;
       _answered = true;
     });
+    if (_options.isEmpty) _flipController.forward();
 
     if (correct) {
       _correctCount++;
@@ -135,9 +181,13 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
       return;
     }
 
+    _flipController.reset();
     setState(() => _index++);
     await _buildOptions();
   }
+
+  static const _sessionCountKey = 'total_study_sessions';
+  static const _paywallSessionThreshold = 3;
 
   Future<void> _finishSession() async {
     final id = int.tryParse(widget.deckId) ?? 0;
@@ -146,6 +196,16 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
     // Legacy: wrong card IDs used to be stored here; progress now comes from
     // the cards' SM2 state, so drop any leftover list.
     await prefs.remove('wrong_cards_$id');
+
+    // Track total sessions — show paywall to free users on the Nth session.
+    final isPremium = await ref.read(isPremiumProvider.future);
+    if (!isPremium) {
+      final count = (prefs.getInt(_sessionCountKey) ?? 0) + 1;
+      await prefs.setInt(_sessionCountKey, count);
+      if (count == _paywallSessionThreshold && mounted) {
+        await showUpgradeDialog(context);
+      }
+    }
 
     // Clear AI recap cache so it regenerates after this session
     final now2 = DateTime.now();
@@ -173,6 +233,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
         total: _allCards.length,
         correct: _correctCount,
         incorrect: _incorrectCount,
+        isQuiz: _sessionHadQuiz,
         onDone: () => context.go('/stats'),
         l: AppLocalizations.of(ctx),
       ),
@@ -251,42 +312,30 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
               ),
               const SizedBox(height: 20),
               // Question card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-                decoration: BoxDecoration(
-                  color: AppColors.surface(context),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.border(context)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+              _FlipCard(
+                animation: _flipAnim,
+                front: _CardFace(
+                  label: l.question_label,
+                  child: MathText(
+                    card.front,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 22,
+                          height: 1.45,
+                        ),
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    Text(
-                      l.question_label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.2,
-                        color: AppColors.textMuted(context),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    MathText(
-                      card.front,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 22,
-                            height: 1.45,
-                          ),
-                    ),
-                  ],
+                back: _CardFace(
+                  label: l.answer_label,
+                  child: MathText(
+                    card.back,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                          height: 1.45,
+                        ),
+                  ),
                 ),
               ),
               const SizedBox(height: 28),
@@ -294,16 +343,23 @@ class _StudyScreenState extends ConsumerState<StudyScreen> {
               Expanded(
                 child: _optionsLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : ListView(
-                        children: _options
-                            .map((opt) => _OptionTile(
-                                  text: opt,
-                                  correctAnswer: card.back,
-                                  selectedOption: _selectedOption,
-                                  onTap: () => _onOptionTap(opt),
-                                ))
-                            .toList(),
-                      ),
+                    : _options.isEmpty
+                        ? Center(
+                            child: ElevatedButton(
+                              onPressed: () => _onOptionTap(card.back),
+                              child: Text(AppLocalizations.of(context).show_answer),
+                            ),
+                          )
+                        : ListView(
+                            children: _options
+                                .map((opt) => _OptionTile(
+                                      text: opt,
+                                      correctAnswer: card.back,
+                                      selectedOption: _selectedOption,
+                                      onTap: () => _onOptionTap(opt),
+                                    ))
+                                .toList(),
+                          ),
               ),
               if (_answered) ...[
                 const SizedBox(height: 8),
@@ -412,6 +468,84 @@ class _OptionTile extends StatelessWidget {
   }
 }
 
+// ── Flip card ─────────────────────────────────────────────────────────────────
+
+class _CardFace extends StatelessWidget {
+  const _CardFace({required this.label, required this.child});
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.border(context)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+              color: AppColors.textMuted(context),
+            ),
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _FlipCard extends StatelessWidget {
+  const _FlipCard({
+    required this.animation,
+    required this.front,
+    required this.back,
+  });
+
+  final Animation<double> animation;
+  final Widget front;
+  final Widget back;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) {
+        final t = animation.value; // 0.0 → 1.0
+        final angle = t * 3.14159265;
+        final showBack = t > 0.5;
+
+        final transform = Matrix4.identity()
+          ..setEntry(3, 2, 0.001) // perspective
+          ..rotateX(showBack ? angle - 3.14159265 : angle);
+
+        return Transform(
+          transform: transform,
+          alignment: Alignment.center,
+          child: showBack ? back : front,
+        );
+      },
+    );
+  }
+}
+
 // ── Result dialog ─────────────────────────────────────────────────────────────
 
 class _ResultDialog extends StatelessWidget {
@@ -419,6 +553,7 @@ class _ResultDialog extends StatelessWidget {
     required this.total,
     required this.correct,
     required this.incorrect,
+    required this.isQuiz,
     required this.onDone,
     required this.l,
   });
@@ -426,11 +561,49 @@ class _ResultDialog extends StatelessWidget {
   final int total;
   final int correct;
   final int incorrect;
+  final bool isQuiz;
   final VoidCallback onDone;
   final AppLocalizations l;
 
   @override
   Widget build(BuildContext context) {
+    if (!isQuiz) {
+      return AlertDialog(
+        title: Text(l.session_complete),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.session_review_done,
+                style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 8),
+            Text(l.session_review_restart,
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.accent(context).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                l.session_review_upgrade,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.accent(context),
+                    ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: onDone,
+            child: Text(l.finish_btn),
+          ),
+        ],
+      );
+    }
+
     final pct = total == 0 ? 0 : (correct / total * 100).round();
     return AlertDialog(
       title: Text(l.session_complete),

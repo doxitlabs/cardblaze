@@ -11,6 +11,7 @@ import 'package:cardblaze/providers/premium_providers.dart';
 import 'package:cardblaze/l10n/app_localizations.dart';
 import 'package:cardblaze/services/isar_service.dart';
 import 'package:cardblaze/theme/app_theme.dart';
+import 'package:cardblaze/widgets/upgrade_dialog.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
 
@@ -145,6 +146,7 @@ final aiRecapProvider = FutureProvider.family<String?, (StatsData, String)>((ref
           },
           body: jsonEncode({
             'model': model,
+            'isPro': false,
             'messages': [
               {'role': 'user', 'content': prompt},
             ],
@@ -675,9 +677,7 @@ class _FreeRecapBlur extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               OutlinedButton(
-                onPressed: () {
-                  // Navigator handles premium upsell screen
-                },
+                onPressed: () => showUpgradeDialog(context),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   side: const BorderSide(color: Colors.white60),

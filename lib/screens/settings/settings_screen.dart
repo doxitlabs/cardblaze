@@ -240,7 +240,18 @@ class _NotificationTileState extends State<_NotificationTile> {
       if (!granted) return;
     }
     await notificationService.setEnabled(value);
-    if (mounted) setState(() => _enabled = value);
+    if (mounted) {
+      setState(() => _enabled = value);
+      if (value) {
+        final l = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l.notifications_battery_hint),
+            duration: const Duration(seconds: 6),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _pickTime() async {
@@ -415,6 +426,7 @@ class _PremiumCard extends ConsumerWidget {
     l.benefit_unlimited_decks,
     l.benefit_cards_per_deck,
     l.benefit_ai_generation,
+    l.benefit_quiz_mode,
     l.benefit_pdf_import,
     l.benefit_pdf_export,
     l.benefit_advanced_stats,
@@ -506,12 +518,14 @@ class _PremiumCard extends ConsumerWidget {
                           color: Colors.white, size: 13),
                     ),
                     const SizedBox(width: 10),
-                    Text(
-                      f,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontFamily: 'Roboto',
+                    Expanded(
+                      child: Text(
+                        f,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontFamily: 'Roboto',
+                        ),
                       ),
                     ),
                   ],
