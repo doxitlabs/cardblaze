@@ -155,6 +155,22 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         isPremium: isPremium,
         language: language,
       );
+
+      // Pre-generate distractors for all cards so study mode needs no API call.
+      final distractors = await groq.generateDistractors(
+        cards,
+        language,
+        isPremium: isPremium,
+      );
+      for (final entry in distractors.entries) {
+        final wrongs = entry.value;
+        if (wrongs.length >= 2) {
+          cards[entry.key]
+            ..distractor1 = wrongs[0]
+            ..distractor2 = wrongs[1];
+        }
+      }
+
       setState(() => _setPreview(cards));
       ref.read(aiGenerateHasUnsavedCardsProvider.notifier).state = cards.isNotEmpty;
     } on PremiumRequiredException catch (_) {
@@ -215,7 +231,9 @@ class _AiGenerateScreenState extends ConsumerState<AiGenerateScreen> {
         ..front = _frontCtrl[i].text.trim()
         ..back = _backCtrl[i].text.trim()
         ..createdAt = now
-        ..dueDate = now;
+        ..dueDate = now
+        ..distractor1 = _preview[i].distractor1
+        ..distractor2 = _preview[i].distractor2;
       await isar.saveCard(card);
     }
 

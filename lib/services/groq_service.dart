@@ -1,5 +1,4 @@
 ﻿import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:cardblaze/models/flash_card.dart';
 import 'package:isar/isar.dart';
@@ -213,12 +212,8 @@ class GroqService {
           )
           .timeout(const Duration(seconds: 60));
     } catch (e) {
-      debugPrint('[GroqService] network error: $e');
       throw GroqException('Network error: $e', isNetwork: true);
     }
-
-    debugPrint('[GroqService] status: ${response.statusCode}');
-    debugPrint('[GroqService] body: ${response.body}');
 
     if (response.statusCode != 200) {
       throw GroqException('API error ${response.statusCode}: ${response.body}');
@@ -226,7 +221,6 @@ class GroqService {
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final rawContent = (data['choices'] as List)[0]['message']['content'];
-    debugPrint('[GroqService] content type: ${rawContent.runtimeType}');
     final content = rawContent is String ? rawContent : jsonEncode(rawContent);
 
     return _parseCards(content);
